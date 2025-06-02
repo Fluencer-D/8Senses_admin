@@ -29,21 +29,48 @@ const Transactions = () => {
 
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/transactions`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/transactions`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to fetch transactions");
 
+      // const data = await res.json();
+      // console.log("Fetched Data:", data.data); //debug
+      // const formatted: Transaction[] = data.data.map((txn: any) => ({
+      //   _id: txn._id,
+      //   orderNumber: txn.orderNumber,
+      //   customerName: `${txn.customerInfo.firstName} ${txn.customerInfo.lastName}`,
+      //   amount: txn.total,
+      //   status:
+      //     txn.paymentStatus === "paid"
+      //       ? "Successful"
+      //       : txn.paymentStatus === "failed"
+      //       ? "Failed"
+      //       : "Pending",
+      //   createdAt: new Date(txn.createdAt).toLocaleString(),
+      // }));
       const data = await res.json();
-      const formatted: Transaction[] = data.data.map((txn: any) => ({
+      console.log(data);
+
+      const transactionsArray = data.data; // no need for `data.data.data` — just `data.data`
+
+      const formatted: Transaction[] = transactionsArray.map((txn: any) => ({
         _id: txn._id,
-        orderNumber: txn.orderNumber,
-        customerName: `${txn.customerInfo.firstName} ${txn.customerInfo.lastName}`,
-        amount: txn.total,
-        status: txn.paymentStatus === "paid" ? "Successful" : txn.paymentStatus === "failed" ? "Failed" : "Pending",
+        orderNumber: txn.orderNumber ?? txn.transactionId, // fallback if orderNumber is null
+        customerName: txn.customerName || "Unknown",
+        amount: txn.amount ?? txn.total, // use amount if total is undefined
+        status:
+          txn.status === "successful"
+            ? "Successful"
+            : txn.status === "failed"
+            ? "Failed"
+            : "Pending",
         createdAt: new Date(txn.createdAt).toLocaleString(),
       }));
 
@@ -55,10 +82,11 @@ const Transactions = () => {
     }
   };
 
-  const filteredData = transactions.filter((item) =>
-    item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.orderNumber.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredData = transactions.filter(
+    (item) =>
+      item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.orderNumber.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalItems = filteredData.length;
@@ -86,7 +114,9 @@ const Transactions = () => {
 
   // For initial server render, show a minimal loading state
   if (!isClient) {
-    return <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto">Loading...</div>;
+    return (
+      <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto">Loading...</div>
+    );
   }
 
   return (
@@ -96,15 +126,13 @@ const Transactions = () => {
         <div>
           <h1 className="text-[#333843] text-3xl">Transactions</h1>
           <div className="text-gray-500 text-sm mt-1">
-            <span className="text-blue-600 cursor-pointer">E-commerce</span> &gt;{" "}
-            <span className="text-gray-800">Transactions</span>
+            <span className="text-blue-600 cursor-pointer">E-commerce</span>{" "}
+            &gt; <span className="text-gray-800">Transactions</span>
           </div>
         </div>
 
         {/* Export Button */}
-        <button 
-          className="flex items-center gap-2 bg-pink-50 text-[#C83C92] px-4 py-2 rounded-lg"
-        >
+        <button className="flex items-center gap-2 bg-pink-50 text-[#C83C92] px-4 py-2 rounded-lg">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -129,8 +157,17 @@ const Transactions = () => {
         {/* Search Bar */}
         <div className="relative w-full max-w-md">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <svg className="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+            <svg
+              className="w-5 h-5 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
           <input
@@ -144,9 +181,7 @@ const Transactions = () => {
 
         {/* Date and Filter Buttons */}
         <div className="flex gap-3">
-          <button 
-            className="flex items-center gap-2 border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-lg"
-          >
+          <button className="flex items-center gap-2 border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -163,9 +198,7 @@ const Transactions = () => {
             </svg>
             Select Dates
           </button>
-          <button 
-            className="flex items-center gap-2 border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-lg"
-          >
+          <button className="flex items-center gap-2 border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -186,38 +219,63 @@ const Transactions = () => {
       {/* Transactions Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {/* Table Header */}
-        <div className="grid grid-cols-7 p-4 border-b border-gray-200 bg-gray-50 text-[#1E437A] font-medium">
-          <div className="col-span-1">Transaction ID</div>
-          <div className="col-span-1">Order ID</div>
-          <div className="col-span-1">Customer Name</div>
-          <div className="col-span-1">Amount</div>
-          <div className="col-span-1">Status</div>
-          <div className="col-span-1">Date & Time</div>
-          <div className="col-span-1 ml-6">Action</div>
+        <div
+          className="grid grid-cols-[2fr_1fr_2fr_1fr_1fr_2fr_1fr] p-4 border-b border-gray-200 bg-gray-50 text-[#1E437A] font-medium"
+          style={{ minWidth: "900px" }}
+        >
+          <div className="truncate">Transaction ID</div>
+          <div className="truncate">Order ID</div>
+          <div className="truncate">Customer Name</div>
+          <div>Amount</div>
+          <div>Status</div>
+          <div className="truncate">Date & Time</div>
+          <div>Action</div>
         </div>
 
         {/* Table Content */}
         {loading ? (
           <div className="text-center py-6">Loading...</div>
         ) : currentItems.length === 0 ? (
-          <div className="text-center py-6 text-gray-500">No transactions found.</div>
+          <div className="text-center py-6 text-gray-500">
+            No transactions found.
+          </div>
         ) : (
           currentItems.map((txn) => (
-            <div key={txn._id} className="grid grid-cols-7 p-4 border-b border-gray-200 items-center">
-              <div className="col-span-1 text-[#1E437A]">{txn._id}</div>
-              <div className="col-span-1 text-[#1E437A]">#{txn.orderNumber}</div>
-              <div className="col-span-1 text-[#1E437A]">{txn.customerName}</div>
-              <div className="col-span-1 text-[#1E437A]">${txn.amount.toFixed(2)}</div>
-              <div className="col-span-1">
-                <span className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeStyle(txn.status)}`}>
+            <div
+              key={txn._id}
+              className="grid grid-cols-[2fr_1fr_2fr_1fr_1fr_2fr_1fr] p-4 border-b border-gray-200 items-center"
+              style={{ minWidth: "900px" }}
+            >
+              <div className="text-[#1E437A] truncate" title={txn._id}>
+                {txn._id}
+              </div>
+              <div
+                className="text-[#1E437A] truncate"
+                title={`#${txn.orderNumber}`}
+              >
+                #{txn.orderNumber}
+              </div>
+              <div className="text-[#1E437A] truncate" title={txn.customerName}>
+                {txn.customerName}
+              </div>
+              <div className="text-[#1E437A]">${txn.amount.toFixed(2)}</div>
+              <div>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeStyle(
+                    txn.status
+                  )}`}
+                >
                   {txn.status}
                 </span>
               </div>
-              <div className="col-span-1 text-[#1E437A] whitespace-nowrap">{txn.createdAt}</div>
-              <div className="col-span-1 ml-5">
-                <button 
-                  className="flex items-center gap-1 text-[#C83C92]"
-                >
+              <div
+                className="text-[#1E437A] whitespace-nowrap truncate"
+                title={txn.createdAt}
+              >
+                {txn.createdAt}
+              </div>
+              <div>
+                <button className="flex items-center gap-1 text-[#C83C92] whitespace-nowrap">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -243,7 +301,9 @@ const Transactions = () => {
         <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
           {/* Showing results */}
           <div>
-            Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredData.length)} from {filteredData.length}
+            Showing {indexOfFirstItem + 1}-
+            {Math.min(indexOfLastItem, filteredData.length)} from{" "}
+            {filteredData.length}
           </div>
 
           {/* Pagination Buttons */}
