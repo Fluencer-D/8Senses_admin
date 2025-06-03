@@ -18,6 +18,11 @@ const Transactions = () => {
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
 
+  //transaction
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
+  const [showModal, setShowModal] = useState(false);
+
   useEffect(() => {
     setIsClient(true);
     fetchTransactions();
@@ -40,31 +45,16 @@ const Transactions = () => {
 
       if (!res.ok) throw new Error("Failed to fetch transactions");
 
-      // const data = await res.json();
-      // console.log("Fetched Data:", data.data); //debug
-      // const formatted: Transaction[] = data.data.map((txn: any) => ({
-      //   _id: txn._id,
-      //   orderNumber: txn.orderNumber,
-      //   customerName: `${txn.customerInfo.firstName} ${txn.customerInfo.lastName}`,
-      //   amount: txn.total,
-      //   status:
-      //     txn.paymentStatus === "paid"
-      //       ? "Successful"
-      //       : txn.paymentStatus === "failed"
-      //       ? "Failed"
-      //       : "Pending",
-      //   createdAt: new Date(txn.createdAt).toLocaleString(),
-      // }));
       const data = await res.json();
       console.log(data);
 
-      const transactionsArray = data.data; // no need for `data.data.data` — just `data.data`
+      const transactionsArray = data.data;
 
       const formatted: Transaction[] = transactionsArray.map((txn: any) => ({
         _id: txn._id,
         orderNumber: txn.orderNumber ?? txn.transactionId, // fallback if orderNumber is null
         customerName: txn.customerName || "Unknown",
-        amount: txn.amount ?? txn.total, // use amount if total is undefined
+        amount: txn.amount ?? txn.total,
         status:
           txn.status === "successful"
             ? "Successful"
@@ -110,6 +100,18 @@ const Transactions = () => {
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
+  };
+
+  //open-modal to view details
+  const openModal = (txn: Transaction) => {
+    setSelectedTransaction(txn);
+    setShowModal(true);
+  };
+
+  //close-modal
+  const closeModal = () => {
+    setSelectedTransaction(null);
+    setShowModal(false);
   };
 
   // For initial server render, show a minimal loading state
@@ -275,7 +277,10 @@ const Transactions = () => {
                 {txn.createdAt}
               </div>
               <div>
-                <button className="flex items-center gap-1 text-[#C83C92] whitespace-nowrap">
+                <button
+                  className="flex items-center gap-1 text-[#C83C92] whitespace-nowrap"
+                  onClick={() => openModal(txn)}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -293,6 +298,48 @@ const Transactions = () => {
               </div>
             </div>
           ))
+        )}
+
+        {/* Modal */}
+        {showModal && selectedTransaction && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+              <h2 className="text-xl font-semibold mb-4 text-[#1E437A]">
+                Transaction Details
+              </h2>
+              <div className="space-y-2 text-sm text-gray-700">
+                <p>
+                  <strong>Transaction ID:</strong> {selectedTransaction._id}
+                </p>
+                <p>
+                  <strong>Order Number:</strong> #
+                  {selectedTransaction.orderNumber}
+                </p>
+                <p>
+                  <strong>Customer Name:</strong>{" "}
+                  {selectedTransaction.customerName}
+                </p>
+                <p>
+                  <strong>Amount:</strong> $
+                  {selectedTransaction.amount.toFixed(2)}
+                </p>
+                <p>
+                  <strong>Status:</strong> {selectedTransaction.status}
+                </p>
+                <p>
+                  <strong>Created At:</strong> {selectedTransaction.createdAt}
+                </p>
+              </div>
+              <div className="mt-4 text-right">
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-[#C83C92] text-white rounded hover:bg-[#b12d80]"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
