@@ -26,13 +26,16 @@ const ShippingDashboard = () => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shipping`, {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': "applicatoin/json"
           },
         });
 
         if (!response.ok) throw new Error("Failed to fetch shipping orders");
         const result = await response.json();
+        console.log(result)
         setShippingOrders(result.data);
       } catch (err: any) {
+        console.log(err)
         setError(err.message);
       } finally {
         setLoading(false);

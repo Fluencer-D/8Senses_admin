@@ -41,7 +41,7 @@ const Transactions = () => {
       const formatted: Transaction[] = data.data.map((txn: any) => ({
         _id: txn._id,
         orderNumber: txn.orderNumber,
-        customerName: `${txn.customerInfo.firstName} ${txn.customerInfo.lastName}`,
+        customerName: `${txn?.customerInfo?.firstName} ${txn?.customerInfo?.lastName}`,
         amount: txn.total,
         status: txn.paymentStatus === "paid" ? "Successful" : txn.paymentStatus === "failed" ? "Failed" : "Pending",
         createdAt: new Date(txn.createdAt).toLocaleString(),
@@ -204,16 +204,16 @@ const Transactions = () => {
         ) : (
           currentItems.map((txn) => (
             <div key={txn._id} className="grid grid-cols-7 p-4 border-b border-gray-200 items-center">
-              <div className="col-span-1 text-[#1E437A]">{txn._id}</div>
-              <div className="col-span-1 text-[#1E437A]">#{txn.orderNumber}</div>
-              <div className="col-span-1 text-[#1E437A]">{txn.customerName}</div>
-              <div className="col-span-1 text-[#1E437A]">${txn.amount.toFixed(2)}</div>
+              <div className="col-span-1 text-[#1E437A]">{txn?._id}</div>
+              <div className="col-span-1 text-[#1E437A]">#{txn?.orderNumber}</div>
+              <div className="col-span-1 text-[#1E437A]">{txn?.customerName}</div>
+              <div className="col-span-1 text-[#1E437A]">${txn?.amount?.toFixed(2)}</div>
               <div className="col-span-1">
-                <span className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeStyle(txn.status)}`}>
-                  {txn.status}
+                <span className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeStyle(txn?.status)}`}>
+                  {txn?.status}
                 </span>
               </div>
-              <div className="col-span-1 text-[#1E437A] whitespace-nowrap">{txn.createdAt}</div>
+              <div className="col-span-1 text-[#1E437A] whitespace-nowrap">{txn?.createdAt}</div>
               <div className="col-span-1 ml-5">
                 <button 
                   className="flex items-center gap-1 text-[#C83C92]"
