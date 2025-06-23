@@ -299,7 +299,7 @@ const Products = () => {
 
       {/* Product Table */}
       <div className="bg-white rounded-md overflow-x-auto">
-        <div className="max-h-[400px] overflow-y-auto">
+        <div className="max-h-[700px] overflow-y-auto">
           {loading ? (
             <div className="p-6 text-center">Loading products...</div>
           ) : products.length === 0 ? (
