@@ -51,24 +51,17 @@ const Transactions = () => {
       const transactionsArray = data.data;
 
       const formatted: Transaction[] = transactionsArray.map((txn: any) => ({
-        _id: txn._id,
-<<<<<<< HEAD
-        orderNumber: txn.orderNumber,
-        customerName: `${txn?.customerInfo?.firstName} ${txn?.customerInfo?.lastName}`,
-        amount: txn.total,
-        status: txn.paymentStatus === "paid" ? "Successful" : txn.paymentStatus === "failed" ? "Failed" : "Pending",
-=======
-        orderNumber: txn.orderNumber ?? txn.transactionId, // fallback if orderNumber is null
-        customerName: txn.customerName || "Unknown",
-        amount: txn.amount ?? txn.total,
+        _id: txn?._id,
+        orderNumber: txn?.orderNumber ?? txn?.transactionId, // fallback if orderNumber is null
+        customerName: txn?.customerName || "Unknown",
+        amount: txn?.amount ?? txn?.total,
         status:
-          txn.status === "successful"
+          txn?.status === "successful"
             ? "Successful"
-            : txn.status === "failed"
+            : txn?.status === "failed"
             ? "Failed"
             : "Pending",
->>>>>>> 3e09ee778687f7e7ada77d2e4034fd0931eccbed
-        createdAt: new Date(txn.createdAt).toLocaleString(),
+        createdAt: new Date(txn?.createdAt).toLocaleString(),
       }));
 
       setTransactions(formatted);
@@ -250,60 +243,43 @@ const Transactions = () => {
           </div>
         ) : (
           currentItems.map((txn) => (
-<<<<<<< HEAD
-            <div key={txn._id} className="grid grid-cols-7 p-4 border-b border-gray-200 items-center">
-              <div className="col-span-1 text-[#1E437A]">{txn?._id}</div>
-              <div className="col-span-1 text-[#1E437A]">#{txn?.orderNumber}</div>
-              <div className="col-span-1 text-[#1E437A]">{txn?.customerName}</div>
-              <div className="col-span-1 text-[#1E437A]">${txn?.amount?.toFixed(2)}</div>
-              <div className="col-span-1">
-                <span className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeStyle(txn?.status)}`}>
-                  {txn?.status}
-                </span>
-              </div>
-              <div className="col-span-1 text-[#1E437A] whitespace-nowrap">{txn?.createdAt}</div>
-              <div className="col-span-1 ml-5">
-                <button 
-                  className="flex items-center gap-1 text-[#C83C92]"
-=======
             <div
-              key={txn._id}
+              key={txn?._id}
               className="grid grid-cols-[2fr_1fr_2fr_1fr_1fr_2fr_1fr] p-4 border-b border-gray-200 items-center"
               style={{ minWidth: "900px" }}
             >
-              <div className="text-[#1E437A] truncate" title={txn._id}>
-                {txn._id}
+              <div className="text-[#1E437A] truncate" title={txn?._id}>
+                {txn?._id}
               </div>
               <div
                 className="text-[#1E437A] truncate"
-                title={`#${txn.orderNumber}`}
+                title={`#${txn?.orderNumber}`}
               >
-                #{txn.orderNumber}
+                #{txn?.orderNumber}
               </div>
-              <div className="text-[#1E437A] truncate" title={txn.customerName}>
-                {txn.customerName}
+              <div className="text-[#1E437A] truncate" title={txn?.customerName}>
+                {txn?.customerName}
               </div>
-              <div className="text-[#1E437A]">${txn.amount.toFixed(2)}</div>
+              <div className="text-[#1E437A]">${txn?.amount.toFixed(2)}</div>
               <div>
                 <span
                   className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeStyle(
-                    txn.status
+                    txn?.status
                   )}`}
                 >
-                  {txn.status}
+                  {txn?.status}
                 </span>
               </div>
               <div
                 className="text-[#1E437A] whitespace-nowrap truncate"
-                title={txn.createdAt}
+                title={txn?.createdAt}
               >
-                {txn.createdAt}
+                {txn?.createdAt}
               </div>
               <div>
                 <button
                   className="flex items-center gap-1 text-[#C83C92] whitespace-nowrap"
                   onClick={() => openModal(txn)}
->>>>>>> 3e09ee778687f7e7ada77d2e4034fd0931eccbed
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

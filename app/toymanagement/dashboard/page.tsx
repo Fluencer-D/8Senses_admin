@@ -1,117 +1,252 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import search from "../../../public/search.png"
-import toysavailable from '../../../public/toysavailable.png';
-import toysborrowed from '../../../public/toysborrow.png';
-import duesoon from '../../../public/duesoon.png';
-import overdue from '../../../public/overdue.png';
-import circleArrow from "../../../public/circlearrrow.png"
-import bell from "../../../public/bell.png"
+"use client"
 
+import { useState, useEffect } from "react"
+import Link from "next/link"
 
-// Dummy helper functions
-const getStockStatus = (quantity: number) => {
-  if (quantity > 10) return { status: 'In Stock', color: 'text-green-600' };
-  if (quantity > 0) return { status: 'Due Soon', color: 'text-yellow-500' };
-  return { status: 'Over Due', color: 'text-red-600' };
-};
+interface DashboardStats {
+  toysAvailable: number
+  toysBorrowed: number
+  dueSoon: number
+  overdue: number
+}
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'active': return 'bg-green-100 text-green-800';
-    case 'inactive': return 'bg-gray-100 text-gray-600';
-    case 'discontinued': return 'bg-red-100 text-red-700';
-    default: return 'bg-blue-100 text-blue-700';
+interface BorrowedToy {
+  _id: string
+  toyId: {
+    _id: string
+    name: string
+    category: string
+    image?: string
   }
-};
-
-const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString();
+  toyUnitId: {
+    unitNumber: number
+    condition: string
+  }
+  borrowerName: string
+  email: string
+  phone: string
+  relationship: string
+  issueDate: string
+  dueDate: string
+  status: string
+  notes?: string
+}
 
 const ToyManagementPage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [toys, setToys] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [borrowedToys, setBorrowedToys] = useState<BorrowedToy[]>([])
+  const [stats, setStats] = useState<DashboardStats>({
+    toysAvailable: 0,
+    toysBorrowed: 0,
+    dueSoon: 0,
+    overdue: 0,
+  })
+  const [refreshing, setRefreshing] = useState(false)
 
-  // Simulate fetch
-  useEffect(() => {
-    setTimeout(() => {
-      setToys([
-        {
-          _id: '1',
-          name: 'Toy Car',
-          category: { name: 'Vehicles' },
-          quantity: 5,
-          orderedby: "Satish",
-          dueDate:"March 05, 2025",
-          price: 19.99,
-          discountedPrice: 14.99,
-          discountType: 'percent',
-          status: 'Over Due',
-          createdAt: new Date().toISOString(),
-          images: [{ url: 'https://res.cloudinary.com/dktkof8fo/image/upload/v1747834535/8senses/products/obzkyr7zbjph0dimm4e6.jpg', isMain: true }]
+  const API_BASE_URL =  "http://localhost:5000/api"
+
+  // Fetch dashboard statistics
+  const fetchDashboardStats = async () => {
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await fetch(`${API_BASE_URL}/dashboard/stats`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
-        {
-          _id: '2',
-          name: 'Lego Set',
-          category: { name: 'Building' },
-          quantity: 0,
-          price: 49.99,
-          orderedby: "Satish",
-          dueDate:"March 05, 2025",
-          discountedPrice: 0,
-          discountType: 'none',
-          status: 'Due Soon',
-          createdAt: new Date().toISOString(),
-          images: [{ url: 'https://res.cloudinary.com/dktkof8fo/image/upload/v1747834535/8senses/products/obzkyr7zbjph0dimm4e6.jpg', isMain: true }]
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        setStats(result.data)
+      } else {
+        console.error("Failed to fetch dashboard stats:", response.status)
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error)
+    }
+  }
+
+  // Fetch borrowed toys for the table
+  const fetchBorrowedToys = async (search = "") => {
+    try {
+      setLoading(true)
+      const token = localStorage.getItem("adminToken")
+
+      let url = `${API_BASE_URL}/dashboard/borrowed-toys`
+      if (search.trim()) {
+        url += `?search=${encodeURIComponent(search)}`
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        setBorrowedToys(result.data)
+      } else {
+        console.error("Failed to fetch borrowed toys:", response.status)
+      }
+    } catch (error) {
+      console.error("Error fetching borrowed toys:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Send reminder notification
+  const sendReminder = async (borrowingId: string, borrowerEmail: string, toyName: string) => {
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await fetch(`${API_BASE_URL}/dashboard/send-reminder`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({ borrowingId }),
+      })
+
+      if (response.ok) {
+        alert(`Reminder sent to ${borrowerEmail} for ${toyName}`)
+      } else {
+        const errorData = await response.json()
+        alert(`Failed to send reminder: ${errorData.error}`)
+      }
+    } catch (error) {
+      console.error("Error sending reminder:", error)
+      alert("Failed to send reminder")
+    }
+  }
+
+  // Process return
+  const processReturn = async (borrowingId: string, toyName: string) => {
+    const conditionOnReturn = prompt("Enter the condition of the toy on return:", "Good")
+    if (!conditionOnReturn) return
+
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await fetch(`${API_BASE_URL}/dashboard/process-return/${borrowingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({
+          conditionOnReturn,
+          returnNotes: "",
+        }),
+      })
+
+      if (response.ok) {
+        alert(`${toyName} returned successfully!`)
+        // Refresh both stats and borrowed toys
+        await Promise.all([fetchDashboardStats(), fetchBorrowedToys(searchQuery)])
+      } else {
+        const errorData = await response.json()
+        alert(`Failed to process return: ${errorData.error}`)
+      }
+    } catch (error) {
+      console.error("Error processing return:", error)
+      alert("Failed to process return")
+    }
+  }
+
+  // Refresh all data
+  const refreshData = async () => {
+    setRefreshing(true)
+    await Promise.all([fetchDashboardStats(), fetchBorrowedToys(searchQuery)])
+    setRefreshing(false)
+  }
+
+  // Get status styling
+  const getStatusStyling = (status: string) => {
+    switch (status) {
+      case "Overdue":
+        return { color: "#F04438", backgroundColor: "#FDF1E8" }
+      case "Due Soon":
+        return { color: "#F79009", backgroundColor: "#FEF7E6" }
+      case "Active":
+        return { color: "#12B76A", backgroundColor: "#E7F7EF" }
+      default:
+        return { color: "#6B7280", backgroundColor: "#F3F4F6" }
+    }
+  }
+
+  // Handle search
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
+    // Debounce search
+    const timeoutId = setTimeout(() => {
+      fetchBorrowedToys(value)
+    }, 300)
+    return () => clearTimeout(timeoutId)
+  }
+
+  useEffect(() => {
+    fetchDashboardStats()
+    fetchBorrowedToys()
+  }, [])
 
   return (
     <div className="min-h-screen font-sans bg-gray-50 w-[81%] ml-[300px] mt-20 p-6 overflow-hidden">
+      <TopNavigator refreshData={refreshData} refreshing={refreshing} />
 
-      <TopNavigator/>
-
-      <SearchFiltersComponent/>
-
+      <SearchFiltersComponent searchQuery={searchQuery} setSearchQuery={handleSearch} />
 
       {/* Summary Cards Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full p-4">
         <div className="bg-white rounded-lg shadow-md p-5 h-44">
-          <Image src={toysavailable} width={40} height={40} alt="Toys Available" />
+          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+            <span className="text-2xl">🧸</span>
+          </div>
           <p className="text-neutral-500 mt-5 text-md font-medium">Toys Available</p>
-          <p className="text-black mt-5 text-xl font-semibold">24</p>
+          <p className="text-black mt-5 text-xl font-semibold">{stats.toysAvailable}</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-5 h-44">
-          <Image src={toysborrowed} width={40} height={40} alt="Toys Borrowed" />
+          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+            <span className="text-2xl">📦</span>
+          </div>
           <p className="text-neutral-500 mt-5 text-md font-medium">Toys Borrowed</p>
-          <p className="text-black mt-5 text-xl font-semibold">14</p>
+          <p className="text-black mt-5 text-xl font-semibold">{stats.toysBorrowed}</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-5 h-44">
-          <Image src={duesoon} width={40} height={40} alt="Due Soon" />
+          <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <span className="text-2xl">⏰</span>
+          </div>
           <p className="text-neutral-500 mt-5 text-md font-medium">Due Soon</p>
-          <p className="text-black mt-5 text-xl font-semibold">5</p>
+          <p className="text-black mt-5 text-xl font-semibold">{stats.dueSoon}</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-5 h-44">
-          <Image src={overdue} width={40} height={40} alt="Over Due" />
+          <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+            <span className="text-2xl">⚠️</span>
+          </div>
           <p className="text-neutral-500 mt-5 text-md font-medium">Over Due</p>
-          <p className="text-black mt-5 text-xl font-semibold">2</p>
+          <p className="text-black mt-5 text-xl font-semibold">{stats.overdue}</p>
         </div>
       </div>
 
       {/* Toys Table */}
       <div className="max-h-[700px] overflow-y-auto mt-12">
         {loading ? (
-          <div className="p-6 text-center">Loading products...</div>
-        ) : toys.length === 0 ? (
-          <div className="p-6 text-center">No products found</div>
+          <div className="p-6 text-center">Loading borrowed toys...</div>
+        ) : borrowedToys.length === 0 ? (
+          <div className="p-6 text-center">
+            <p className="text-gray-500">No borrowed toys found</p>
+            <Link href="/toymanagement/dashboard/issuenewtoy">
+              <button className="mt-4 px-4 py-2 bg-[#C83C92] text-white font-semibold rounded-md">
+                Issue First Toy
+              </button>
+            </Link>
+          </div>
         ) : (
-          <table className="w-full text-left">
-            <thead className="bg-[#F9F9FC] text-[#1E437A] bg-blue-50 text-md font-semibold sticky top-0">
+          <table className="w-full text-left bg-white rounded-lg shadow-sm">
+            <thead className="bg-[#F9F9FC] text-[#1E437A] text-md font-semibold sticky top-0">
               <tr>
                 <th className="p-3">Toy Name</th>
                 <th className="p-3">Borrowed By</th>
@@ -121,74 +256,85 @@ const ToyManagementPage = () => {
               </tr>
             </thead>
             <tbody>
-              {toys.map((product) => {
-                const stockInfo = getStockStatus(product.quantity);
+              {borrowedToys.map((borrowing) => {
+                const statusStyling = getStatusStyling(borrowing.status)
                 return (
-                  <tr key={product._id} className="border-t">
+                  <tr key={borrowing._id} className="border-t hover:bg-gray-50">
                     <td className="p-3 flex items-center space-x-3">
                       <div className="w-10 h-10 bg-gray-200 rounded-md overflow-hidden">
-                        {product.images && product.images.length > 0 && (
+                        {borrowing.toyId?.image ? (
                           <img
-                            src={product.images.find(img => img.isMain)?.url || product.images[0].url}
-                            alt={product.name}
+                            src={borrowing.toyId.image || "/placeholder.svg"}
+                            alt={borrowing.toyId.name}
                             className="w-full h-full object-cover"
                           />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-lg">🧸</div>
                         )}
                       </div>
-                      <Link href={`/ecommerce/products/viewProduct?id=${product._id}`}>
-                        <span className="text-[#1E437A] font-semibold">{product.name}</span>
-                      </Link>
+                      <div>
+                        <span className="text-[#1E437A] font-semibold">{borrowing.toyId?.name}</span>
+                        <div className="text-sm text-gray-500">
+                          Unit #{borrowing.toyUnitId?.unitNumber} • {borrowing.toyId?.category}
+                        </div>
+                      </div>
                     </td>
                     <td className="p-3 font-semibold text-[#1E437A] align-middle">
-                      {product?.orderedby}
+                      {borrowing.borrowerName}
                       <br />
-                      <span className='font-medium text-[#7093c9]'>{product?._id}</span>
+                      <span className="font-medium text-[#7093c9] text-sm">{borrowing.email}</span>
                     </td>
                     <td className="p-3 text-[#1E437A]">
-                      {product?.dueDate}
+                      {new Date(borrowing.dueDate).toLocaleDateString()}
+                      <div className="text-sm text-gray-500">
+                        Issued: {new Date(borrowing.issueDate).toLocaleDateString()}
+                      </div>
                     </td>
                     <td className="p-3 text-[#456696]">
-                      <span style={{color:"#F04438",backgroundColor:"#FDF1E8"}} className={`p-2 rounded-2xl text-sm  font-semibold `}>{stockInfo.status}</span>
+                      <span
+                        style={{ color: statusStyling.color, backgroundColor: statusStyling.backgroundColor }}
+                        className="p-2 rounded-2xl text-sm font-semibold"
+                      >
+                        {borrowing.status}
+                      </span>
                     </td>
-                    <td className="p-3 text-[#456696] flex gap-5">
-                      <Image
-                        src={bell}
-                        width={15}
-                        height={15}
-                      />
-                      <Image
-                        src={circleArrow}
-                        width={15}
-                        height={15}
-                      />
+                    <td className="p-3 text-[#456696] flex gap-3">
+                      <button
+                        onClick={() => sendReminder(borrowing._id, borrowing.email, borrowing.toyId?.name)}
+                        className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded"
+                        title="Send Reminder"
+                      >
+                        🔔
+                      </button>
+                      <button
+                        onClick={() => processReturn(borrowing._id, borrowing.toyId?.name)}
+                        className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded"
+                        title="Process Return"
+                      >
+                        ↩️
+                      </button>
                     </td>
-
                   </tr>
-                );
+                )
               })}
             </tbody>
           </table>
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ToyManagementPage;
+export default ToyManagementPage
 
-
-
-
-const TopNavigator = () => {
+const TopNavigator = ({ refreshData, refreshing }: { refreshData: () => void; refreshing: boolean }) => {
   return (
     <div className="mb-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-[#333843] font-medium text-2xl leading-8 tracking-wide">
-            Products
-          </h2>
+          <h2 className="text-[#333843] font-medium text-2xl leading-8 tracking-wide">Toy Management</h2>
           <p className="text-sm text-gray-500 flex items-center">
-            <span className="text-[#245BA7] font-medium">E-commerce</span>
+            <span className="text-[#245BA7] font-medium">Dashboard</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -204,23 +350,30 @@ const TopNavigator = () => {
                 fill="#A3A9B6"
               />
             </svg>
-            <span className="text-[#667085]">Products</span>
+            <span className="text-[#667085]">Overview</span>
           </p>
         </div>
+        <button
+          onClick={refreshData}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-sm font-medium disabled:opacity-50"
+        >
+          <span className={refreshing ? "animate-spin" : ""}>🔄</span>
+          {refreshing ? "Refreshing..." : "Refresh"}
+        </button>
       </div>
     </div>
   )
 }
 
-
-const SearchFiltersComponent = ({ setSearchQuery, searchQuery }) => {
+const SearchFiltersComponent = ({ setSearchQuery, searchQuery }: any) => {
   return (
     <div className="flex justify-between items-center mb-4">
       <div className="flex items-center border border-gray-300 bg-white px-4 py-2 w-80 rounded-lg">
-        <Image src={search} width={20} height={20} alt="Search icon" />
+        <span className="text-gray-400">🔍</span>
         <input
           type="text"
-          placeholder="Seach for a toy or a member."
+          placeholder="Search for a toy or a member."
           className="ml-2 w-full bg-transparent focus:outline-none text-gray-600 placeholder-gray-400"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -229,14 +382,14 @@ const SearchFiltersComponent = ({ setSearchQuery, searchQuery }) => {
 
       <div className="flex space-x-3">
         <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 bg-[#ffecf8] text-pink-400 px-4 font-semibold py-2 rounded-lg font-medium">
-            <Image src={circleArrow} width={15} height={15} alt="Search icon" />
-            Process
-          </button>
-          <Link href="/toymanagement/dashboard/issuenewtoy ">
-            <button className="px-4 py-2 bg-[#C83C92] text-white font-semibold rounded-md">
-              Issue a Toy
+           <Link href="/toymanagement/dashboard/process-return">
+            <button className="flex items-center gap-2 bg-[#ffecf8] text-pink-400 px-4 font-semibold py-2 rounded-lg font-medium">
+              <span>↩️</span>
+              Process
             </button>
+          </Link>
+          <Link href="/toymanagement/dashboard/issuenewtoy">
+            <button className="px-4 py-2 bg-[#C83C92] text-white font-semibold rounded-md">Issue a Toy</button>
           </Link>
         </div>
       </div>

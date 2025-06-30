@@ -189,7 +189,7 @@ const Inventory = () => {
           <div className="col-span-1">Category</div>
           <div className="col-span-1">Stock Level</div>
           <div className="col-span-1">Status</div>
-          <div className="col-span-1">Action</div>
+          <div className="col-span-1">Action</div> 
         </div>
         {currentItems.map((item) => (
           <div key={item._id} className="grid grid-cols-5 p-4 border-b border-[#E0E2E7] items-center">
