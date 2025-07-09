@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
   const [mounted, setMounted] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -17,22 +17,25 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        throw new Error(errorData.message || "Login failed");
       }
-      
+
       const { token } = await response.json();
-      localStorage.setItem('adminToken', token);
-      router.push('/dashboard');
+      localStorage.setItem("adminToken", token);
+      router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || 'An error occurred during login');
+      setError(err.message || "An error occurred during login");
     }
   };
 
@@ -49,17 +52,15 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          Admin Login
+        </h1>
         {error && (
           <div className="mb-4 p-2 text-red-500 bg-red-100 rounded">
             {error}
           </div>
         )}
-        <form 
-          onSubmit={handleSubmit}
-          autoComplete="off"
-          data-lpignore="true"
-        >
+        <form onSubmit={handleSubmit} autoComplete="off" data-lpignore="true">
           <div className="mb-4">
             <label className="block text-gray-700 mb-2" htmlFor="email">
               Email

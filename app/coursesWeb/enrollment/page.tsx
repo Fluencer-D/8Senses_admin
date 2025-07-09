@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -12,7 +12,7 @@ interface Enrollment {
 }
 
 const WebinarEnrollmentTable = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,15 +21,19 @@ const WebinarEnrollmentTable = () => {
     const fetchEnrollments = async () => {
       try {
         const token = localStorage.getItem("adminToken");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/course-enrollments`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/course-enrollments`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!res.ok) throw new Error("Failed to fetch enrollments");
 
         const data = await res.json();
+        console.log(data); //debug
         const formatted = data.data.map((e: any) => ({
           _id: e._id,
           firstName: e.firstName,
@@ -51,11 +55,14 @@ const WebinarEnrollmentTable = () => {
     fetchEnrollments();
   }, []);
 
-  const filteredEnrollments = enrollments.filter((e) =>
-    `${e.firstName} ${e.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.courseTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.status.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredEnrollments = enrollments.filter(
+    (e) =>
+      `${e.firstName} ${e.lastName}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      e.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      e.courseTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      e.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBadgeClass = (status: string) => {
@@ -76,7 +83,6 @@ const WebinarEnrollmentTable = () => {
 
   // keep rest of the UI same — just map through filteredEnrollments below
 
-
   return (
     <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto overflow-y-auto">
       {/* Header */}
@@ -84,11 +90,11 @@ const WebinarEnrollmentTable = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-[#333843] font-inter font-medium text-2xl leading-8 tracking-[0.12px]">
-              Webinars  
+              Webinars
             </h2>
             <p className="text-sm text-gray-500 flex items-center">
               <span className="text-[#245BA7] font-inter font-medium text-sm leading-5 tracking-[0.07px]">
-              Courses & Webinars
+                Courses & Webinars
               </span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -144,8 +150,19 @@ const WebinarEnrollmentTable = () => {
       <div className="flex justify-between mb-6">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path fillRule="evenodd" clipRule="evenodd" d="M14.7844 16.1991C11.646 18.6416 7.10629 18.4205 4.22156 15.5358C1.09737 12.4116 1.09737 7.34625 4.22156 4.22205C7.34576 1.09786 12.4111 1.09786 15.5353 4.22205C18.42 7.10677 18.6411 11.6464 16.1986 14.7849L20.4851 19.0713C20.8756 19.4618 20.8756 20.095 20.4851 20.4855C20.0945 20.876 19.4614 20.876 19.0708 20.4855L14.7844 16.1991ZM5.63578 14.1215C7.97892 16.4647 11.7779 16.4647 14.1211 14.1215C16.4642 11.7784 16.4642 7.97941 14.1211 5.63627C11.7779 3.29312 7.97892 3.29312 5.63578 5.63627C3.29263 7.97941 3.29263 11.7784 5.63578 14.1215Z" fill="#667085" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M14.7844 16.1991C11.646 18.6416 7.10629 18.4205 4.22156 15.5358C1.09737 12.4116 1.09737 7.34625 4.22156 4.22205C7.34576 1.09786 12.4111 1.09786 15.5353 4.22205C18.42 7.10677 18.6411 11.6464 16.1986 14.7849L20.4851 19.0713C20.8756 19.4618 20.8756 20.095 20.4851 20.4855C20.0945 20.876 19.4614 20.876 19.0708 20.4855L14.7844 16.1991ZM5.63578 14.1215C7.97892 16.4647 11.7779 16.4647 14.1211 14.1215C16.4642 11.7784 16.4642 7.97941 14.1211 5.63627C11.7779 3.29312 7.97892 3.29312 5.63578 5.63627C3.29263 7.97941 3.29263 11.7784 5.63578 14.1215Z"
+                fill="#667085"
+              />
             </svg>
           </div>
           <input
@@ -226,38 +243,91 @@ const WebinarEnrollmentTable = () => {
         {/* Table Body */}
         {filteredEnrollments.length > 0 ? (
           filteredEnrollments.map((enrollment) => (
-            <div key={enrollment._id} className="grid grid-cols-5 py-4 px-6 border-t border-gray-200 items-center">
-              <Link href={'/coursesWeb/enrollment/details'} className="text-[#1E437A] font-medium">{enrollment.firstName} {enrollment.lastName}</Link>
+            <div
+              key={enrollment._id}
+              className="grid grid-cols-5 py-4 px-6 border-t border-gray-200 items-center"
+            >
+              <Link
+                href={"/coursesWeb/enrollment/details"}
+                className="text-[#1E437A] font-medium"
+              >
+                {enrollment.firstName} {enrollment.lastName}
+              </Link>
               <div className="text-[#1E437A]">{enrollment.email}</div>
               <div className="text-[#1E437A]">{enrollment.courseTitle}</div>
               <div>
-                <span className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeClass(enrollment.status)}`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeClass(
+                    enrollment.status
+                  )}`}
+                >
                   {enrollment.status}
                 </span>
               </div>
               <div className="flex space-x-3">
                 <button className="text-blue-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M10.0002 4.16663C15.1085 4.16663 17.5258 7.5916 18.3768 9.19278C18.6477 9.70262 18.6477 10.2973 18.3768 10.8071C17.5258 12.4083 15.1085 15.8333 10.0002 15.8333C4.89188 15.8333 2.4746 12.4083 1.62363 10.8071C1.35267 10.2973 1.35267 9.70262 1.62363 9.19277C2.4746 7.59159 4.89188 4.16663 10.0002 4.16663ZM5.69716 7.0647C4.31361 7.98141 3.50572 9.20281 3.09536 9.97494C3.09078 9.98357 3.08889 9.98955 3.08807 9.99283C3.08724 9.99617 3.08708 9.99996 3.08708 9.99996C3.08708 9.99996 3.08724 10.0037 3.08807 10.0071C3.08889 10.0104 3.09078 10.0164 3.09536 10.025C3.50572 10.7971 4.31361 12.0185 5.69716 12.9352C5.12594 12.0994 4.79188 11.0887 4.79188 9.99996C4.79188 8.91121 5.12594 7.90049 5.69716 7.0647ZM14.3033 12.9352C15.6868 12.0185 16.4947 10.7971 16.905 10.025C16.9096 10.0164 16.9115 10.0104 16.9123 10.0071C16.9129 10.0049 16.9133 10.0019 16.9133 10.0019L16.9133 9.99996L16.913 9.99629L16.9123 9.99283C16.9115 9.98955 16.9096 9.98357 16.905 9.97494C16.4947 9.20282 15.6868 7.98142 14.3033 7.06471C14.8745 7.9005 15.2085 8.91122 15.2085 9.99996C15.2085 11.0887 14.8745 12.0994 14.3033 12.9352ZM6.45854 9.99996C6.45854 8.04395 8.0442 6.45829 10.0002 6.45829C11.9562 6.45829 13.5419 8.04395 13.5419 9.99996C13.5419 11.956 11.9562 13.5416 10.0002 13.5416C8.0442 13.5416 6.45854 11.956 6.45854 9.99996Z" fill="#456696"/>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M10.0002 4.16663C15.1085 4.16663 17.5258 7.5916 18.3768 9.19278C18.6477 9.70262 18.6477 10.2973 18.3768 10.8071C17.5258 12.4083 15.1085 15.8333 10.0002 15.8333C4.89188 15.8333 2.4746 12.4083 1.62363 10.8071C1.35267 10.2973 1.35267 9.70262 1.62363 9.19277C2.4746 7.59159 4.89188 4.16663 10.0002 4.16663ZM5.69716 7.0647C4.31361 7.98141 3.50572 9.20281 3.09536 9.97494C3.09078 9.98357 3.08889 9.98955 3.08807 9.99283C3.08724 9.99617 3.08708 9.99996 3.08708 9.99996C3.08708 9.99996 3.08724 10.0037 3.08807 10.0071C3.08889 10.0104 3.09078 10.0164 3.09536 10.025C3.50572 10.7971 4.31361 12.0185 5.69716 12.9352C5.12594 12.0994 4.79188 11.0887 4.79188 9.99996C4.79188 8.91121 5.12594 7.90049 5.69716 7.0647ZM14.3033 12.9352C15.6868 12.0185 16.4947 10.7971 16.905 10.025C16.9096 10.0164 16.9115 10.0104 16.9123 10.0071C16.9129 10.0049 16.9133 10.0019 16.9133 10.0019L16.9133 9.99996L16.913 9.99629L16.9123 9.99283C16.9115 9.98955 16.9096 9.98357 16.905 9.97494C16.4947 9.20282 15.6868 7.98142 14.3033 7.06471C14.8745 7.9005 15.2085 8.91122 15.2085 9.99996C15.2085 11.0887 14.8745 12.0994 14.3033 12.9352ZM6.45854 9.99996C6.45854 8.04395 8.0442 6.45829 10.0002 6.45829C11.9562 6.45829 13.5419 8.04395 13.5419 9.99996C13.5419 11.956 11.9562 13.5416 10.0002 13.5416C8.0442 13.5416 6.45854 11.956 6.45854 9.99996Z"
+                      fill="#456696"
+                    />
                   </svg>
                 </button>
                 <button className="text-blue-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M17.3047 6.82016C18.281 5.84385 18.281 4.26093 17.3047 3.28462L16.7155 2.69537C15.7391 1.71906 14.1562 1.71906 13.1799 2.69537L3.69097 12.1843C3.34624 12.529 3.10982 12.967 3.01082 13.4444L2.34111 16.6738C2.21932 17.261 2.73906 17.7807 3.32629 17.6589L6.55565 16.9892C7.03302 16.8902 7.47103 16.6538 7.81577 16.3091L17.3047 6.82016ZM16.1262 4.46313L15.5369 3.87388C15.2115 3.54844 14.6839 3.54844 14.3584 3.87388L13.4745 4.75779L15.2423 6.52556L16.1262 5.64165C16.4516 5.31621 16.4516 4.78857 16.1262 4.46313ZM14.0638 7.70407L12.296 5.9363L4.86948 13.3628C4.75457 13.4777 4.67577 13.6237 4.64277 13.7829L4.23082 15.7692L6.21721 15.3573C6.37634 15.3243 6.52234 15.2455 6.63726 15.1306L14.0638 7.70407Z" fill="#456696"/>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M17.3047 6.82016C18.281 5.84385 18.281 4.26093 17.3047 3.28462L16.7155 2.69537C15.7391 1.71906 14.1562 1.71906 13.1799 2.69537L3.69097 12.1843C3.34624 12.529 3.10982 12.967 3.01082 13.4444L2.34111 16.6738C2.21932 17.261 2.73906 17.7807 3.32629 17.6589L6.55565 16.9892C7.03302 16.8902 7.47103 16.6538 7.81577 16.3091L17.3047 6.82016ZM16.1262 4.46313L15.5369 3.87388C15.2115 3.54844 14.6839 3.54844 14.3584 3.87388L13.4745 4.75779L15.2423 6.52556L16.1262 5.64165C16.4516 5.31621 16.4516 4.78857 16.1262 4.46313ZM14.0638 7.70407L12.296 5.9363L4.86948 13.3628C4.75457 13.4777 4.67577 13.6237 4.64277 13.7829L4.23082 15.7692L6.21721 15.3573C6.37634 15.3243 6.52234 15.2455 6.63726 15.1306L14.0638 7.70407Z"
+                      fill="#456696"
+                    />
                   </svg>
                 </button>
                 <button className="text-blue-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M8.33317 8.12496C8.79341 8.12496 9.1665 8.49806 9.1665 8.95829V13.9583C9.1665 14.4185 8.79341 14.7916 8.33317 14.7916C7.87293 14.7916 7.49984 14.4185 7.49984 13.9583V8.95829C7.49984 8.49806 7.87293 8.12496 8.33317 8.12496Z" fill="#456696"/>
-                    <path d="M12.4998 8.95829C12.4998 8.49806 12.1267 8.12496 11.6665 8.12496C11.2063 8.12496 10.8332 8.49806 10.8332 8.95829V13.9583C10.8332 14.4185 11.2063 14.7916 11.6665 14.7916C12.1267 14.7916 12.4998 14.4185 12.4998 13.9583V8.95829Z" fill="#456696"/>
-                    <path fillRule="evenodd" clipRule="evenodd" d="M14.9998 4.99996V4.16663C14.9998 2.78591 13.8806 1.66663 12.4998 1.66663H7.49984C6.11913 1.66663 4.99984 2.78591 4.99984 4.16663V4.99996H3.74984C3.2896 4.99996 2.9165 5.37306 2.9165 5.83329C2.9165 6.29353 3.2896 6.66663 3.74984 6.66663H4.1665V15.8333C4.1665 17.214 5.28579 18.3333 6.6665 18.3333H13.3332C14.7139 18.3333 15.8332 17.214 15.8332 15.8333V6.66663H16.2498C16.7101 6.66663 17.0832 6.29353 17.0832 5.83329C17.0832 5.37306 16.7101 4.99996 16.2498 4.99996H14.9998ZM12.4998 3.33329H7.49984C7.0396 3.33329 6.6665 3.70639 6.6665 4.16663V4.99996H13.3332V4.16663C13.3332 3.70639 12.9601 3.33329 12.4998 3.33329ZM14.1665 6.66663H5.83317V15.8333C5.83317 16.2935 6.20627 16.6666 6.6665 16.6666H13.3332C13.7934 16.6666 14.1665 16.2935 14.1665 15.8333V6.66663Z" fill="#456696"/>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
+                    <path
+                      d="M8.33317 8.12496C8.79341 8.12496 9.1665 8.49806 9.1665 8.95829V13.9583C9.1665 14.4185 8.79341 14.7916 8.33317 14.7916C7.87293 14.7916 7.49984 14.4185 7.49984 13.9583V8.95829C7.49984 8.49806 7.87293 8.12496 8.33317 8.12496Z"
+                      fill="#456696"
+                    />
+                    <path
+                      d="M12.4998 8.95829C12.4998 8.49806 12.1267 8.12496 11.6665 8.12496C11.2063 8.12496 10.8332 8.49806 10.8332 8.95829V13.9583C10.8332 14.4185 11.2063 14.7916 11.6665 14.7916C12.1267 14.7916 12.4998 14.4185 12.4998 13.9583V8.95829Z"
+                      fill="#456696"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M14.9998 4.99996V4.16663C14.9998 2.78591 13.8806 1.66663 12.4998 1.66663H7.49984C6.11913 1.66663 4.99984 2.78591 4.99984 4.16663V4.99996H3.74984C3.2896 4.99996 2.9165 5.37306 2.9165 5.83329C2.9165 6.29353 3.2896 6.66663 3.74984 6.66663H4.1665V15.8333C4.1665 17.214 5.28579 18.3333 6.6665 18.3333H13.3332C14.7139 18.3333 15.8332 17.214 15.8332 15.8333V6.66663H16.2498C16.7101 6.66663 17.0832 6.29353 17.0832 5.83329C17.0832 5.37306 16.7101 4.99996 16.2498 4.99996H14.9998ZM12.4998 3.33329H7.49984C7.0396 3.33329 6.6665 3.70639 6.6665 4.16663V4.99996H13.3332V4.16663C13.3332 3.70639 12.9601 3.33329 12.4998 3.33329ZM14.1665 6.66663H5.83317V15.8333C5.83317 16.2935 6.20627 16.6666 6.6665 16.6666H13.3332C13.7934 16.6666 14.1665 16.2935 14.1665 15.8333V6.66663Z"
+                      fill="#456696"
+                    />
                   </svg>
                 </button>
               </div>
             </div>
           ))
         ) : (
-          <div className="py-8 text-center text-gray-500">No enrollments found matching your search criteria</div>
+          <div className="py-8 text-center text-gray-500">
+            No enrollments found matching your search criteria
+          </div>
         )}
       </div>
     </div>
