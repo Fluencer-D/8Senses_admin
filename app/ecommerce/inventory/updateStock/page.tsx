@@ -1,72 +1,148 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+"use client"
 
-const UpdateStockForm = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const productId = searchParams.get("id");
+import { Suspense } from "react"
 
-  const [productName, setProductName] = useState("");
-  const [currentStock, setCurrentStock] = useState("");
-  const [newStockLevel, setNewStockLevel] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// Loading component for Suspense fallback
+function UpdateStockLoading() {
+  return (
+    <div className="p-6 max-w-[84%] mt-20 ml-70 mx-auto">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="items-center gap-8">
+          <h1 className="text-[#333843] text-3xl">Update Stock</h1>
+          <div className="text-gray-500 text-sm flex items-center">
+            <span className="text-[#245BA7] cursor-pointer">E-commerce</span>
+            <span className="mx-2">&gt;</span>
+            <span className="text-[#245BA7] cursor-pointer">Inventory</span>
+            <span className="mx-2">&gt;</span>
+            <span className="text-gray-800">Update Stock</span>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <button className="flex items-center gap-2 border border-gray-300 text-[#858D9D] px-5 py-2 rounded-lg">
+            Cancel
+          </button>
+          <button className="flex items-center gap-2 bg-[#C83C92] text-white px-5 py-2 rounded-lg">Update Stock</button>
+        </div>
+      </div>
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading product details...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Move your existing component code here
+function UpdateStockContent() {
+  const React = require("react")
+  const { useState, useEffect } = React
+  const { useRouter, useSearchParams } = require("next/navigation")
+
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const productId = searchParams.get("id")
+  const [productName, setProductName] = useState("")
+  const [currentStock, setCurrentStock] = useState("")
+  const [newStockLevel, setNewStockLevel] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!productId) return;
+    if (!productId) return
 
     const fetchProductDetails = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = localStorage.getItem("adminToken")
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        })
 
-        if (!res.ok) throw new Error("Failed to fetch product");
-        const data = await res.json();
+        if (!res.ok) throw new Error("Failed to fetch product")
 
-        setProductName(data.data.name || "");
-        setCurrentStock(data.data.quantity?.toString() || "");
+        const data = await res.json()
+        setProductName(data.data.name || "")
+        setCurrentStock(data.data.quantity?.toString() || "")
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchProductDetails();
-  }, [productId]);
+    fetchProductDetails()
+  }, [productId])
 
   const handleCancel = () => {
-    router.push("/ecommerce/inventory");
-  };
+    router.push("/ecommerce/inventory")
+  }
 
   const handleUpdateStock = async () => {
-    if (!newStockLevel) return;
+    if (!newStockLevel) return
 
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("adminToken")
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/admin/${productId}/stock`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ quantity: parseInt(newStockLevel) }),
-      });
+        body: JSON.stringify({ quantity: Number.parseInt(newStockLevel) }),
+      })
 
-      if (!res.ok) throw new Error("Failed to update stock");
-      router.push("/ecommerce/inventory");
+      if (!res.ok) throw new Error("Failed to update stock")
+
+      router.push("/ecommerce/inventory")
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message)
     }
-  };
+  }
 
-  if (loading) return <div className="p-6">Loading...</div>;
-  if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="p-6 max-w-[84%] mt-20 ml-70 mx-auto">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="items-center gap-8">
+            <h1 className="text-[#333843] text-3xl">Update Stock</h1>
+            <div className="text-gray-500 text-sm flex items-center">
+              <span className="text-[#245BA7] cursor-pointer">E-commerce</span>
+              <span className="mx-2">&gt;</span>
+              <span className="text-[#245BA7] cursor-pointer">Inventory</span>
+              <span className="mx-2">&gt;</span>
+              <span className="text-gray-800">Update Stock</span>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button className="flex items-center gap-2 border border-gray-300 text-[#858D9D] px-5 py-2 rounded-lg">
+              Cancel
+            </button>
+            <button className="flex items-center gap-2 bg-[#C83C92] text-white px-5 py-2 rounded-lg">
+              Update Stock
+            </button>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 max-w-[84%] mt-20 ml-70 mx-auto">
+        <div className="bg-red-100 text-red-700 p-4 rounded-lg">Error: {error}</div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 max-w-[84%] mt-20 ml-70 mx-auto">
@@ -139,7 +215,14 @@ const UpdateStockForm = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default UpdateStockForm;
+// Main page component with Suspense wrapper
+export default function UpdateStockForm() {
+  return (
+    <Suspense fallback={<UpdateStockLoading />}>
+      <UpdateStockContent />
+    </Suspense>
+  )
+}

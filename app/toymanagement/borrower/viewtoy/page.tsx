@@ -1,58 +1,78 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ArrowLeft, Filter, X } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
+import { Suspense } from "react"
 
-interface Borrower {
-  _id: string
-  name: string
-  email: string
-  phone: string
-  relationship: string
-  createdAt: string
-  updatedAt: string
+// Loading component for Suspense fallback
+function BorrowerProfileLoading() {
+  return (
+    <div style={{ color: "#1E437A" }} className="min-h-screen font-sans w-[85%] ml-[300px] bg-gray-50 p-6">
+      <div className="pt-24 mx-auto w-[95%]">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading borrower details...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
-interface PastBorrowing {
-  _id: string
-  borrowerName: string
-  email: string
-  phone: string
-  relationship: string
-  issueDate: string
-  dueDate: string
-  returnDate?: string
-  status: string
-  conditionOnIssue: string
-  conditionOnReturn?: string
-  notes?: string
-  toyId: any
-  toyUnitId: any
-  createdAt: string
-  updatedAt: string
-}
+// Move your existing component code here
+function BorrowerProfileContent() {
+  // All your existing imports and code goes here
+  const { useState, useEffect } = require("react")
+  const { ArrowLeft, Filter, X } = require("lucide-react")
+  const { useRouter, useSearchParams } = require("next/navigation")
+  const Link = require("next/link").default
 
-interface ApiResponse {
-  borrower: Borrower
-  activeBorrowings: PastBorrowing[]
-  pastBorrowings: PastBorrowing[]
-}
+  // All your existing interfaces
+  interface Borrower {
+    _id: string
+    name: string
+    email: string
+    phone: string
+    relationship: string
+    createdAt: string
+    updatedAt: string
+  }
 
-export default function BorrowerProfile() {
+  interface PastBorrowing {
+    _id: string
+    borrowerName: string
+    email: string
+    phone: string
+    relationship: string
+    issueDate: string
+    dueDate: string
+    returnDate?: string
+    status: string
+    conditionOnIssue: string
+    conditionOnReturn?: string
+    notes?: string
+    toyId: any
+    toyUnitId: any
+    createdAt: string
+    updatedAt: string
+  }
+
+  interface ApiResponse {
+    borrower: Borrower
+    activeBorrowings: PastBorrowing[]
+    pastBorrowings: PastBorrowing[]
+  }
+
+  // All your existing state and logic
   const [apiData, setApiData] = useState<ApiResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [sendingReminder, setSendingReminder] = useState<string | null>(null)
-
   const router = useRouter()
   const searchParams = useSearchParams()
   const borrowingId = searchParams.get("borrowingId") || "6859156f885a0c087ce10b49"
-
   const API_BASE_URL = "http://localhost:5000/api"
 
-  // Calculate status for borrowings
+  // All your existing functions (calculateStatus, getStatusStyling, formatDate, etc.)
   const calculateStatus = (borrowing: PastBorrowing): string => {
     if (borrowing.returnDate) {
       const returnDate = new Date(borrowing.returnDate)
@@ -68,7 +88,6 @@ export default function BorrowerProfile() {
       const dueDate = new Date(borrowing.dueDate)
       const diffTime = dueDate.getTime() - today.getTime()
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
       if (diffDays < 0) {
         return "Overdue"
       } else if (diffDays <= 3) {
@@ -79,7 +98,6 @@ export default function BorrowerProfile() {
     }
   }
 
-  // Get status styling
   const getStatusStyling = (status: string): string => {
     switch (status) {
       case "Overdue":
@@ -100,7 +118,6 @@ export default function BorrowerProfile() {
     }
   }
 
-  // Format date
   const formatDate = (dateString: string): string => {
     try {
       return new Date(dateString).toLocaleDateString("en-GB", {
@@ -113,16 +130,13 @@ export default function BorrowerProfile() {
     }
   }
 
-  // Get toy name from borrowing (since toyId is null, we'll use a placeholder)
   const getToyName = (borrowing: PastBorrowing): string => {
     if (borrowing.toyId && borrowing.toyId.name) {
       return borrowing.toyId.name
     }
-    // Since toyId is null in your data, we'll create a generic name
     return "Toy Item"
   }
 
-  // Get unit number from borrowing
   const getUnitNumber = (borrowing: PastBorrowing): string => {
     if (borrowing.toyUnitId && borrowing.toyUnitId.unitNumber) {
       return borrowing.toyUnitId.unitNumber.toString()
@@ -130,12 +144,10 @@ export default function BorrowerProfile() {
     return "N/A"
   }
 
-  // Fetch borrower details
   const fetchBorrowerDetails = async () => {
     try {
       setLoading(true)
       setError("")
-
       const token = localStorage.getItem("adminToken")
       const response = await fetch(`${API_BASE_URL}/borrowers/${borrowingId}`, {
         headers: {
@@ -143,14 +155,11 @@ export default function BorrowerProfile() {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
       })
-
       if (response.ok) {
         const result = await response.json()
         console.log("API Response:", result)
-
         if (result.success && result.data) {
-          // Access the nested data structure correctly
-          setApiData(result.data) // Changed from setApiData(result) to setApiData(result.data)
+          setApiData(result.data)
         } else {
           setError("Invalid response format")
         }
@@ -166,12 +175,10 @@ export default function BorrowerProfile() {
     }
   }
 
-  // Send reminder
   const sendReminder = async (borrowingId: string, toyName: string) => {
     try {
       setSendingReminder(borrowingId)
       const token = localStorage.getItem("adminToken")
-
       const response = await fetch(`${API_BASE_URL}/borrowers/${borrowingId}/send-reminder`, {
         method: "POST",
         headers: {
@@ -180,7 +187,6 @@ export default function BorrowerProfile() {
         },
         body: JSON.stringify({ borrowingId }),
       })
-
       if (response.ok) {
         alert(`Reminder sent for ${toyName}`)
       } else {
@@ -199,18 +205,7 @@ export default function BorrowerProfile() {
   }, [borrowingId])
 
   if (loading) {
-    return (
-      <div style={{ color: "#1E437A" }} className="min-h-screen font-sans w-[85%] ml-[300px] bg-gray-50 p-6">
-        <div className="pt-24 mx-auto w-[95%]">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading borrower details...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <BorrowerProfileLoading />
   }
 
   if (error) {
@@ -271,7 +266,6 @@ export default function BorrowerProfile() {
             Cancel
           </button>
         </div>
-
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <div>
@@ -502,5 +496,14 @@ export default function BorrowerProfile() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Main page component with Suspense wrapper
+export default function BorrowerProfile() {
+  return (
+    <Suspense fallback={<BorrowerProfileLoading />}>
+      <BorrowerProfileContent />
+    </Suspense>
   )
 }
