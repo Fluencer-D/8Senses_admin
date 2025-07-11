@@ -38,6 +38,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       { name: "Webinars", path: "/coursesWeb/webinars" },
       { name: "Enrollment", path: "/coursesWeb/enrollment" },
       { name: "Feedback", path: "/coursesWeb/feedback&reviews" },
+      { name: "Recepies", path: "/coursesWeb/recepies" },
+      { name: "Workshops", path: "/coursesWeb/workshops" },
+      { name: "Detox diet plans", path: "/coursesWeb/detoxplans" },
     ],
     subscription: [
       { name: "Members", path: "/subscription/members" },
