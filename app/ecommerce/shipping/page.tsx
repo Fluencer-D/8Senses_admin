@@ -54,7 +54,7 @@ const ShippingDashboard = () => {
 
         setShippingOrders(normalizedData);
       } catch (err: any) {
-        console.log(err)
+        console.log(err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -169,7 +169,7 @@ const ShippingDashboard = () => {
 
         {/* Date and Filter Buttons */}
         <div className="flex gap-3">
-          <button className="flex items-center px-3 py-0.5 bg-white rounded-md text-gray-700">
+          {/* <button className="flex items-center px-3 py-0.5 bg-white rounded-md text-gray-700">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -181,7 +181,7 @@ const ShippingDashboard = () => {
               <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-12a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"></path>
             </svg>
             Select Dates
-          </button>
+          </button> */}
           <button className="flex items-center gap-x-2 p-3 rounded-lg border-2 h-10 bg-white">
             <svg
               xmlns="http://www.w3.org/2000/svg"

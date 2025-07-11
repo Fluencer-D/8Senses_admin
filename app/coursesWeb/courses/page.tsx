@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface Course {
-  thumbnail:string,
+  thumbnail: string;
   id: string;
   title: string;
   instructor: string;
@@ -12,10 +12,9 @@ interface Course {
   enrollmentsCount: number;
 }
 
-
 const CoursesManagement = () => {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,79 +22,90 @@ const CoursesManagement = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          },
-        });
-        if (!response.ok) throw new Error('Failed to fetch courses');
-  
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/courses`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch courses");
+
         const json = await response.json();
-        console.log("zzzzzzz",json)
+        console.log("zzzzzzz", json);
         const normalizedCourses = (json.data || []).map((course: any) => ({
           id: course._id,
-          thumbnail:course.thumbnail,
+          thumbnail: course.thumbnail,
           title: course.title ?? "Untitled",
           instructor: course.instructor ?? "N/A",
           price: course.price ?? 0,
           status: course.status ?? "inactive",
           enrollmentsCount: course.enrollmentsCount ?? 0,
         }));
-  
+
         setCourses(normalizedCourses);
         setFilteredCourses(normalizedCourses);
       } catch (err: any) {
-        console.error('Error fetching courses:', err);
+        console.error("Error fetching courses:", err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchCourses();
   }, []);
-  
 
   useEffect(() => {
-    const results = courses.filter(course =>
-      (course.title ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (course.instructor ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (course.status ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.price.toString().includes(searchTerm)
+    const results = courses.filter(
+      (course) =>
+        (course.title ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (course.instructor ?? "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (course.status ?? "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        course.price.toString().includes(searchTerm)
     );
     setFilteredCourses(results);
   }, [searchTerm, courses]);
-  
- const handleDelete = async (id: string) => {
-  const confirmDelete = window.confirm("Are you sure you want to delete this course?");
-  if (!confirmDelete) return;
 
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-      },
-    });
+  const handleDelete = async (id: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this course?"
+    );
+    if (!confirmDelete) return;
 
-    const data = await res.json();
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/courses/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+        }
+      );
 
-    if (!res.ok) {
-      throw new Error(data.error || "Failed to delete course");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to delete course");
+      }
+
+      // ✅ Update local state
+      setCourses((prev) => prev.filter((course) => course.id !== id));
+      setFilteredCourses((prev) => prev.filter((course) => course.id !== id));
+
+      alert("Course deleted successfully!");
+    } catch (err: any) {
+      console.error("❌ Error deleting course:", err);
+      alert(err.message || "Something went wrong");
     }
+  };
 
-    // ✅ Update local state
-    setCourses((prev) => prev.filter((course) => course.id !== id));
-    setFilteredCourses((prev) => prev.filter((course) => course.id !== id));
-
-    alert("Course deleted successfully!");
-  } catch (err: any) {
-    console.error("❌ Error deleting course:", err);
-    alert(err.message || "Something went wrong");
-  }
-};
-
-  
   const getStatusBadgeClass = (status: string = "") => {
     switch (status) {
       case "Active":
@@ -111,7 +121,7 @@ const CoursesManagement = () => {
 
   if (loading) return <div className="p-6">Loading courses...</div>;
   if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
-                    
+
   return (
     <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto overflow-y-auto">
       {/* Page Header */}
@@ -170,7 +180,7 @@ const CoursesManagement = () => {
             </svg>
             Export
           </button>
-          <Link href={'/coursesWeb/courses/addCourse'}>
+          <Link href={"/coursesWeb/courses/addCourse"}>
             <button className="px-4 py-2 bg-[#C83C92] text-white font-semibold rounded-md">
               + Add Course
             </button>
@@ -206,7 +216,7 @@ const CoursesManagement = () => {
         </div>
 
         <div className="flex space-x-3">
-          <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -222,7 +232,7 @@ const CoursesManagement = () => {
               />
             </svg>
             Select Dates
-          </button>
+          </button> */}
 
           <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
@@ -269,35 +279,57 @@ const CoursesManagement = () => {
           <div className="col-span-1">Instructor</div>
           <div className="col-span-1 ml-40">Price</div>
           <div className="col-span-1 ml-30">Status</div>
-          <div className="col-span-1 ml-20 whitespace-nowrap">Total Enrolled</div>
+          <div className="col-span-1 ml-20 whitespace-nowrap">
+            Total Enrolled
+          </div>
           <div className="col-span-1 ml-15">Action</div>
         </div>
 
         {filteredCourses.length > 0 ? (
           filteredCourses.map((course) => (
-            <div key={course.id} className="grid grid-cols-6 py-4 px-6 border-t border-gray-200">
+            <div
+              key={course.id}
+              className="grid grid-cols-6 py-4 px-6 border-t border-gray-200"
+            >
               <div className="col-span-1 flex items-center">
-              <div className="h-12 w-12 bg-gray-100 rounded-md mr-3 flex-shrink-0 overflow-hidden">
-  <img
-    src={course.thumbnail}
-    alt="Course thumbnail"
-    className="h-full w-full"
-  />
-</div>
-                <span className="text-[#1E437A] font-medium">{course.title}</span>
+                <div className="h-12 w-12 bg-gray-100 rounded-md mr-3 flex-shrink-0 overflow-hidden">
+                  <img
+                    src={course.thumbnail}
+                    alt="Course thumbnail"
+                    className="h-full w-full"
+                  />
+                </div>
+                <span className="text-[#1E437A] font-medium">
+                  {course.title}
+                </span>
               </div>
-              <div className="col-span-1 flex items-center text-[#1E437A] whitespace-nowrap ml-">{course.instructor}</div>
-              <div className="col-span-1 flex items-center text-[#1E437A] ml-40">{course.price}</div>
+              <div className="col-span-1 flex items-center text-[#1E437A] whitespace-nowrap ml-">
+                {course.instructor}
+              </div>
+              <div className="col-span-1 flex items-center text-[#1E437A] ml-40">
+                {course.price}
+              </div>
               <div className="col-span-1 flex items-center ml-30">
-                <span className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeClass(course.status)}`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeClass(
+                    course.status
+                  )}`}
+                >
                   {course.status}
                 </span>
               </div>
-              <div className="col-span-1 flex items-center text-[#1E437A] ml-30">{course.enrollmentsCount}</div>
+              <div className="col-span-1 flex items-center text-[#1E437A] ml-30">
+                {course.enrollmentsCount}
+              </div>
               <div className="col-span-1 flex items-center space-x-3 ml-15">
                 <button className="text-blue-600">View</button>
                 <button className="text-blue-600">Edit</button>
-                <button onClick={() => handleDelete(course.id)} className="text-blue-600">Delete</button>
+                <button
+                  onClick={() => handleDelete(course.id)}
+                  className="text-blue-600"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))
