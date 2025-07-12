@@ -1,40 +1,40 @@
 "use client";
 import React, { useState } from "react";
 
+// Initial feedback data
+const feedbackData = [
+  {
+    id: 1,
+    name: "John Dawson",
+    course: "Speech Therapy Basics",
+    rating: 5,
+    feedback: "Very informative!",
+  },
+  {
+    id: 2,
+    name: "Emily Carter",
+    course: "Sensory Play Webinar",
+    rating: 3,
+    feedback: "Good session, but a bit long.",
+  },
+  {
+    id: 3,
+    name: "Sarah Kim",
+    course: "Fine Motor Skills Course",
+    rating: 2,
+    feedback: "Lacked depth on key topics.",
+  },
+  {
+    id: 4,
+    name: "Robert Green",
+    course: "ADHD Awareness Webinar",
+    rating: 4,
+    feedback: "Great hands-on techniques!",
+  },
+];
+
 const FeedbackReviewsTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Initial feedback data
-  const feedbackData = [
-    {
-      id: 1,
-      name: "John Dawson",
-      course: "Speech Therapy Basics",
-      rating: 5,
-      feedback: "Very informative!",
-    },
-    {
-      id: 2,
-      name: "Emily Carter",
-      course: "Sensory Play Webinar",
-      rating: 3,
-      feedback: "Good session, but a bit long.",
-    },
-    {
-      id: 3,
-      name: "Sarah Kim",
-      course: "Fine Motor Skills Course",
-      rating: 2,
-      feedback: "Lacked depth on key topics.",
-    },
-    {
-      id: 4,
-      name: "Robert Green",
-      course: "ADHD Awareness Webinar",
-      rating: 4,
-      feedback: "Great hands-on techniques!",
-    },
-  ];
 
   // Filter feedback based on search term
   const filteredFeedback = feedbackData.filter(

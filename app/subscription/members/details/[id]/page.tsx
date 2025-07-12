@@ -60,17 +60,17 @@ const MemberDetailsPage = () => {
   }, [id]);
 
   const handleSendRenewalReminder = async () => {
-    alert("Renewal reminder sent successfully (mocked)");
+    alert("Renewal reminder sent successfully");
   };
 
-  const handleSuspendSubscription = async () => {
-    if (
-      confirm("Are you sure you want to suspend this member's subscription?")
-    ) {
-      alert("Subscription suspended successfully (mocked)");
-      router.push("/subscription/members");
-    }
-  };
+  // const handleSuspendSubscription = async () => {
+  //   if (
+  //     confirm("Are you sure you want to suspend this member's subscription?")
+  //   ) {
+  //     alert("Subscription suspended successfully (mocked)");
+  //     router.push("/subscription/members");
+  //   }
+  // };
 
   return (
     <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto overflow-y-auto hide-scrollbar">
@@ -207,12 +207,12 @@ const MemberDetailsPage = () => {
               >
                 Send Renewal Reminder
               </button>
-              <button
+              {/* <button
                 className="bg-[#F04438] text-white px-5 py-3 rounded-lg hover:bg-[#E42F22] transition-colors"
                 onClick={handleSuspendSubscription}
               >
                 Suspend Subscription
-              </button>
+              </button> */}
             </div>
           </div>
         ) : null}
