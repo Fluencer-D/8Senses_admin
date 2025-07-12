@@ -1,6 +1,8 @@
-"use client"
+"use client";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { Suspense } from "react"
+import { Suspense } from "react";
 
 // Loading component for Suspense fallback
 function OrderDetailsLoading() {
@@ -17,7 +19,9 @@ function OrderDetailsLoading() {
         </div>
       </div>
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-xl font-medium text-[#333843] mb-6">Order Details</h2>
+        <h2 className="text-xl font-medium text-[#333843] mb-6">
+          Order Details
+        </h2>
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-600 mx-auto"></div>
@@ -26,70 +30,74 @@ function OrderDetailsLoading() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // Move your existing component code here
 function OrderDetailsContent() {
-  const { useRouter, useSearchParams } = require("next/navigation")
-  const React = require("react")
-  const { useState, useEffect } = React
-
   interface Product {
-    name: string
-    quantity: number
-    price: number
+    name: string;
+    quantity: number;
+    price: number;
   }
 
   interface Address {
-    firstName: string
-    lastName: string
-    address1: string
-    address2?: string
-    city: string
-    state: string
-    postalCode: string
-    country: string
-    phone: string
+    firstName: string;
+    lastName: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    phone: string;
   }
 
   interface OrderData {
-    _id: string
-    customer: string
-    address: Address
-    products: Product[]
-    paymentStatus: string
-    shippingStatus: string
+    _id: string;
+    customer: string;
+    address: Address;
+    products: Product[];
+    paymentStatus: string;
+    shippingStatus: string;
   }
 
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const orderId = searchParams.get("id")
-  const [orderData, setOrderData] = useState<OrderData | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("id");
+  const [orderData, setOrderData] = useState<OrderData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!orderId) return
+    if (!orderId) return;
 
     const fetchOrderDetails = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const token = localStorage.getItem("adminToken")
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const token = localStorage.getItem("adminToken");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        if (!res.ok) throw new Error("Error fetching order")
+        if (!res.ok) throw new Error("Error fetching order");
 
-        const data = await res.json()
-        const order = data.data
+        const data = await res.json();
+        console.log("data", data); //debug
+        const order = data.data;
+        console.log("orders", order); //debug
 
         const formatted: OrderData = {
           _id: order._id,
-          customer: `${order.customerInfo?.firstName || ""} ${order.customerInfo?.lastName || ""}`.trim() || "N/A",
+          customer:
+            `${order.customerInfo?.firstName || ""} ${
+              order.customerInfo?.lastName || ""
+            }`.trim() || "N/A",
           address: order.shippingAddress,
           products: Array.isArray(order.items)
             ? order.items.map((item: any) => ({
@@ -99,65 +107,77 @@ function OrderDetailsContent() {
               }))
             : [],
           paymentStatus: order.paymentStatus || "Unknown",
-          shippingStatus: order.status?.charAt(0).toUpperCase() + order.status?.slice(1) || "Not Shipped",
-        }
+          shippingStatus:
+            order.status?.charAt(0).toUpperCase() + order.status?.slice(1) ||
+            "Not Shipped",
+        };
 
-        setOrderData(formatted)
-        setError(null)
+        setOrderData(formatted);
+        setError(null);
       } catch (err) {
-        console.error("Failed to fetch order details:", err)
-        setError("Failed to fetch order details.")
+        console.error("Failed to fetch order details:", err);
+        setError("Failed to fetch order details.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchOrderDetails()
-  }, [orderId])
+    fetchOrderDetails();
+  }, [orderId]);
 
   const handleUpdateShipping = async () => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/status`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: "processing" }),
-      })
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: "processing" }),
+        }
+      );
 
-      if (!res.ok) throw new Error("Failed to update shipping status")
+      if (!res.ok) throw new Error("Failed to update shipping status");
 
-      setOrderData((prev) => (prev ? { ...prev, shippingStatus: "Shipped" } : prev))
-      alert("Shipping status updated successfully")
+      setOrderData((prev) =>
+        prev ? { ...prev, shippingStatus: "Shipped" } : prev
+      );
+      alert("Shipping status updated successfully");
     } catch (err) {
-      console.error("Error updating shipping status:", err)
-      alert(`Error: ${(err as Error).message}`)
+      console.error("Error updating shipping status:", err);
+      alert(`Error: ${(err as Error).message}`);
     }
-  }
+  };
 
   const handleProcessRefund = async () => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/refund`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/refund`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      if (!res.ok) throw new Error("Failed to process refund")
+      if (!res.ok) throw new Error("Failed to process refund");
 
-      router.push("/ecommerce/orders/issueRefund")
-      setOrderData((prev) => (prev ? { ...prev, paymentStatus: "Refunded" } : prev))
-      alert("Refund processed successfully")
+      router.push("/ecommerce/orders/issueRefund");
+      setOrderData((prev) =>
+        prev ? { ...prev, paymentStatus: "Refunded" } : prev
+      );
+      alert("Refund processed successfully");
     } catch (err) {
-      console.error("Error processing refund:", err)
-      alert(`Error: ${(err as Error).message}`)
+      console.error("Error processing refund:", err);
+      alert(`Error: ${(err as Error).message}`);
     }
-  }
+  };
 
   return (
     <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto">
@@ -167,7 +187,13 @@ function OrderDetailsContent() {
           <h1 className="text-[#333843] text-3xl">Orders</h1>
           {/* Export Button */}
           <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="2 2 20 20" fill="none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="2 2 20 20"
+              fill="none"
+            >
               <g clipPath="url(#clip0_786_597)">
                 <path
                   d="M15.7071 7.20706C15.3166 7.59758 14.6834 7.59758 14.2929 7.20706L13 5.91417V15.5C13 16.0522 12.5523 16.5 12 16.5C11.4477 16.5 11 16.0522 11 15.5V5.91417L9.70711 7.20706C9.31658 7.59758 8.68342 7.59758 8.29289 7.20706C7.90237 6.81654 7.90237 6.18337 8.29289 5.79285L11.6464 2.43929C11.8417 2.24403 12.1583 2.24403 12.3536 2.43929L15.7071 5.79285C16.0976 6.18337 16.0976 6.81654 15.7071 7.20706Z"
@@ -197,35 +223,47 @@ function OrderDetailsContent() {
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-xl font-medium text-[#333843] mb-6">Order Details</h2>
+        <h2 className="text-xl font-medium text-[#333843] mb-6">
+          Order Details
+        </h2>
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-600"></div>
           </div>
         ) : error && !orderData ? (
-          <div className="bg-red-100 text-red-700 p-4 rounded-lg">Error: {error}</div>
+          <div className="bg-red-100 text-red-700 p-4 rounded-lg">
+            Error: {error}
+          </div>
         ) : (
           orderData && (
             <div className="space-y-6">
               <div>
                 <p className="text-[#1E437A] mb-1">Order ID</p>
-                <p className="text-[#1E437A] text-lg font-semibold">{orderData._id}</p>
+                <p className="text-[#1E437A] text-lg font-semibold">
+                  {orderData._id}
+                </p>
               </div>
 
               <div>
                 <p className="text-gray-600 mb-1">Customer</p>
-                <p className="text-lg font-medium text-[#1E437A]">{orderData.customer}</p>
+                <p className="text-lg font-medium text-[#1E437A]">
+                  {orderData.customer}
+                </p>
               </div>
 
               <div>
                 <p className="text-[#1E437A] mb-1">Address</p>
                 <p className="text-lg font-medium text-[#1E437A]">
-                  {`${orderData.address.firstName} ${orderData.address.lastName}, ${orderData.address.address1}, ${
-                    orderData.address.address2 ? orderData.address.address2 + ", " : ""
-                  }${orderData.address.city}, ${orderData.address.state} ${orderData.address.postalCode}, ${
-                    orderData.address.country
-                  } (${orderData.address.phone})`}
+                  {`${orderData.address.firstName} ${
+                    orderData.address.lastName
+                  }, ${orderData.address.address1}, ${
+                    orderData.address.address2
+                      ? orderData.address.address2 + ", "
+                      : ""
+                  }${orderData.address.city}, ${orderData.address.state} ${
+                    orderData.address.postalCode
+                  }, ${orderData.address.country} (${orderData.address.phone})`}
                 </p>
               </div>
 
@@ -234,7 +272,8 @@ function OrderDetailsContent() {
                 <ul className="list-disc pl-5 mt-2 space-y-2">
                   {orderData.products.map((product, index) => (
                     <li key={index} className="text-[#1E437A]">
-                      {product.name} (Qty: {product.quantity}) - ${product.price.toFixed(2)}
+                      {product.name} (Qty: {product.quantity}) - $
+                      {product.price.toFixed(2)}
                     </li>
                   ))}
                 </ul>
@@ -267,7 +306,7 @@ function OrderDetailsContent() {
                 </div>
               </div>
 
-              <div className="flex gap-4 mt-4">
+              {/* <div className="flex gap-4 mt-4">
                 <button
                   className="bg-[#C83C92] text-white px-5 py-3 rounded-lg disabled:bg-gray-400"
                   onClick={handleUpdateShipping}
@@ -282,13 +321,13 @@ function OrderDetailsContent() {
                 >
                   Process Refund
                 </button>
-              </div>
+              </div> */}
             </div>
           )
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // Main page component with Suspense wrapper
@@ -297,5 +336,5 @@ export default function OrderDetailsPage() {
     <Suspense fallback={<OrderDetailsLoading />}>
       <OrderDetailsContent />
     </Suspense>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-"use client"
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import React from 'react';
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import React from "react";
 
 interface Webinar {
   _id: string;
@@ -17,7 +17,7 @@ const WebinarsManagement = () => {
   const [webinarsPerPage] = useState(5); // Adjust this number as needed
   const [totalPages, setTotalPages] = useState(0);
   const [isClient, setIsClient] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [webinarsData, setWebinarsData] = useState<Webinar[]>([]);
   const [filteredWebinars, setFilteredWebinars] = useState<Webinar[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,15 +27,18 @@ const WebinarsManagement = () => {
     const fetchWebinars = async () => {
       try {
         const token = localStorage.getItem("adminToken");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/webinars`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/webinars`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (!res.ok) throw new Error("Failed to fetch webinars");
-  
+
         const data = await res.json();
-        
+
         // Define the API response type
         interface WebinarApiResponse {
           _id: string;
@@ -47,17 +50,19 @@ const WebinarsManagement = () => {
           participantsCount: number;
           [key: string]: any; // for any other properties
         }
-        
+
         // Format the data to match component expectations
         const formattedData = data.data.map((webinar: WebinarApiResponse) => ({
           _id: webinar._id,
           title: webinar.title,
           speaker: webinar.speaker,
-          dateTime: `${new Date(webinar.date).toLocaleDateString()} ${webinar.startTime}`,
+          dateTime: `${new Date(webinar.date).toLocaleDateString()} ${
+            webinar.startTime
+          }`,
           status: capitalizeFirstLetter(webinar.status),
           registrations: webinar.participantsCount,
         }));
-        
+
         setWebinarsData(formattedData);
         setFilteredWebinars(formattedData);
       } catch (err: any) {
@@ -66,40 +71,46 @@ const WebinarsManagement = () => {
         setLoading(false);
       }
     };
-  
+
     // Helper function to capitalize first letter
     const capitalizeFirstLetter = (string: string): string => {
       return string.charAt(0).toUpperCase() + string.slice(1);
     };
-  
+
     fetchWebinars();
   }, []);
 
   useEffect(() => {
     // First filter webinars based on search term
-    const searchResults = webinarsData.filter(webinar => 
-      webinar.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      webinar.speaker.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      webinar.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      webinar.dateTime.toLowerCase().includes(searchTerm.toLowerCase())
+    const searchResults = webinarsData.filter(
+      (webinar) =>
+        webinar.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        webinar.speaker.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        webinar.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        webinar.dateTime.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    
+
     // Calculate total pages
-    const calculatedTotalPages = Math.ceil(searchResults.length / webinarsPerPage);
+    const calculatedTotalPages = Math.ceil(
+      searchResults.length / webinarsPerPage
+    );
     setTotalPages(calculatedTotalPages);
-    
+
     // If current page is greater than total pages and total pages is not 0,
     // set current page to the last page
     if (currentPage > calculatedTotalPages && calculatedTotalPages > 0) {
       setCurrentPage(calculatedTotalPages);
       return; // Return early as setCurrentPage will trigger this effect again
     }
-    
+
     // Get current page webinars
     const indexOfLastWebinar = currentPage * webinarsPerPage;
     const indexOfFirstWebinar = indexOfLastWebinar - webinarsPerPage;
-    const currentWebinars = searchResults.slice(indexOfFirstWebinar, indexOfLastWebinar);
-    
+    const currentWebinars = searchResults.slice(
+      indexOfFirstWebinar,
+      indexOfLastWebinar
+    );
+
     setFilteredWebinars(currentWebinars);
   }, [searchTerm, webinarsData, currentPage, webinarsPerPage]);
 
@@ -122,34 +133,38 @@ const WebinarsManagement = () => {
   };
   const deleteWebinar = async (id: string) => {
     if (!confirm("Are you sure you want to delete this webinar?")) return;
-    
+
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/webinars/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/webinars/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (!res.ok) throw new Error("Failed to delete webinar");
-      
+
       // Remove the deleted webinar from state
-      setWebinarsData(webinarsData.filter(webinar => webinar._id !== id));
-      setFilteredWebinars(filteredWebinars.filter(webinar => webinar._id !== id));
-      
+      setWebinarsData(webinarsData.filter((webinar) => webinar._id !== id));
+      setFilteredWebinars(
+        filteredWebinars.filter((webinar) => webinar._id !== id)
+      );
     } catch (err: any) {
       setError(err.message);
     }
   };
-  
+
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
-  
-  const goToPage = (pageNumber:number) => {
+
+  const goToPage = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
   useEffect(() => {
@@ -217,7 +232,7 @@ const WebinarsManagement = () => {
             </svg>
             Export
           </button>
-          <Link href={'/coursesWeb/webinars/addWebinar'}>
+          <Link href={"/coursesWeb/webinars/addWebinar"}>
             <button className="px-4 py-2 bg-[#C83C92] text-white font-semibold rounded-md">
               + Schedule New Webinar
             </button>
@@ -253,7 +268,7 @@ const WebinarsManagement = () => {
         </div>
 
         <div className="flex space-x-3">
-          <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -269,7 +284,7 @@ const WebinarsManagement = () => {
               />
             </svg>
             Select Dates
-          </button>
+          </button> */}
 
           <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
@@ -324,35 +339,92 @@ const WebinarsManagement = () => {
         {/* Table Body */}
         {filteredWebinars.length > 0 ? (
           filteredWebinars.map((webinar) => (
-            <div key={webinar._id} className="grid grid-cols-6 py-4 px-6 border-t border-gray-200">
+            <div
+              key={webinar._id}
+              className="grid grid-cols-6 py-4 px-6 border-t border-gray-200"
+            >
               <div className="col-span-1 flex items-center">
                 <div className="h-12 w-12 bg-gray-100 rounded-md mr-3 flex-shrink-0"></div>
-                <span className="text-[#1E437A] font-medium">{webinar.title}</span>
+                <span className="text-[#1E437A] font-medium">
+                  {webinar.title}
+                </span>
               </div>
-              <div className="col-span-1 flex items-center text-[#1E437A]">{webinar.speaker}</div>
-              <div className="col-span-1 flex items-center text-[#1E437A]">{webinar.dateTime}</div>
+              <div className="col-span-1 flex items-center text-[#1E437A]">
+                {webinar.speaker}
+              </div>
+              <div className="col-span-1 flex items-center text-[#1E437A]">
+                {webinar.dateTime}
+              </div>
               <div className="col-span-1 flex items-center">
-                <span className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeClass(webinar.status)}`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeClass(
+                    webinar.status
+                  )}`}
+                >
                   {webinar.status}
                 </span>
               </div>
-              <div className="col-span-1 flex items-center text-[#1E437A] ml-10">{webinar.registrations}</div>
+              <div className="col-span-1 flex items-center text-[#1E437A] ml-10">
+                {webinar.registrations}
+              </div>
               <div className="col-span-1 flex items-center space-x-3">
                 <button className="text-blue-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M10.0002 4.16663C15.1085 4.16663 17.5258 7.5916 18.3768 9.19278C18.6477 9.70262 18.6477 10.2973 18.3768 10.8071C17.5258 12.4083 15.1085 15.8333 10.0002 15.8333C4.89188 15.8333 2.4746 12.4083 1.62363 10.8071C1.35267 10.2973 1.35267 9.70262 1.62363 9.19277C2.4746 7.59159 4.89188 4.16663 10.0002 4.16663ZM5.69716 7.0647C4.31361 7.98141 3.50572 9.20281 3.09536 9.97494C3.09078 9.98357 3.08889 9.98955 3.08807 9.99283C3.08724 9.99617 3.08708 9.99996 3.08708 9.99996C3.08708 9.99996 3.08724 10.0037 3.08807 10.0071C3.08889 10.0104 3.09078 10.0164 3.09536 10.025C3.50572 10.7971 4.31361 12.0185 5.69716 12.9352C5.12594 12.0994 4.79188 11.0887 4.79188 9.99996C4.79188 8.91121 5.12594 7.90049 5.69716 7.0647ZM14.3033 12.9352C15.6868 12.0185 16.4947 10.7971 16.905 10.025C16.9096 10.0164 16.9115 10.0104 16.9123 10.0071C16.9129 10.0049 16.9133 10.0019 16.9133 10.0019L16.9133 9.99996L16.913 9.99629L16.9123 9.99283C16.9115 9.98955 16.9096 9.98357 16.905 9.97494C16.4947 9.20282 15.6868 7.98142 14.3033 7.06471C14.8745 7.9005 15.2085 8.91122 15.2085 9.99996C15.2085 11.0887 14.8745 12.0994 14.3033 12.9352ZM6.45854 9.99996C6.45854 8.04395 8.0442 6.45829 10.0002 6.45829C11.9562 6.45829 13.5419 8.04395 13.5419 9.99996C13.5419 11.956 11.9562 13.5416 10.0002 13.5416C8.0442 13.5416 6.45854 11.956 6.45854 9.99996Z" fill="#456696"/>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M10.0002 4.16663C15.1085 4.16663 17.5258 7.5916 18.3768 9.19278C18.6477 9.70262 18.6477 10.2973 18.3768 10.8071C17.5258 12.4083 15.1085 15.8333 10.0002 15.8333C4.89188 15.8333 2.4746 12.4083 1.62363 10.8071C1.35267 10.2973 1.35267 9.70262 1.62363 9.19277C2.4746 7.59159 4.89188 4.16663 10.0002 4.16663ZM5.69716 7.0647C4.31361 7.98141 3.50572 9.20281 3.09536 9.97494C3.09078 9.98357 3.08889 9.98955 3.08807 9.99283C3.08724 9.99617 3.08708 9.99996 3.08708 9.99996C3.08708 9.99996 3.08724 10.0037 3.08807 10.0071C3.08889 10.0104 3.09078 10.0164 3.09536 10.025C3.50572 10.7971 4.31361 12.0185 5.69716 12.9352C5.12594 12.0994 4.79188 11.0887 4.79188 9.99996C4.79188 8.91121 5.12594 7.90049 5.69716 7.0647ZM14.3033 12.9352C15.6868 12.0185 16.4947 10.7971 16.905 10.025C16.9096 10.0164 16.9115 10.0104 16.9123 10.0071C16.9129 10.0049 16.9133 10.0019 16.9133 10.0019L16.9133 9.99996L16.913 9.99629L16.9123 9.99283C16.9115 9.98955 16.9096 9.98357 16.905 9.97494C16.4947 9.20282 15.6868 7.98142 14.3033 7.06471C14.8745 7.9005 15.2085 8.91122 15.2085 9.99996C15.2085 11.0887 14.8745 12.0994 14.3033 12.9352ZM6.45854 9.99996C6.45854 8.04395 8.0442 6.45829 10.0002 6.45829C11.9562 6.45829 13.5419 8.04395 13.5419 9.99996C13.5419 11.956 11.9562 13.5416 10.0002 13.5416C8.0442 13.5416 6.45854 11.956 6.45854 9.99996Z"
+                      fill="#456696"
+                    />
                   </svg>
                 </button>
                 <button className="text-blue-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M17.3047 6.82016C18.281 5.84385 18.281 4.26093 17.3047 3.28462L16.7155 2.69537C15.7391 1.71906 14.1562 1.71906 13.1799 2.69537L3.69097 12.1843C3.34624 12.529 3.10982 12.967 3.01082 13.4444L2.34111 16.6738C2.21932 17.261 2.73906 17.7807 3.32629 17.6589L6.55565 16.9892C7.03302 16.8902 7.47103 16.6538 7.81577 16.3091L17.3047 6.82016ZM16.1262 4.46313L15.5369 3.87388C15.2115 3.54844 14.6839 3.54844 14.3584 3.87388L13.4745 4.75779L15.2423 6.52556L16.1262 5.64165C16.4516 5.31621 16.4516 4.78857 16.1262 4.46313ZM14.0638 7.70407L12.296 5.9363L4.86948 13.3628C4.75457 13.4777 4.67577 13.6237 4.64277 13.7829L4.23082 15.7692L6.21721 15.3573C6.37634 15.3243 6.52234 15.2455 6.63726 15.1306L14.0638 7.70407Z" fill="#456696"/>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M17.3047 6.82016C18.281 5.84385 18.281 4.26093 17.3047 3.28462L16.7155 2.69537C15.7391 1.71906 14.1562 1.71906 13.1799 2.69537L3.69097 12.1843C3.34624 12.529 3.10982 12.967 3.01082 13.4444L2.34111 16.6738C2.21932 17.261 2.73906 17.7807 3.32629 17.6589L6.55565 16.9892C7.03302 16.8902 7.47103 16.6538 7.81577 16.3091L17.3047 6.82016ZM16.1262 4.46313L15.5369 3.87388C15.2115 3.54844 14.6839 3.54844 14.3584 3.87388L13.4745 4.75779L15.2423 6.52556L16.1262 5.64165C16.4516 5.31621 16.4516 4.78857 16.1262 4.46313ZM14.0638 7.70407L12.296 5.9363L4.86948 13.3628C4.75457 13.4777 4.67577 13.6237 4.64277 13.7829L4.23082 15.7692L6.21721 15.3573C6.37634 15.3243 6.52234 15.2455 6.63726 15.1306L14.0638 7.70407Z"
+                      fill="#456696"
+                    />
                   </svg>
                 </button>
-                <button className="text-blue-600 cursor-pointer" onClick={() => deleteWebinar(webinar._id)}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M8.33317 8.12496C8.79341 8.12496 9.1665 8.49806 9.1665 8.95829V13.9583C9.1665 14.4185 8.79341 14.7916 8.33317 14.7916C7.87293 14.7916 7.49984 14.4185 7.49984 13.9583V8.95829C7.49984 8.49806 7.87293 8.12496 8.33317 8.12496Z" fill="#456696"/>
-                    <path d="M12.4998 8.95829C12.4998 8.49806 12.1267 8.12496 11.6665 8.12496C11.2063 8.12496 10.8332 8.49806 10.8332 8.95829V13.9583C10.8332 14.4185 11.2063 14.7916 11.6665 14.7916C12.1267 14.7916 12.4998 14.4185 12.4998 13.9583V8.95829Z" fill="#456696"/>
-                    <path fillRule="evenodd" clipRule="evenodd" d="M14.9998 4.99996V4.16663C14.9998 2.78591 13.8806 1.66663 12.4998 1.66663H7.49984C6.11913 1.66663 4.99984 2.78591 4.99984 4.16663V4.99996H3.74984C3.2896 4.99996 2.9165 5.37306 2.9165 5.83329C2.9165 6.29353 3.2896 6.66663 3.74984 6.66663H4.1665V15.8333C4.1665 17.214 5.28579 18.3333 6.6665 18.3333H13.3332C14.7139 18.3333 15.8332 17.214 15.8332 15.8333V6.66663H16.2498C16.7101 6.66663 17.0832 6.29353 17.0832 5.83329C17.0832 5.37306 16.7101 4.99996 16.2498 4.99996H14.9998ZM12.4998 3.33329H7.49984C7.0396 3.33329 6.6665 3.70639 6.6665 4.16663V4.99996H13.3332V4.16663C13.3332 3.70639 12.9601 3.33329 12.4998 3.33329ZM14.1665 6.66663H5.83317V15.8333C5.83317 16.2935 6.20627 16.6666 6.6665 16.6666H13.3332C13.7934 16.6666 14.1665 16.2935 14.1665 15.8333V6.66663Z" fill="#456696"/>
+                <button
+                  className="text-blue-600 cursor-pointer"
+                  onClick={() => deleteWebinar(webinar._id)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
+                    <path
+                      d="M8.33317 8.12496C8.79341 8.12496 9.1665 8.49806 9.1665 8.95829V13.9583C9.1665 14.4185 8.79341 14.7916 8.33317 14.7916C7.87293 14.7916 7.49984 14.4185 7.49984 13.9583V8.95829C7.49984 8.49806 7.87293 8.12496 8.33317 8.12496Z"
+                      fill="#456696"
+                    />
+                    <path
+                      d="M12.4998 8.95829C12.4998 8.49806 12.1267 8.12496 11.6665 8.12496C11.2063 8.12496 10.8332 8.49806 10.8332 8.95829V13.9583C10.8332 14.4185 11.2063 14.7916 11.6665 14.7916C12.1267 14.7916 12.4998 14.4185 12.4998 13.9583V8.95829Z"
+                      fill="#456696"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M14.9998 4.99996V4.16663C14.9998 2.78591 13.8806 1.66663 12.4998 1.66663H7.49984C6.11913 1.66663 4.99984 2.78591 4.99984 4.16663V4.99996H3.74984C3.2896 4.99996 2.9165 5.37306 2.9165 5.83329C2.9165 6.29353 3.2896 6.66663 3.74984 6.66663H4.1665V15.8333C4.1665 17.214 5.28579 18.3333 6.6665 18.3333H13.3332C14.7139 18.3333 15.8332 17.214 15.8332 15.8333V6.66663H16.2498C16.7101 6.66663 17.0832 6.29353 17.0832 5.83329C17.0832 5.37306 16.7101 4.99996 16.2498 4.99996H14.9998ZM12.4998 3.33329H7.49984C7.0396 3.33329 6.6665 3.70639 6.6665 4.16663V4.99996H13.3332V4.16663C13.3332 3.70639 12.9601 3.33329 12.4998 3.33329ZM14.1665 6.66663H5.83317V15.8333C5.83317 16.2935 6.20627 16.6666 6.6665 16.6666H13.3332C13.7934 16.6666 14.1665 16.2935 14.1665 15.8333V6.66663Z"
+                      fill="#456696"
+                    />
                   </svg>
                 </button>
               </div>
@@ -365,46 +437,71 @@ const WebinarsManagement = () => {
         )}
       </div>
       {/* Pagination */}
-{totalPages > 0 && (
-  <div className="flex justify-between items-center mt-4 py-4">
-    <div className="text-sm text-gray-500">
-      Showing {filteredWebinars.length} of {webinarsData.filter(webinar => 
-        webinar.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        webinar.speaker.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        webinar.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        webinar.dateTime.toLowerCase().includes(searchTerm.toLowerCase())
-      ).length} webinars
-    </div>
-    <div className="flex items-center space-x-2">
-      <button 
-        onClick={prevPage} 
-        disabled={currentPage === 1}
-        className={`px-3 py-1 rounded ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-      >
-        Previous
-      </button>
-      
-      {/* Page Number Buttons */}
-      {[...Array(totalPages)].map((_, index) => (
-        <button
-          key={index + 1}
-          onClick={() => goToPage(index + 1)}
-          className={`px-3 py-1 rounded ${currentPage === index + 1 ? 'bg-[#C83C92] text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-        >
-          {index + 1}
-        </button>
-      ))}
-      
-      <button 
-        onClick={nextPage} 
-        disabled={currentPage === totalPages}
-        className={`px-3 py-1 rounded ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-      >
-        Next
-      </button>
-    </div>
-  </div>
-)}
+      {totalPages > 0 && (
+        <div className="flex justify-between items-center mt-4 py-4">
+          <div className="text-sm text-gray-500">
+            Showing {filteredWebinars.length} of{" "}
+            {
+              webinarsData.filter(
+                (webinar) =>
+                  webinar.title
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                  webinar.speaker
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                  webinar.status
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                  webinar.dateTime
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+              ).length
+            }{" "}
+            webinars
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={prevPage}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 rounded ${
+                currentPage === 1
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Previous
+            </button>
+
+            {/* Page Number Buttons */}
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => goToPage(index + 1)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === index + 1
+                    ? "bg-[#C83C92] text-white"
+                    : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={nextPage}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 rounded ${
+                currentPage === totalPages
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

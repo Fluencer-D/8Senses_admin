@@ -22,11 +22,14 @@ const Categories = () => {
       try {
         const token = localStorage.getItem("adminToken");
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/categories`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!res.ok) {
           throw new Error("Failed to fetch categories");
@@ -59,7 +62,10 @@ const Categories = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredCategories.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
 
@@ -67,23 +73,28 @@ const Categories = () => {
     setCurrentPage(page);
   };
   const handleDeleteCategory = async (id: string) => {
-    const confirmed = window.confirm("Are you sure you want to delete this category?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
     if (!confirmed) return;
-  
+
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/categories/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.message || "Failed to delete category");
       }
-  
+
       // Remove deleted category from local state
       setCategories((prev) => prev.filter((cat) => cat._id !== id));
     } catch (error: any) {
@@ -91,8 +102,7 @@ const Categories = () => {
       console.error("Delete Error:", error);
     }
   };
-  
-  
+
   return (
     <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto overflow-y-auto hide-scrollbar">
       {/* Page Header */}
@@ -151,7 +161,7 @@ const Categories = () => {
             </svg>
             Export
           </button>
-          <Link href={'/ecommerce/categories/addCategory'}>
+          <Link href={"/ecommerce/categories/addCategory"}>
             <button className="px-4 py-2 bg-[#C83C92] text-white font-semibold rounded-md">
               + Add Category
             </button>
@@ -187,7 +197,7 @@ const Categories = () => {
         </div>
 
         <div className="flex space-x-3">
-          <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -203,7 +213,7 @@ const Categories = () => {
               />
             </svg>
             Select Dates
-          </button>
+          </button> */}
 
           <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
@@ -247,10 +257,18 @@ const Categories = () => {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {/* Table Header */}
         <div className="grid grid-cols-12 bg-gray-50 py-4 px-6 border-b">
-          <div className="col-span-4 text-sm font-semibold text-gray-700">Category Name</div>
-          <div className="col-span-3 text-sm font-semibold text-gray-700">Type</div>
-          <div className="col-span-3 text-sm font-semibold text-gray-700">No. of Products</div>
-          <div className="col-span-2 text-sm font-semibold text-gray-700 text-right">Action</div>
+          <div className="col-span-4 text-sm font-semibold text-gray-700">
+            Category Name
+          </div>
+          <div className="col-span-3 text-sm font-semibold text-gray-700">
+            Type
+          </div>
+          <div className="col-span-3 text-sm font-semibold text-gray-700">
+            No. of Products
+          </div>
+          <div className="col-span-2 text-sm font-semibold text-gray-700 text-right">
+            Action
+          </div>
         </div>
 
         {/* Table Body */}
@@ -260,50 +278,101 @@ const Categories = () => {
           <div className="text-center py-8">No categories found.</div>
         ) : (
           currentItems.map((category) => (
-            <div key={category._id} className="grid grid-cols-12 py-4 px-6 border-b hover:bg-gray-50">
+            <div
+              key={category._id}
+              className="grid grid-cols-12 py-4 px-6 border-b hover:bg-gray-50"
+            >
               <div className="col-span-4 text-blue-600 font-medium">
-                <Link href={`/ecommerce/categories/viewCategory?id=${category._id}`}>{category.name}</Link>
+                <Link
+                  href={`/ecommerce/categories/viewCategory?id=${category._id}`}
+                >
+                  {category.name}
+                </Link>
               </div>
               <div className="col-span-3 text-gray-600">{category.type}</div>
-              <div className="col-span-3 text-gray-600">{category.productsCount}</div>
+              <div className="col-span-3 text-gray-600">
+                {category.productsCount}
+              </div>
               <div className="col-span-2 flex justify-end gap-2">
                 {/* Action buttons */}
-                <Link href={`/ecommerce/categories/viewCategory?id=${category._id}`}>
+                <Link
+                  href={`/ecommerce/categories/viewCategory?id=${category._id}`}
+                >
                   <button className="p-1 text-gray-500 hover:text-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
                   </button>
                 </Link>
-                <Link href={`/ecommerce/categories/viewCategory?id=${category._id}`}>
+                <Link
+                  href={`/ecommerce/categories/viewCategory?id=${category._id}`}
+                >
                   <button className="p-1 text-gray-500 hover:text-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      />
+                    </svg>
                   </button>
                 </Link>
                 <button
-  className="p-1 text-gray-500 hover:text-red-500"
-  onClick={() => handleDeleteCategory(category._id)}
->
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-  </svg>
-</button>
-
+                  className="p-1 text-gray-500 hover:text-red-500"
+                  onClick={() => handleDeleteCategory(category._id)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
               </div>
             </div>
           ))
         )}
       </div>
 
-       {/* Pagination */}
-       {!loading && filteredCategories.length > 0 && (
+      {/* Pagination */}
+      {!loading && filteredCategories.length > 0 && (
         <div className="flex justify-between items-center mt-4">
           <span className="text-sm text-[#456696]">
-            Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredCategories.length)}{" "}
-            from {filteredCategories.length}
+            Showing {indexOfFirstItem + 1}-
+            {Math.min(indexOfLastItem, filteredCategories.length)} from{" "}
+            {filteredCategories.length}
           </span>
           <div className="flex space-x-2">
             <button

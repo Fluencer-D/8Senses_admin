@@ -2,6 +2,7 @@
 import { useState, useEffect, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useSearchParams } from "next/navigation";
 
 // Updated interface to match the actual API response structure
 interface ProductData {
@@ -35,9 +36,8 @@ interface ProductData {
 
 const ProductDetails = () => {
   const router = useRouter();
-  // const searchParams = useSearchParams();
-  // const productId = searchParams.get("id");
-  const productId = "e2324fer"
+  const searchParams = useSearchParams();
+  const productId = searchParams.get("id");
 
   // State variables for form fields
   const [productName, setProductName] = useState<string>("");

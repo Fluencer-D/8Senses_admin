@@ -174,7 +174,7 @@ const WebinarEnrollmentTable = () => {
           />
         </div>
         <div className="flex space-x-2">
-          <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -190,7 +190,7 @@ const WebinarEnrollmentTable = () => {
               />
             </svg>
             Select Dates
-          </button>
+          </button> */}
           <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"

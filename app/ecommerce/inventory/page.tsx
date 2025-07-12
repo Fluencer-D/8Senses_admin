@@ -6,10 +6,10 @@ import Link from "next/link";
 interface InventoryItem {
   _id: string;
   image?: string;
-  name: string;           // Changed from productName to match API
+  name: string; // Changed from productName to match API
   category: string;
-  quantity: number;       // Changed from stockLevel to match API
-  stockStatus: string;    // Changed from status to match API
+  quantity: number; // Changed from stockLevel to match API
+  stockStatus: string; // Changed from status to match API
 }
 
 const Inventory = () => {
@@ -26,15 +26,19 @@ const Inventory = () => {
     const fetchInventory = async () => {
       try {
         const token = localStorage.getItem("adminToken");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/admin/all-inventory`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/products/admin/all-inventory`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (!res.ok) throw new Error("Failed to fetch inventory");
 
         const data = await res.json();
-        console.log(data)
+        console.log(data); //debug
+        console.log(data);
         setInventoryData(data.data);
       } catch (err: any) {
         setError(err.message);
@@ -45,10 +49,10 @@ const Inventory = () => {
     fetchInventory();
   }, []);
 
-  const filteredData = inventoryData.filter(item =>
+  const filteredData = inventoryData.filter((item) =>
     item.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
+
   const totalItems = filteredData.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -78,9 +82,10 @@ const Inventory = () => {
       <h1 className="text-[#333843] text-3xl">Inventory</h1>
       <div className="flex justify-between items-center mb-4">
         <div className="text-gray-500 text-sm">
-          <span className="text-blue-600 cursor-pointer">E-commerce</span> &gt; <span className="text-gray-800 font-semibold">Inventory</span>
+          <span className="text-blue-600 cursor-pointer">E-commerce</span> &gt;{" "}
+          <span className="text-gray-800 font-semibold">Inventory</span>
         </div>
-        
+
         {/* Export Button */}
         <div>
           <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
@@ -114,8 +119,17 @@ const Inventory = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="relative w-80">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <svg className="w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+            <svg
+              className="w-4 h-4 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
           <input
@@ -126,10 +140,10 @@ const Inventory = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        
+
         {/* Date and Filter Buttons */}
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -145,7 +159,7 @@ const Inventory = () => {
               />
             </svg>
             Select Dates
-          </button>
+          </button> */}
           <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -189,23 +203,45 @@ const Inventory = () => {
           <div className="col-span-1">Category</div>
           <div className="col-span-1">Stock Level</div>
           <div className="col-span-1">Status</div>
-          <div className="col-span-1">Action</div> 
+          <div className="col-span-1">Action</div>
         </div>
         {currentItems.map((item) => (
-          <div key={item._id} className="grid grid-cols-5 p-4 border-b border-[#E0E2E7] items-center">
-            <div className="col-span-1 flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-200 rounded"></div>
-              <span className="text-[#1E437A] font-medium">{item.name}</span>
+          <div
+            key={item._id}
+            className="grid grid-cols-5 p-4 border-b border-[#E0E2E7] items-center"
+          >
+            <div className="col-span-1 text-[#1E437A] font-medium">
+              {item.name}
             </div>
             <div className="col-span-1 text-[#1E437A]">{item.category}</div>
             <div className="col-span-1 text-[#1E437A]">{item.quantity}</div>
             <div className="col-span-1">
-              <span className={`px-3 py-1 rounded-lg text-sm ${getStatusBadgeStyle(item.stockStatus)}`}>{item.stockStatus}</span>
+              <span
+                className={`px-3 py-1 rounded-lg text-sm ${getStatusBadgeStyle(
+                  item.stockStatus
+                )}`}
+              >
+                {item.stockStatus}
+              </span>
             </div>
-            <Link href={`/ecommerce/inventory/updateStock?id=${item._id}`} className="col-span-1">
+            <Link
+              href={`/ecommerce/inventory/updateStock?id=${item._id}`}
+              className="col-span-1"
+            >
               <button className="text-[#C83C92] flex items-center gap-1 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M17.3047 6.81991C18.281 5.8436 18.281 4.26069 17.3047 3.28438L16.7155 2.69512C15.7391 1.71881 14.1562 1.71881 13.1799 2.69512L3.69097 12.1841C3.34624 12.5288 3.10982 12.9668 3.01082 13.4442L2.34111 16.6735C2.21932 17.2607 2.73906 17.7805 3.32629 17.6587L6.55565 16.989C7.03302 16.89 7.47103 16.6536 7.81577 16.3089L17.3047 6.81991ZM16.1262 4.46289L15.5369 3.87363C15.2115 3.5482 14.6839 3.5482 14.3584 3.87363L13.4745 4.75755L15.2423 6.52531L16.1262 5.6414C16.4516 5.31596 16.4516 4.78833 16.1262 4.46289ZM14.0638 7.70382L12.296 5.93606L4.86948 13.3626C4.75457 13.4775 4.67577 13.6235 4.64277 13.7826L4.23082 15.769L6.21721 15.3571C6.37634 15.3241 6.52234 15.2453 6.63726 15.1303L14.0638 7.70382Z" fill="#C83C92"/>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M17.3047 6.81991C18.281 5.8436 18.281 4.26069 17.3047 3.28438L16.7155 2.69512C15.7391 1.71881 14.1562 1.71881 13.1799 2.69512L3.69097 12.1841C3.34624 12.5288 3.10982 12.9668 3.01082 13.4442L2.34111 16.6735C2.21932 17.2607 2.73906 17.7805 3.32629 17.6587L6.55565 16.989C7.03302 16.89 7.47103 16.6536 7.81577 16.3089L17.3047 6.81991ZM16.1262 4.46289L15.5369 3.87363C15.2115 3.5482 14.6839 3.5482 14.3584 3.87363L13.4745 4.75755L15.2423 6.52531L16.1262 5.6414C16.4516 5.31596 16.4516 4.78833 16.1262 4.46289ZM14.0638 7.70382L12.296 5.93606L4.86948 13.3626C4.75457 13.4775 4.67577 13.6235 4.64277 13.7826L4.23082 15.769L6.21721 15.3571C6.37634 15.3241 6.52234 15.2453 6.63726 15.1303L14.0638 7.70382Z"
+                    fill="#C83C92"
+                  />
                 </svg>
                 Update Stock
               </button>
@@ -215,22 +251,37 @@ const Inventory = () => {
       </div>
       <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
         <div>
-          Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} from {totalItems}
+          Showing {(currentPage - 1) * itemsPerPage + 1}-
+          {Math.min(currentPage * itemsPerPage, totalItems)} from {totalItems}
         </div>
         <div className="flex gap-2">
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E0E2E7] disabled:opacity-50" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>&lt;</button>
+          <button
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E0E2E7] disabled:opacity-50"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            &lt;
+          </button>
           {[...Array(totalPages)].map((_, index) => (
             <button
               key={index + 1}
               className={`w-8 h-8 flex items-center justify-center rounded-lg ${
-                currentPage === index + 1 ? "bg-[#C83C92] text-white" : "border border-[#E0E2E7] hover:bg-gray-100"
+                currentPage === index + 1
+                  ? "bg-[#C83C92] text-white"
+                  : "border border-[#E0E2E7] hover:bg-gray-100"
               }`}
               onClick={() => goToPage(index + 1)}
             >
               {index + 1}
             </button>
           ))}
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg border bg-[rgba(200,60,146,0.1)] border-[#E0E2E7] disabled:opacity-50" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>&gt;</button>
+          <button
+            className="w-8 h-8 flex items-center justify-center rounded-lg border bg-[rgba(200,60,146,0.1)] border-[#E0E2E7] disabled:opacity-50"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            &gt;
+          </button>
         </div>
       </div>
     </div>
