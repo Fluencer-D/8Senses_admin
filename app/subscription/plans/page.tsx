@@ -8,9 +8,9 @@ interface PlanData {
   _id: string
   name: string
   price: number
-  billingCycle: string
+  billingCycle: "monthly" | "quarterly" | "biannual" | "annual"
   description: string
-  status: string
+  status: "active" | "inactive" | "archived"
   features: {
     accessToWebinars: boolean
     customerDiscounts: boolean
@@ -18,6 +18,8 @@ interface PlanData {
     displayOnPricingPage: boolean
     accessToPremiumCourses: boolean
   }
+  trialPeriod: number
+  gracePeriod: number
   order: number
   createdAt: string
   updatedAt: string
@@ -29,20 +31,25 @@ const PlansPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const [showViewModal, setShowViewModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null)
+  const [editFormData, setEditFormData] = useState<Partial<PlanData>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   // Fetch plans from API
   const fetchPlans = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch("http://localhost:5000/api/subscriptions/plans",{
-        method:"GET",
+      const response = await fetch("http://localhost:5000/api/subscriptions/plans", {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization":`Bearer ${localStorage.getItem("adminToken")}`
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
         },
       })
       const result = await response.json()
-
-      if (result.success) {
+      if (response.ok && result.success) {
         setPlansData(result.data)
       } else {
         setError(result.error || "Failed to fetch plans")
@@ -75,35 +82,121 @@ const PlansPage: React.FC = () => {
     if (features.accessToWebinars) benefits.push("Webinars")
     if (features.accessToPremiumCourses) benefits.push("Premium Courses")
     if (features.customerDiscounts) benefits.push("Discounts")
-
     return benefits.length > 0 ? benefits.join(", ") : "Basic access"
   }
 
-  const handleViewPlan = (id: string) => {
-    console.log(`Viewing plan with ID: ${id}`)
-    // Navigate to view plan page
-    router.push(`/subscription/plans/view/${id}`)
+  const handleViewPlan = async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/subscriptions/plans/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+      })
+      const result = await response.json()
+      if (response.ok && result.success) {
+        setSelectedPlan(result.data)
+        setShowViewModal(true)
+      } else {
+        alert(`Error fetching plan: ${result.error || "Unknown error"}`)
+      }
+    } catch (error) {
+      console.error("Error fetching plan for view:", error)
+      alert("Failed to fetch plan details.")
+    }
   }
 
-  const handleEditPlan = (id: string) => {
-    console.log(`Editing plan with ID: ${id}`)
-    // Navigate to edit plan page
-    router.push(`/subscription/plans/edit/${id}`)
+  const handleEditPlan = async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/subscriptions/plans/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+      })
+      const result = await response.json()
+      if (response.ok && result.success) {
+        setSelectedPlan(result.data)
+        setEditFormData(result.data) // Initialize form data with current plan data
+        setShowEditModal(true)
+      } else {
+        alert(`Error fetching plan for edit: ${result.error || "Unknown error"}`)
+      }
+    } catch (error) {
+      console.error("Error fetching plan for edit:", error)
+      alert("Failed to fetch plan details for editing.")
+    }
+  }
+
+  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target
+    if (type === "checkbox") {
+      const checked = (e.target as HTMLInputElement).checked
+      setEditFormData((prev) => ({
+        ...prev,
+        features: {
+          ...prev.features,
+          [name]: checked,
+        },
+      }))
+    } else if (name === "price" || name === "trialPeriod" || name === "gracePeriod" || name === "order") {
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: Number(value),
+      }))
+    } else {
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+    }
+  }
+
+  const handleSaveEdit = async () => {
+    if (!selectedPlan?._id) return
+
+    setIsSubmitting(true)
+    try {
+      const response = await fetch(`http://localhost:5000/api/subscriptions/plans/${selectedPlan._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+        body: JSON.stringify(editFormData),
+      })
+      const result = await response.json()
+      if (response.ok && result.success) {
+        alert("Plan updated successfully!")
+        setShowEditModal(false)
+        fetchPlans() // Refresh the plans list
+      } else {
+        alert(`Error updating plan: ${result.error || "Unknown error"}`)
+      }
+    } catch (error) {
+      console.error("Error updating plan:", error)
+      alert("Failed to update plan. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleDeletePlan = async (id: string) => {
     if (confirm("Are you sure you want to delete this plan?")) {
       try {
-        const response = await fetch(`/api/subscriptions/plans/${id}`, {
+        const response = await fetch(`http://localhost:5000/api/subscriptions/plans/${id}`, {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
         })
-
         const result = await response.json()
-
-        if (result.success) {
+        if (response.ok && result.success) {
           alert("Plan deleted successfully!")
-          // Refresh the plans list
-          fetchPlans()
+          fetchPlans() // Refresh the plans list
         } else {
           alert(`Error: ${result.error}`)
         }
@@ -134,7 +227,6 @@ const PlansPage: React.FC = () => {
           ].join(","),
         ),
       ].join("\n")
-
       // Create and download file
       const blob = new Blob([csvContent], { type: "text/csv" })
       const url = window.URL.createObjectURL(blob)
@@ -175,7 +267,7 @@ const PlansPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto">
+    <div className="p-6 max-w-[84%] font-sans mt-15 ml-70 mx-auto">
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between items-center">
@@ -226,11 +318,10 @@ const PlansPage: React.FC = () => {
         </div>
         <div className="text-gray-500 text-sm mt-1 flex items-center">
           <span className="text-[#1E437A] cursor-pointer">Subscription</span>
-          <span className="mx-2">&gt;</span>
+          <span className="mx-2">{">"}</span>
           <span className="text-[#667085]">Plans</span>
         </div>
       </div>
-
       {/* Plans Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {/* Table Header */}
@@ -241,7 +332,6 @@ const PlansPage: React.FC = () => {
           <div>Benefits Summary</div>
           <div className="text-right">Action</div>
         </div>
-
         {/* Table Body */}
         {plansData.length === 0 ? (
           <div className="py-8 px-6 text-center text-gray-500">
@@ -324,6 +414,484 @@ const PlansPage: React.FC = () => {
           ))
         )}
       </div>
+
+      {/* View Plan Modal */}
+      {showViewModal && selectedPlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="relative w-full max-w-2xl rounded-lg bg-white p-6 shadow-lg">
+            <div className="flex items-center justify-between pb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Plan Details: {selectedPlan.name}</h2>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Close"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+            <p className="text-sm text-gray-500 mb-4">Detailed information about the selected subscription plan.</p>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-name" className="text-right text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <input
+                  style={{color:"black"}}
+                  id="view-name"
+                  value={selectedPlan.name || ""}
+                  readOnly
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-description" className="text-right text-sm font-medium text-gray-700">
+                  Description
+                </label>
+                <textarea
+                style={{color:"black"}}
+                  id="view-description"
+                  value={selectedPlan.description || ""}
+                  readOnly
+                  className="col-span-3 flex h-24 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-price" className="text-right text-sm font-medium text-gray-700">
+                  Price
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="view-price"
+                  value={selectedPlan.price.toFixed(2) || ""}
+                  readOnly
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-billingCycle" className="text-right text-sm font-medium text-gray-700">
+                  Billing Cycle
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="view-billingCycle"
+                  value={selectedPlan.billingCycle || ""}
+                  readOnly
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 capitalize"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-status" className="text-right text-sm font-medium text-gray-700">
+                  Status
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="view-status"
+                  value={selectedPlan.status || ""}
+                  readOnly
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 capitalize"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-trialPeriod" className="text-right text-sm font-medium text-gray-700">
+                  Trial Period (days)
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="view-trialPeriod"
+                  value={selectedPlan.trialPeriod.toString() || "0"}
+                  readOnly
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-gracePeriod" className="text-right text-sm font-medium text-gray-700">
+                  Grace Period (days)
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="view-gracePeriod"
+                  value={selectedPlan.gracePeriod.toString() || "0"}
+                  readOnly
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-order" className="text-right text-sm font-medium text-gray-700">
+                  Order
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="view-order"
+                  value={selectedPlan.order.toString() || "0"}
+                  readOnly
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <label className="text-right pt-2 text-sm font-medium text-gray-700">Features</label>
+                <div className="col-span-3 grid gap-2">
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="view-webinars"
+                      checked={selectedPlan.features?.accessToWebinars}
+                      disabled
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="view-webinars" className="text-sm font-medium text-gray-700">
+                      Access to Webinars
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="view-discounts"
+                      checked={selectedPlan.features?.customerDiscounts}
+                      disabled
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="view-discounts" className="text-sm font-medium text-gray-700">
+                      Customer Discounts
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="view-autoRenewal"
+                      checked={selectedPlan.features?.autoRenewal}
+                      disabled
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="view-autoRenewal" className="text-sm font-medium text-gray-700">
+                      Auto Renewal
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="view-display"
+                      checked={selectedPlan.features?.displayOnPricingPage}
+                      disabled
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="view-display" className="text-sm font-medium text-gray-700">
+                      Display on Pricing Page
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="view-premiumCourses"
+                      checked={selectedPlan.features?.accessToPremiumCourses}
+                      disabled
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="view-premiumCourses" className="text-sm font-medium text-gray-700">
+                      Access to Premium Courses
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-createdAt" className="text-right text-sm font-medium text-gray-700">
+                  Created At
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="view-createdAt"
+                  value={selectedPlan.createdAt ? new Date(selectedPlan.createdAt).toLocaleString() : ""}
+                  readOnly
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="view-updatedAt" className="text-right text-sm font-medium text-gray-700">
+                  Updated At
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="view-updatedAt"
+                  value={selectedPlan.updatedAt ? new Date(selectedPlan.updatedAt).toLocaleString() : ""}
+                  readOnly
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end pt-4">
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 ring-offset-white transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Plan Modal */}
+      {showEditModal && selectedPlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="relative w-full max-w-2xl rounded-lg bg-white p-6 shadow-lg">
+            <div className="flex items-center justify-between pb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Edit Plan: {selectedPlan.name}</h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Close"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+            <p className="text-sm text-gray-500 mb-4">
+              Make changes to the subscription plan here. Click save when you're done.
+            </p>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="edit-name" className="text-right text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="edit-name"
+                  name="name"
+                  value={editFormData.name || ""}
+                  onChange={handleEditFormChange}
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="edit-description" className="text-right text-sm font-medium text-gray-700">
+                  Description
+                </label>
+                <textarea
+                  id="edit-description"
+                  name="description"
+                  value={editFormData.description || ""}
+                  onChange={handleEditFormChange}
+                  className="col-span-3 flex h-24 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="edit-price" className="text-right text-sm font-medium text-gray-700">
+                  Price
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="edit-price"
+                  name="price"
+                  type="number"
+                  step="0.01"
+                  value={editFormData.price || ""}
+                  onChange={handleEditFormChange}
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="edit-billingCycle" className="text-right text-sm font-medium text-gray-700">
+                  Billing Cycle
+                </label>
+                <select
+                  id="edit-billingCycle"
+                  style={{color:"black"}}
+                  name="billingCycle"
+                  value={editFormData.billingCycle || ""}
+                  onChange={handleEditFormChange}
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">Select a billing cycle</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="biannual">Biannual</option>
+                  <option value="annual">Annual</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="edit-status" className="text-right text-sm font-medium text-gray-700">
+                  Status
+                </label>
+                <select
+                style={{color:"black"}}
+                  id="edit-status"
+                  name="status"
+                  value={editFormData.status || ""}
+                  onChange={handleEditFormChange}
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">Select status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="edit-trialPeriod" className="text-right text-sm font-medium text-gray-700">
+                  Trial Period (days)
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="edit-trialPeriod"
+                  name="trialPeriod"
+                  type="number"
+                  value={editFormData.trialPeriod || 0}
+                  onChange={handleEditFormChange}
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="edit-gracePeriod" className="text-right text-sm font-medium text-gray-700">
+                  Grace Period (days)
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="edit-gracePeriod"
+                  name="gracePeriod"
+                  type="number"
+                  value={editFormData.gracePeriod || 0}
+                  onChange={handleEditFormChange}
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="edit-order" className="text-right text-sm font-medium text-gray-700">
+                  Order
+                </label>
+                <input
+                style={{color:"black"}}
+                  id="edit-order"
+                  name="order"
+                  type="number"
+                  value={editFormData.order || 0}
+                  onChange={handleEditFormChange}
+                  className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <label className="text-right pt-2 text-sm font-medium text-gray-700">Features</label>
+                <div className="col-span-3 grid gap-2">
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="accessToWebinars"
+                      name="accessToWebinars"
+                      checked={editFormData.features?.accessToWebinars || false}
+                      onChange={handleEditFormChange}
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="accessToWebinars" className="text-sm font-medium text-gray-700">
+                      Access to Webinars
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="customerDiscounts"
+                      name="customerDiscounts"
+                      checked={editFormData.features?.customerDiscounts || false}
+                      onChange={handleEditFormChange}
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="customerDiscounts" className="text-sm font-medium text-gray-700">
+                      Customer Discounts
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="autoRenewal"
+                      name="autoRenewal"
+                      checked={editFormData.features?.autoRenewal || false}
+                      onChange={handleEditFormChange}
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="autoRenewal" className="text-sm font-medium text-gray-700">
+                      Auto Renewal
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="displayOnPricingPage"
+                      name="displayOnPricingPage"
+                      checked={editFormData.features?.displayOnPricingPage || false}
+                      onChange={handleEditFormChange}
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="displayOnPricingPage" className="text-sm font-medium text-gray-700">
+                      Display on Pricing Page
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                    style={{color:"black"}}
+                      type="checkbox"
+                      id="accessToPremiumCourses"
+                      name="accessToPremiumCourses"
+                      checked={editFormData.features?.accessToPremiumCourses || false}
+                      onChange={handleEditFormChange}
+                      className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
+                    />
+                    <label htmlFor="accessToPremiumCourses" className="text-sm font-medium text-gray-700">
+                      Access to Premium Courses
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <button
+                onClick={() => setShowEditModal(false)}
+                disabled={isSubmitting}
+                className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium shadow-sm ring-offset-white transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={isSubmitting}
+                className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 ring-offset-white transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              >
+                {isSubmitting ? "Saving..." : "Save changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
