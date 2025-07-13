@@ -2,7 +2,7 @@
 const nextConfig = {
   output: "standalone",
   basePath: "/admin",
-  assetPrefix: '/',
+  assetPrefix: '/admin',
   trailingSlash: true,
   experimental: {
     serverActions: {}, // ✅ FIXED
