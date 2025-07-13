@@ -2,11 +2,10 @@
 const nextConfig = {
   output: "standalone",
   basePath: "/admin",
-  assetPrefix: '/admin',
+  assetPrefix: '/',
   trailingSlash: true,
   experimental: {
-    serverActions: true,
-    outputFileTracingRoot: undefined,
+    serverActions: {}, // ✅ FIXED
   },
   eslint: {
     ignoreDuringBuilds: true,

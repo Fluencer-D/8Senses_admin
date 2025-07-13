@@ -1,191 +1,205 @@
-"use client";
-import { useState, useEffect, ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { useSearchParams } from "next/navigation";
+"use client"
+import { useState, useEffect, type ChangeEvent } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense } from "react"
+import axios from "axios"
 
-// Updated interface to match the actual API response structure
-interface ProductData {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  discountType: string;
-  discountPercentage: number;
-  taxClass: string;
-  vatAmount: number;
-  sku: string;
-  barcode: string;
-  quantity: number;
-  category: {
-    _id: string;
-    name: string;
-    id: string;
-  };
-  status: string;
-  images: {
-    url: string;
-    alt: string;
-    isMain: boolean;
-    _id: string;
-    id: string;
-  }[];
-  createdAt: string;
-  updatedAt: string;
+// Loading component for Suspense fallback
+function ProductDetailsLoading() {
+  return (
+    <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto">
+      <div className="mb-6">
+        <h1 className="text-[#333843] text-3xl">Product Details</h1>
+        <div className="text-gray-500 text-sm mt-1 flex items-center">
+          <span className="text-[#1E437A] cursor-pointer">E-commerce</span>
+          <span className="mx-2">&gt;</span>
+          <span className="text-[#1E437A] cursor-pointer">Products</span>
+          <span className="mx-2">&gt;</span>
+          <span className="text-[#667085]">Product Details</span>
+        </div>
+      </div>
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 className="text-xl font-medium text-[#333843] mb-6">Product Details</h2>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading product details...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
-const ProductDetails = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const productId = searchParams.get("id");
+// Move your existing component code here, renamed to ProductDetailsContent
+function ProductDetailsContent() {
+  // Updated interface to match the actual API response structure
+  interface ProductData {
+    _id: string
+    name: string
+    description: string
+    price: number
+    discountType: string
+    discountPercentage: number
+    taxClass: string
+    vatAmount: number
+    sku: string
+    barcode: string
+    quantity: number
+    category: {
+      _id: string
+      name: string
+      id: string
+    }
+    status: string
+    images: {
+      url: string
+      alt: string
+      isMain: boolean
+      _id: string
+      id: string
+    }[]
+    createdAt: string
+    updatedAt: string
+  }
+
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const productId = searchParams.get("id")
 
   // State variables for form fields
-  const [productName, setProductName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [imageUrl, setImageUrl] = useState<string>("");
-  const [basePrice, setBasePrice] = useState<string>("");
-  const [discountType, setDiscountType] = useState<string>("");
-  const [discountPercentage, setDiscountPercentage] = useState<string>("");
-  const [taxClass, setTaxClass] = useState<string>("");
-  const [vatAmount, setVatAmount] = useState<string>("");
-  const [sku, setSku] = useState<string>("");
-  const [barcode, setBarcode] = useState<string>("");
-  const [quantity, setQuantity] = useState<string>("");
-  const [category, setCategory] = useState<string>("");
-  const [categoryId, setCategoryId] = useState<string>(""); // Added state for category ID
-  const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
-    []
-  );
-  const [status, setStatus] = useState<string>("Draft");
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [createdAt, setCreatedAt] = useState<string>("");
-  const [updatedAt, setUpdatedAt] = useState<string>("");
-  const [image, setImage] = useState<File | null>(null);
-  const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
+  const [productName, setProductName] = useState<string>("")
+  const [description, setDescription] = useState<string>("")
+  const [imageUrl, setImageUrl] = useState<string>("")
+  const [basePrice, setBasePrice] = useState<string>("")
+  const [discountType, setDiscountType] = useState<string>("")
+  const [discountPercentage, setDiscountPercentage] = useState<string>("")
+  const [taxClass, setTaxClass] = useState<string>("")
+  const [vatAmount, setVatAmount] = useState<string>("")
+  const [sku, setSku] = useState<string>("")
+  const [barcode, setBarcode] = useState<string>("")
+  const [quantity, setQuantity] = useState<string>("")
+  const [category, setCategory] = useState<string>("")
+  const [categoryId, setCategoryId] = useState<string>("") // Added state for category ID
+  const [categories, setCategories] = useState<{ _id: string; name: string }[]>([])
+  const [status, setStatus] = useState<string>("Draft")
+  const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+  const [createdAt, setCreatedAt] = useState<string>("")
+  const [updatedAt, setUpdatedAt] = useState<string>("")
+  const [image, setImage] = useState<File | null>(null)
+  const [updateSuccess, setUpdateSuccess] = useState<boolean>(false)
 
   // Fetch product data when component mounts
   useEffect(() => {
-    if (!hasMounted || !productId) return;
+    if (!productId) {
+      setLoading(false)
+      setError("Product ID is missing from URL.")
+      return
+    }
 
     const fetchEverything = async () => {
-      const token =
-        localStorage.getItem("token") || localStorage.getItem("adminToken");
-      if (!token) return;
-
+      const token = localStorage.getItem("token") || localStorage.getItem("adminToken")
+      if (!token) {
+        setLoading(false)
+        setError("Authentication token not found. Please log in.")
+        return
+      }
       try {
         const [productRes, categoriesRes] = await Promise.all([
-          axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          ),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-        ]);
-
-        const productData = productRes.data.data;
-        const categoriesData = categoriesRes.data.data.filter(
-          (cat: any) => cat.isActive
-        );
-
-        setCategories(categoriesData);
-        setProductName(productData.name || "");
-        setDescription(productData.description || "");
-        setBasePrice(productData.price?.toString() || "");
-        setDiscountType(productData.discountType || "");
-        setDiscountPercentage(productData.discountPercentage?.toString() || "");
-        setTaxClass(productData.taxClass || "");
-        setVatAmount(productData.vatAmount?.toString() || "");
-        setSku(productData.sku || "");
-        setBarcode(productData.barcode || "");
-        setQuantity(productData.quantity?.toString() || "");
-        setCategory(productData.category?.name || "");
-        setCategoryId(productData.category?._id || "");
-
-        let displayStatus = "Draft";
-        if (productData.status === "active") displayStatus = "Published";
-        else if (productData.status === "archived") displayStatus = "Archived";
-        setStatus(displayStatus);
-
+        ])
+        const productData = productRes.data.data
+        const categoriesData = categoriesRes.data.data.filter((cat: any) => cat.isActive)
+        setCategories(categoriesData)
+        setProductName(productData.name || "")
+        setDescription(productData.description || "")
+        setBasePrice(productData.price?.toString() || "")
+        setDiscountType(productData.discountType || "")
+        setDiscountPercentage(productData.discountPercentage?.toString() || "")
+        setTaxClass(productData.taxClass || "")
+        setVatAmount(productData.vatAmount?.toString() || "")
+        setSku(productData.sku || "")
+        setBarcode(productData.barcode || "")
+        setQuantity(productData.quantity?.toString() || "")
+        setCategory(productData.category?.name || "")
+        setCategoryId(productData.category?._id || "")
+        let displayStatus = "Draft"
+        if (productData.status === "active") displayStatus = "Published"
+        else if (productData.status === "archived") displayStatus = "Archived"
+        setStatus(displayStatus)
         if (productData.images?.length > 0) {
-          setImageUrl(productData.images[0].url || "");
+          setImageUrl(productData.images[0].url || "")
         }
-
-        setCreatedAt(productData.createdAt || "");
-        setUpdatedAt(productData.updatedAt || "");
+        setCreatedAt(productData.createdAt || "")
+        setUpdatedAt(productData.updatedAt || "")
       } catch (err) {
-        console.error("Error fetching product or category data:", err);
+        console.error("Error fetching product or category data:", err)
+        setError("Failed to load product details. Please try again.")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-
-    fetchEverything();
-  }, [productId, hasMounted]);
-
-  if (!hasMounted) return null;
+    }
+    fetchEverything()
+  }, [productId])
 
   // Handle edit/save button click
   const toggleEditMode = (): void => {
-    setIsEditing(!isEditing);
+    setIsEditing(!isEditing)
     // Clear any success message when entering edit mode
     if (!isEditing) {
-      setUpdateSuccess(false);
+      setUpdateSuccess(false)
     }
-  };
+  }
 
   // Handle cancel button click
   const handleCancel = (): void => {
     // Return to products list
-    router.push("/ecommerce/products");
-  };
+    router.push("/ecommerce/products")
+  }
 
   // Handle update button click
   const handleUpdate = async (): Promise<void> => {
-    if (!productId) return;
-
-    setError(null); // Clear any previous errors
-
+    if (!productId) {
+      setError("Product ID is missing.")
+      return
+    }
+    setError(null) // Clear any previous errors
     try {
       // Map status back to API format
-      let apiStatus = "draft"; // Default to draft
-      if (status === "Published") apiStatus = "active";
-      else if (status === "Archived") apiStatus = "archived";
+      let apiStatus = "draft" // Default to draft
+      if (status === "Published") apiStatus = "active"
+      else if (status === "Archived") apiStatus = "archived"
 
       // Prepare product data
       const productData = {
         name: productName,
         description,
-        price: parseFloat(basePrice) || 0,
+        price: Number.parseFloat(basePrice) || 0,
         discountType,
-        discountPercentage: parseFloat(discountPercentage) || 0,
+        discountPercentage: Number.parseFloat(discountPercentage) || 0,
         taxClass,
-        vatAmount: parseFloat(vatAmount) || 0,
+        vatAmount: Number.parseFloat(vatAmount) || 0,
         sku,
         barcode,
-        quantity: parseInt(quantity, 10) || 0,
+        quantity: Number.parseInt(quantity, 10) || 0,
         category: categoryId, // Send the category ID rather than name
         status: apiStatus,
-      };
-
-      console.log("Sending product data:", productData); // Log the data before sending
+      }
+      console.log("Sending product data:", productData) // Log the data before sending
 
       // Get the token from localStorage or your auth state
-      const token = localStorage.getItem("adminToken"); // or however you store your auth token
-
+      const token = localStorage.getItem("adminToken") // or however you store your auth token
       // Check if we have a token
       if (!token) {
-        setError("You are not logged in. Please log in to update products.");
-        return;
+        setError("You are not logged in. Please log in to update products.")
+        return
       }
 
       // Update product details with auth header
@@ -196,110 +210,84 @@ const ProductDetails = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
-
-      console.log("Update response:", updateResponse.data);
+        },
+      )
+      console.log("Update response:", updateResponse.data)
 
       // Exit edit mode after update
-      setIsEditing(false);
-
+      setIsEditing(false)
       // Show success message
-      setUpdateSuccess(true);
-
+      setUpdateSuccess(true)
       // Update the updatedAt timestamp
-      setUpdatedAt(new Date().toISOString());
-
-      console.log("Product updated successfully");
+      setUpdatedAt(new Date().toISOString())
+      console.log("Product updated successfully")
 
       // Optional: Refresh product data to ensure we have the latest
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined,
-          },
-        }
-      );
-      const refreshedProductData = response.data.data;
-
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+      })
+      const refreshedProductData = response.data.data
       // Update state with refreshed data if needed
-      setProductName(refreshedProductData.name || "");
-      setDescription(refreshedProductData.description || "");
-      setBasePrice(refreshedProductData.price?.toString() || "");
-      setDiscountType(refreshedProductData.discountType || "");
-      setDiscountPercentage(
-        refreshedProductData.discountPercentage?.toString() || ""
-      );
-      setTaxClass(refreshedProductData.taxClass || "");
-      setVatAmount(refreshedProductData.vatAmount?.toString() || "");
-      setSku(refreshedProductData.sku || "");
-      setBarcode(refreshedProductData.barcode || "");
-      setQuantity(refreshedProductData.quantity?.toString() || "");
-      setCategory(refreshedProductData.category?.name || "");
-      setCategoryId(refreshedProductData.category?._id || "");
+      setProductName(refreshedProductData.name || "")
+      setDescription(refreshedProductData.description || "")
+      setBasePrice(refreshedProductData.price?.toString() || "")
+      setDiscountType(refreshedProductData.discountType || "")
+      setDiscountPercentage(refreshedProductData.discountPercentage?.toString() || "")
+      setTaxClass(refreshedProductData.taxClass || "")
+      setVatAmount(refreshedProductData.vatAmount?.toString() || "")
+      setSku(refreshedProductData.sku || "")
+      setBarcode(refreshedProductData.barcode || "")
+      setQuantity(refreshedProductData.quantity?.toString() || "")
+      setCategory(refreshedProductData.category?.name || "")
+      setCategoryId(refreshedProductData.category?._id || "")
     } catch (err) {
-      console.error("Error updating product:", err);
-
+      console.error("Error updating product:", err)
       // Show error message in UI
       if (axios.isAxiosError(err)) {
-        console.log("Error response data:", err.response?.data); // Log the error response
-
+        console.log("Error response data:", err.response?.data) // Log the error response
         if (err.response?.status === 404) {
-          setError(
-            "Update failed: API endpoint not found. Please contact support."
-          );
+          setError("Update failed: API endpoint not found. Please contact support.")
         } else if (err.response?.status === 401) {
-          setError(
-            "Authentication error: Your session has expired. Please log in again."
-          );
+          setError("Authentication error: Your session has expired. Please log in again.")
           // You might want to redirect to login
-          router.push("/login");
+          router.push("/login")
         } else if (err.response?.status === 403) {
-          setError(
-            "Permission denied: You don't have rights to update this product."
-          );
+          setError("Permission denied: You don't have rights to update this product.")
         } else if (!err.response) {
-          setError(
-            "Network error. Please check your connection and try again."
-          );
+          setError("Network error. Please check your connection and try again.")
         } else {
-          setError(
-            `Error updating product: ${
-              err.response?.data?.message || "Unknown error"
-            }`
-          );
+          setError(`Error updating product: ${err.response?.data?.message || "Unknown error"}`)
         }
       } else {
-        setError("An unexpected error occurred while updating the product.");
+        setError("An unexpected error occurred while updating the product.")
       }
     }
-  };
+  }
 
   // Format dates for display
   const formatDate = (dateString: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
+    if (!dateString) return ""
+    const date = new Date(dateString)
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
-    });
-  };
+    })
+  }
 
   // Handle image upload
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImage(file);
-
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImage(file)
     // You would typically upload the image to your server/storage here
     // const formData = new FormData();
     // formData.append('image', file);
     // const response = await axios.post('/api/upload', formData);
     // Handle the response...
-  };
+  }
 
   if (loading) {
     return (
@@ -309,7 +297,7 @@ const ProductDetails = () => {
           <p className="mt-4 text-gray-600">Loading product details...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -339,8 +327,9 @@ const ProductDetails = () => {
           </button>
         </div>
       </div>
-    );
+    )
   }
+
   return (
     <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto overflow-y-auto hide-scrollbar">
       {/* Breadcrumbs */}
@@ -348,25 +337,15 @@ const ProductDetails = () => {
       <div className="flex justify-between items-center mb-4">
         {/* Breadcrumbs */}
         <div className="text-gray-500 text-sm">
-          <span
-            className="text-blue-600 cursor-pointer"
-            onClick={() => router.push("/ecommerce")}
-          >
+          <span className="text-blue-600 cursor-pointer" onClick={() => router.push("/ecommerce")}>
             E-commerce
           </span>{" "}
           &gt;{" "}
-          <span
-            className="text-blue-600 cursor-pointer"
-            onClick={() => router.push("/ecommerce/products")}
-          >
+          <span className="text-blue-600 cursor-pointer" onClick={() => router.push("/ecommerce/products")}>
             Products
           </span>{" "}
-          &gt;{" "}
-          <span className="text-gray-800 font-semibold">
-            {productName || "Product Details"}
-          </span>
+          &gt; <span className="text-gray-800 font-semibold">{productName || "Product Details"}</span>
         </div>
-
         {/* Action Buttons */}
         <div className="flex gap-2">
           <button
@@ -380,13 +359,7 @@ const ProductDetails = () => {
               onClick={handleUpdate}
               className="px-4 py-2 bg-[#C83C92] text-white rounded-lg flex items-center gap-1"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
@@ -401,13 +374,7 @@ const ProductDetails = () => {
               onClick={toggleEditMode}
               className="px-4 py-2 bg-[#245BA7] text-white rounded-lg flex items-center gap-1"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M4.16667 15.8333H5.83333V14.1667H4.16667V15.8333ZM4.16667 10.8333H5.83333V9.16667H4.16667V10.8333ZM4.16667 5.83333H5.83333V4.16667H4.16667V5.83333ZM7.5 15.8333H15.8333V14.1667H7.5V15.8333ZM7.5 10.8333H15.8333V9.16667H7.5V10.8333ZM7.5 4.16667V5.83333H15.8333V4.16667H7.5Z"
                   fill="white"
@@ -418,21 +385,15 @@ const ProductDetails = () => {
           )}
         </div>
       </div>
-
       {/* Main Container */}
       <div className="flex gap-4">
         {/* Left Side (Main Form) */}
         <div className="w-2/3 space-y-6">
           {/* General Information */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="font-semibold text-lg mb-4 text-[#333843]">
-              General Information
-            </h3>
-
+            <h3 className="font-semibold text-lg mb-4 text-[#333843]">General Information</h3>
             {/* Product Name */}
-            <label className="block text-sm font-semibold text-[#1E437A] mb-1">
-              Product Name
-            </label>
+            <label className="block text-sm font-semibold text-[#1E437A] mb-1">Product Name</label>
             <input
               type="text"
               placeholder="Type product name here..."
@@ -443,11 +404,8 @@ const ProductDetails = () => {
               } mb-4 text-[#333843]`}
               disabled={!isEditing}
             />
-
             {/* Description */}
-            <label className="block text-sm font-semibold text-[#1E437A] mb-1">
-              Description
-            </label>
+            <label className="block text-sm font-semibold text-[#1E437A] mb-1">Description</label>
             <textarea
               placeholder="Type product description here..."
               value={description}
@@ -458,45 +416,27 @@ const ProductDetails = () => {
               disabled={!isEditing}
             />
           </div>
-
           {/* Media */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="font-semibold text-lg mb-4 text-[#333843]">Media</h3>
-
             {/* Photo Label */}
-            <label className="block text-sm font-semibold text-[#1E437A] mb-2">
-              Photo
-            </label>
-
+            <label className="block text-sm font-semibold text-[#1E437A] mb-2">Photo</label>
             {/* Current Image Display */}
             <div className="mb-4 border border-[#E0E2E7] rounded-lg p-2">
               <div className="bg-gray-100 h-40 w-full flex items-center justify-center rounded">
                 <img
-                  src={
-                    image
-                      ? URL.createObjectURL(image)
-                      : imageUrl
-                      ? imageUrl
-                      : "https://placehold.co/400x320"
-                  }
+                  src={image ? URL.createObjectURL(image) : imageUrl ? imageUrl : "/placeholder.svg"}
                   alt={productName || "Product"}
                   className="max-h-full object-contain"
                 />
               </div>
             </div>
-
             {/* Drag & Drop Area (Only show when editing) */}
             {isEditing && (
               <div className="border-2 border-dashed border-[#E0E2E7] bg-[#F9F9FC] p-6 rounded-lg text-center flex flex-col items-center">
                 {/* Camera Icon */}
                 <div className="mb-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
-                    viewBox="0 0 28 28"
-                    fill="none"
-                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none">
                     <path
                       d="M9.33325 12.25C10.2998 12.25 11.0833 11.4665 11.0833 10.5C11.0833 9.53354 10.2998 8.75004 9.33325 8.75004C8.36675 8.75004 7.58325 9.53354 7.58325 10.5C7.58325 11.4665 8.36675 12.25 9.33325 12.25Z"
                       fill="#245BA7"
@@ -509,20 +449,10 @@ const ProductDetails = () => {
                     />
                   </svg>
                 </div>
-
                 {/* Drag & Drop Text */}
-                <p className="text-gray-500 text-sm mb-3">
-                  Drag and drop image here, or click add image
-                </p>
-
+                <p className="text-gray-500 text-sm mb-3">Drag and drop image here, or click add image</p>
                 {/* Hidden File Input */}
-                <input
-                  type="file"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="upload-image"
-                />
-
+                <input type="file" onChange={handleImageUpload} className="hidden" id="upload-image" />
                 {/* Add Image Button */}
                 <label
                   htmlFor="upload-image"
@@ -533,27 +463,15 @@ const ProductDetails = () => {
               </div>
             )}
           </div>
-
           {/* Pricing */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="font-semibold text-lg mb-4 text-[#333843]">
-              Pricing
-            </h3>
-
+            <h3 className="font-semibold text-lg mb-4 text-[#333843]">Pricing</h3>
             {/* Base Price Input */}
             <div>
-              <label className="text-sm font-semibold text-[#1E437A] mb-1">
-                Base Price
-              </label>
+              <label className="text-sm font-semibold text-[#1E437A] mb-1">Base Price</label>
               <div className="relative mt-1">
                 <span className="absolute inset-y-0 left-3 flex items-center text-gray-500">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path
                       fillRule="evenodd"
                       clipRule="evenodd"
@@ -574,13 +492,10 @@ const ProductDetails = () => {
                 />
               </div>
             </div>
-
             {/* Discount Type & Discount Percentage */}
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="text-sm font-semibold text-[#1E437A] mb-1">
-                  Discount Type
-                </label>
+                <label className="text-sm font-semibold text-[#1E437A] mb-1">Discount Type</label>
                 <select
                   value={discountType}
                   onChange={(e) => setDiscountType(e.target.value)}
@@ -595,9 +510,7 @@ const ProductDetails = () => {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-semibold text-[#1E437A] mb-1">
-                  Discount Percentage (%)
-                </label>
+                <label className="text-sm font-semibold text-[#1E437A] mb-1">Discount Percentage (%)</label>
                 <input
                   type="text"
                   placeholder="Type discount percentage..."
@@ -610,13 +523,10 @@ const ProductDetails = () => {
                 />
               </div>
             </div>
-
             {/* Tax Class & VAT Amount */}
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="text-sm font-semibold text-[#1E437A] mb-1">
-                  Tax Class
-                </label>
+                <label className="text-sm font-semibold text-[#1E437A] mb-1">Tax Class</label>
                 <select
                   value={taxClass}
                   onChange={(e) => setTaxClass(e.target.value)}
@@ -631,9 +541,7 @@ const ProductDetails = () => {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-semibold text-[#1E437A] mb-1">
-                  VAT Amount (%)
-                </label>
+                <label className="text-sm font-semibold text-[#1E437A] mb-1">VAT Amount (%)</label>
                 <input
                   type="text"
                   placeholder="Type VAT amount..."
@@ -647,19 +555,13 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
-
           {/* Inventory */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="font-semibold text-lg mb-4 text-[#333843]">
-              Inventory
-            </h3>
-
+            <h3 className="font-semibold text-lg mb-4 text-[#333843]">Inventory</h3>
             {/* SKU, Barcode, and Quantity Inputs */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="text-sm font-semibold text-[#1E437A] mb-1">
-                  SKU
-                </label>
+                <label className="text-sm font-semibold text-[#1E437A] mb-1">SKU</label>
                 <input
                   type="text"
                   placeholder="Type product SKU here..."
@@ -672,9 +574,7 @@ const ProductDetails = () => {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-[#1E437A] mb-1">
-                  Barcode
-                </label>
+                <label className="text-sm font-semibold text-[#1E437A] mb-1">Barcode</label>
                 <input
                   type="text"
                   placeholder="Product barcode..."
@@ -687,9 +587,7 @@ const ProductDetails = () => {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-[#1E437A] mb-1">
-                  Quantity
-                </label>
+                <label className="text-sm font-semibold text-[#1E437A] mb-1">Quantity</label>
                 <input
                   type="text"
                   placeholder="Type product quantity here..."
@@ -704,26 +602,19 @@ const ProductDetails = () => {
             </div>
           </div>
         </div>
-
         {/* Right Side (Sidebar) */}
         <div className="w-1/3 space-y-6">
           {/* Category */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="font-semibold text-lg mb-4 text-[#333843]">
-              Category
-            </h3>
-            <label className="text-sm font-semibold text-[#1E437A] mb-1">
-              Product Category
-            </label>
+            <h3 className="font-semibold text-lg mb-4 text-[#333843]">Category</h3>
+            <label className="text-sm font-semibold text-[#1E437A] mb-1">Product Category</label>
             <select
               value={categoryId}
               onChange={(e) => {
-                const selectedId = e.target.value;
-                setCategoryId(selectedId);
-                const selectedCategory = categories.find(
-                  (cat) => cat._id === selectedId
-                );
-                setCategory(selectedCategory?.name || "");
+                const selectedId = e.target.value
+                setCategoryId(selectedId)
+                const selectedCategory = categories.find((cat) => cat._id === selectedId)
+                setCategory(selectedCategory?.name || "")
               }}
               className={`w-full border border-[#E0E2E7] p-3 rounded-lg ${
                 isEditing ? "bg-white" : "bg-[#F9F9FC]"
@@ -738,24 +629,19 @@ const ProductDetails = () => {
               ))}
             </select>
           </div>
-
           {/* Status */}
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-lg text-[#333843]">Status</h3>
               <span
                 className={`${
-                  status === "Published"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-200 text-gray-600"
+                  status === "Published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
                 } text-sm px-3 py-1 rounded-lg`}
               >
                 {status}
               </span>
             </div>
-            <label className="text-sm font-semibold text-[#1E437A] mb-1">
-              Product Status
-            </label>
+            <label className="text-sm font-semibold text-[#1E437A] mb-1">Product Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
@@ -769,29 +655,32 @@ const ProductDetails = () => {
               <option value="Archived">Archived</option>
             </select>
           </div>
-
           {/* Product Details */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="font-semibold text-lg mb-4 text-[#333843]">
-              Product ID
-            </h3>
+            <h3 className="font-semibold text-lg mb-4 text-[#333843]">Product ID</h3>
             <div className="text-sm text-gray-600">
               <p className="mb-2">
                 ID: <span className="font-mono text-gray-800">{productId}</span>
               </p>
               <p className="mb-2">
-                Created: <span className="text-gray-800">April 4, 2025</span>
+                Created: <span className="text-gray-800">{formatDate(createdAt)}</span>
               </p>
               <p>
-                Last Updated:{" "}
-                <span className="text-gray-800">April 5, 2025</span>
+                Last Updated: <span className="text-gray-800">{formatDate(updatedAt)}</span>
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProductDetails;
+// Main page component with Suspense wrapper
+export default function ProductDetailsPage() {
+  return (
+    <Suspense fallback={<ProductDetailsLoading />}>
+      <ProductDetailsContent />
+    </Suspense>
+  )
+}
