@@ -20,7 +20,7 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
 
   const router = useRouter();
   // API Base URL - adjust according to your backend
-  const NEXT_PUBLIC_API_URL =  "http://localhost:5000/api"
+  const NEXT_PUBLIC_API_URL =  `${process.env.NEXT_PUBLIC_API_URL}/api`
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files

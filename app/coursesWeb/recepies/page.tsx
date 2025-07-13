@@ -83,7 +83,7 @@ export default function RecipeAdminPanel() {
   const fetchRecipes = async () => {
     try {
       setLoading(true)
-      const response = await fetch("http://localhost:5000/api/recipes/all", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes/all`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
           "Content-Type": "application/json",
@@ -103,7 +103,7 @@ export default function RecipeAdminPanel() {
   // Create recipe
   const createRecipe = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/recipes", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -135,7 +135,7 @@ export default function RecipeAdminPanel() {
   const updateRecipe = async () => {
     if (!selectedRecipe) return
     try {
-      const response = await fetch(`http://localhost:5000/api/recipes/${selectedRecipe._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes/${selectedRecipe._id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -167,7 +167,7 @@ export default function RecipeAdminPanel() {
   const deleteRecipe = async (id: string) => {
     if (!confirm("Are you sure you want to delete this recipe?")) return
     try {
-      const response = await fetch(`http://localhost:5000/api/recipes/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,

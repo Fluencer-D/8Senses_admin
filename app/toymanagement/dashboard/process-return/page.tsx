@@ -99,7 +99,7 @@ export default function ProcessReturn() {
   const loadAllBorrowings = async () => {
     try {
       setInitialLoading(true)
-      const response = await fetch("http://localhost:5000/hi", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hi`, {
         headers: {
           Authorization: `Bearer ${getAuthToken()}`,
           "Content-Type": "application/json",
@@ -135,7 +135,7 @@ export default function ProcessReturn() {
       setLoading(true)
 
       // Use the new smart search API
-      const response = await fetch(`http://localhost:5000/api/process-return/smart-search?search=${encodeURIComponent(value)}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/process-return/smart-search?search=${encodeURIComponent(value)}`, {
         headers: {
           Authorization: `Bearer ${getAuthToken()}`,
           "Content-Type": "application/json",
@@ -155,7 +155,7 @@ export default function ProcessReturn() {
       }
 
       // If smart search fails, fallback to regular borrowing search
-      const borrowingResponse = await fetch(`http://localhost:5000/api/toys/borrowings?search=${encodeURIComponent(value)}`, {
+      const borrowingResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/toys/borrowings?search=${encodeURIComponent(value)}`, {
         headers: {
           Authorization: `Bearer ${getAuthToken()}`,
           "Content-Type": "application/json",
@@ -276,7 +276,7 @@ export default function ProcessReturn() {
       setProcessing(true)
 
       // Use bulk processing API if available, otherwise process individually
-      const bulkResponse = await fetch("http://localhost:5000/api/process-return/process-multiple", {
+      const bulkResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/process-return/process-multiple`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${getAuthToken()}`,
@@ -303,7 +303,7 @@ export default function ProcessReturn() {
       } else {
         // Fallback to individual processing
         const returnPromises = selectedBorrowings.map(async (borrowingId) => {
-          const response = await fetch(`http://localhost:5000/api/toys/borrowings/${borrowingId}/return`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/toys/borrowings/${borrowingId}/return`, {
             method: "PUT",
             headers: {
               Authorization: `Bearer ${getAuthToken()}`,

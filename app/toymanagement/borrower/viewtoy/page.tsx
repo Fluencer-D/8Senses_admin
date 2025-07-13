@@ -70,7 +70,7 @@ function BorrowerProfileContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const borrowingId = searchParams.get("borrowingId") || "6859156f885a0c087ce10b49"
-  const API_BASE_URL = "http://localhost:5000/api"
+  const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`
 
   // All your existing functions (calculateStatus, getStatusStyling, formatDate, etc.)
   const calculateStatus = (borrowing: PastBorrowing): string => {

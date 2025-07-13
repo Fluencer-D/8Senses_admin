@@ -58,7 +58,7 @@ export default function DetoxAdminPanel() {
   const fetchDetoxPlans = async () => {
     try {
       setLoading(true)
-      const response = await fetch("http://localhost:5000/api/detox/detox-plans", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/detox/detox-plans`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
           "Content-Type": "application/json",
@@ -78,7 +78,7 @@ export default function DetoxAdminPanel() {
   // Create detox plan
   const createDetoxPlan = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/detox/create-detox", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/detox/create-detox`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -108,7 +108,7 @@ export default function DetoxAdminPanel() {
   const updateDetoxPlan = async () => {
     if (!selectedDetoxPlan) return
     try {
-      const response = await fetch(`http://localhost:5000/api/detox/detox-plan/${selectedDetoxPlan._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/detox/detox-plan/${selectedDetoxPlan._id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -138,7 +138,7 @@ export default function DetoxAdminPanel() {
   const deleteDetoxPlan = async (id: string) => {
     if (!confirm("Are you sure you want to delete this detox plan?")) return
     try {
-      const response = await fetch(`http://localhost:5000/api/detox/detox-plan/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/detox/detox-plan/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,

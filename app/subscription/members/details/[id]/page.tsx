@@ -230,9 +230,14 @@ const MemberDetailsPage = () => {
                 onClick={handleSendRenewalReminder}
                 disabled={isSendingReminder}
               >
-                {isSendingReminder ? "Sending..." : "Send Renewal Reminder"}
+                Send Renewal Reminder
               </button>
-              {/* Suspend Subscription button removed as requested */}
+              {/* <button
+                className="bg-[#F04438] text-white px-5 py-3 rounded-lg hover:bg-[#E42F22] transition-colors"
+                onClick={handleSuspendSubscription}
+              >
+                Suspend Subscription
+              </button> */}
             </div>
           </div>
         ) : null}

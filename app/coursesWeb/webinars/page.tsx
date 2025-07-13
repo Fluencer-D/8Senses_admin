@@ -10,6 +10,7 @@ interface Webinar {
   dateTime: string;
   status: "Live" | "Upcoming" | "Completed";
   registrations: number;
+  thumbnail: string;
 }
 
 const WebinarsManagement = () => {
@@ -38,6 +39,7 @@ const WebinarsManagement = () => {
         if (!res.ok) throw new Error("Failed to fetch webinars");
 
         const data = await res.json();
+        console.log(data);
 
         // Define the API response type
         interface WebinarApiResponse {
@@ -61,6 +63,7 @@ const WebinarsManagement = () => {
           }`,
           status: capitalizeFirstLetter(webinar.status),
           registrations: webinar.participantsCount,
+          thumbnail: webinar.thumbnail,
         }));
 
         setWebinarsData(formattedData);
@@ -329,11 +332,11 @@ const WebinarsManagement = () => {
         {/* Table Header */}
         <div className="grid grid-cols-6 py-4 px-6 font-medium text-[#1E437A]">
           <div className="col-span-1">Webinar Title</div>
-          <div className="col-span-1">Speaker</div>
-          <div className="col-span-1">Date & Time</div>
-          <div className="col-span-1">Status</div>
-          <div className="col-span-1">Registrations</div>
-          <div className="col-span-1">Action</div>
+          <div className="col-span-1 pl-6">Speaker</div>
+          <div className="col-span-1 pl-10">Date & Time</div>
+          <div className="col-span-1 pl-6">Status</div>
+          <div className="col-span-1 pl-8">Registrations</div>
+          <div className="col-span-1 pl-4">Action</div>
         </div>
 
         {/* Table Body */}
@@ -344,18 +347,24 @@ const WebinarsManagement = () => {
               className="grid grid-cols-6 py-4 px-6 border-t border-gray-200"
             >
               <div className="col-span-1 flex items-center">
-                <div className="h-12 w-12 bg-gray-100 rounded-md mr-3 flex-shrink-0"></div>
+                <div className="h-12 w-12 bg-gray-100 rounded-md mr-3 flex-shrink-0 overflow-hidden">
+                  <img
+                    src={webinar.thumbnail}
+                    alt={webinar.title}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
                 <span className="text-[#1E437A] font-medium">
                   {webinar.title}
                 </span>
               </div>
-              <div className="col-span-1 flex items-center text-[#1E437A]">
+              <div className="col-span-1 flex items-center pl-6 text-[#1E437A]">
                 {webinar.speaker}
               </div>
-              <div className="col-span-1 flex items-center text-[#1E437A]">
+              <div className="col-span-1 flex items-center pl-10 text-[#1E437A]">
                 {webinar.dateTime}
               </div>
-              <div className="col-span-1 flex items-center">
+              <div className="col-span-1 flex items-center pl-6">
                 <span
                   className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeClass(
                     webinar.status
@@ -364,10 +373,10 @@ const WebinarsManagement = () => {
                   {webinar.status}
                 </span>
               </div>
-              <div className="col-span-1 flex items-center text-[#1E437A] ml-10">
+              <div className="col-span-1 flex items-center pl-8 text-[#1E437A] ml-10">
                 {webinar.registrations}
               </div>
-              <div className="col-span-1 flex items-center space-x-3">
+              <div className="col-span-1 flex items-center space-x-3 pl-4">
                 <button className="text-blue-600">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

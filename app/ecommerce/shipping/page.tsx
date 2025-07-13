@@ -24,7 +24,7 @@ const ShippingDashboard = () => {
       setLoading(true)
       const token = localStorage.getItem("adminToken")
       const response = await fetch(
-        `http://localhost:5000/api/orders`, // Assuming /api/orders fetches all orders
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders`, // Assuming /api/orders fetches all orders
         {
           headers: {
             Authorization: `Bearer ${token}`,

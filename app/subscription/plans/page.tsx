@@ -41,7 +41,7 @@ const PlansPage: React.FC = () => {
   const fetchPlans = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch("http://localhost:5000/api/subscriptions/plans", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ const PlansPage: React.FC = () => {
 
   const handleViewPlan = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/subscriptions/plans/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -109,7 +109,7 @@ const PlansPage: React.FC = () => {
 
   const handleEditPlan = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/subscriptions/plans/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -159,7 +159,7 @@ const PlansPage: React.FC = () => {
 
     setIsSubmitting(true)
     try {
-      const response = await fetch(`http://localhost:5000/api/subscriptions/plans/${selectedPlan._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${selectedPlan._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -186,7 +186,7 @@ const PlansPage: React.FC = () => {
   const handleDeletePlan = async (id: string) => {
     if (confirm("Are you sure you want to delete this plan?")) {
       try {
-        const response = await fetch(`http://localhost:5000/api/subscriptions/plans/${id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${id}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",

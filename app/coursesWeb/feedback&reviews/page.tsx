@@ -1,47 +1,48 @@
-"use client"
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
+
+// Initial feedback data
+const feedbackData = [
+  {
+    id: 1,
+    name: "John Dawson",
+    course: "Speech Therapy Basics",
+    rating: 5,
+    feedback: "Very informative!",
+  },
+  {
+    id: 2,
+    name: "Emily Carter",
+    course: "Sensory Play Webinar",
+    rating: 3,
+    feedback: "Good session, but a bit long.",
+  },
+  {
+    id: 3,
+    name: "Sarah Kim",
+    course: "Fine Motor Skills Course",
+    rating: 2,
+    feedback: "Lacked depth on key topics.",
+  },
+  {
+    id: 4,
+    name: "Robert Green",
+    course: "ADHD Awareness Webinar",
+    rating: 4,
+    feedback: "Great hands-on techniques!",
+  },
+];
 
 const FeedbackReviewsTable = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // Initial feedback data
-  const feedbackData = [
-    {
-      id: 1,
-      name: "John Dawson",
-      course: "Speech Therapy Basics",
-      rating: 5,
-      feedback: "Very informative!"
-    },
-    {
-      id: 2,
-      name: "Emily Carter",
-      course: "Sensory Play Webinar",
-      rating: 3,
-      feedback: "Good session, but a bit long."
-    },
-    {
-      id: 3,
-      name: "Sarah Kim",
-      course: "Fine Motor Skills Course",
-      rating: 2,
-      feedback: "Lacked depth on key topics."
-    },
-    {
-      id: 4,
-      name: "Robert Green",
-      course: "ADHD Awareness Webinar",
-      rating: 4,
-      feedback: "Great hands-on techniques!"
-    }
-  ];
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Filter feedback based on search term
-  const filteredFeedback = feedbackData.filter(item =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.feedback.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.rating.toString().includes(searchTerm)
+  const filteredFeedback = feedbackData.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.feedback.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.rating.toString().includes(searchTerm)
   );
 
   return (
@@ -78,8 +79,19 @@ const FeedbackReviewsTable = () => {
       <div className="flex justify-between mb-6">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path fillRule="evenodd" clipRule="evenodd" d="M14.7844 16.1991C11.646 18.6416 7.10629 18.4205 4.22156 15.5358C1.09737 12.4116 1.09737 7.34625 4.22156 4.22205C7.34576 1.09786 12.4111 1.09786 15.5353 4.22205C18.42 7.10677 18.6411 11.6464 16.1986 14.7849L20.4851 19.0713C20.8756 19.4618 20.8756 20.095 20.4851 20.4855C20.0945 20.876 19.4614 20.876 19.0708 20.4855L14.7844 16.1991ZM5.63578 14.1215C7.97892 16.4647 11.7779 16.4647 14.1211 14.1215C16.4642 11.7784 16.4642 7.97941 14.1211 5.63627C11.7779 3.29312 7.97892 3.29312 5.63578 5.63627C3.29263 7.97941 3.29263 11.7784 5.63578 14.1215Z" fill="#667085" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M14.7844 16.1991C11.646 18.6416 7.10629 18.4205 4.22156 15.5358C1.09737 12.4116 1.09737 7.34625 4.22156 4.22205C7.34576 1.09786 12.4111 1.09786 15.5353 4.22205C18.42 7.10677 18.6411 11.6464 16.1986 14.7849L20.4851 19.0713C20.8756 19.4618 20.8756 20.095 20.4851 20.4855C20.0945 20.876 19.4614 20.876 19.0708 20.4855L14.7844 16.1991ZM5.63578 14.1215C7.97892 16.4647 11.7779 16.4647 14.1211 14.1215C16.4642 11.7784 16.4642 7.97941 14.1211 5.63627C11.7779 3.29312 7.97892 3.29312 5.63578 5.63627C3.29263 7.97941 3.29263 11.7784 5.63578 14.1215Z"
+                fill="#667085"
+              />
             </svg>
           </div>
           <input
@@ -90,26 +102,8 @@ const FeedbackReviewsTable = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
+
         <div className="flex space-x-3">
-          <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M7.5 2.49996C7.5 2.03972 7.1269 1.66663 6.66667 1.66663C6.20643 1.66663 5.83333 2.03972 5.83333 2.49996H5C3.61929 2.49996 2.5 3.61925 2.5 4.99996V15.8333C2.5 17.214 3.61929 18.3333 5 18.3333H15C16.3807 18.3333 17.5 17.214 17.5 15.8333V4.99996C17.5 3.61925 16.3807 2.49996 15 2.49996H14.1667C14.1667 2.03972 13.7936 1.66663 13.3333 1.66663C12.8731 1.66663 12.5 2.03972 12.5 2.49996H7.5ZM15.8333 5.83329V4.99996C15.8333 4.53972 15.4602 4.16663 15 4.16663H14.1667C14.1667 4.62686 13.7936 4.99996 13.3333 4.99996C12.8731 4.99996 12.5 4.62686 12.5 4.16663H7.5C7.5 4.62686 7.1269 4.99996 6.66667 4.99996C6.20643 4.99996 5.83333 4.62686 5.83333 4.16663H5C4.53976 4.16663 4.16667 4.53972 4.16667 4.99996V5.83329H15.8333ZM4.16667 7.49996V15.8333C4.16667 16.2935 4.53976 16.6666 5 16.6666H15C15.4602 16.6666 15.8333 16.2935 15.8333 15.8333V7.49996H4.16667Z"
-                fill="#667085"
-              />
-            </svg>
-            Select Dates
-          </button>
-          
           <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -147,7 +141,7 @@ const FeedbackReviewsTable = () => {
             </svg>
             Filters
           </button>
-          
+
           <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -190,7 +184,10 @@ const FeedbackReviewsTable = () => {
         {/* Table Body */}
         {filteredFeedback.length > 0 ? (
           filteredFeedback.map((item) => (
-            <div key={item.id} className="grid grid-cols-4 py-4 px-6 border-t border-gray-200 items-center">
+            <div
+              key={item.id}
+              className="grid grid-cols-4 py-4 px-6 border-t border-gray-200 items-center"
+            >
               <div className="text-[#1E437A] font-medium">{item.name}</div>
               <div className="text-[#1E437A]">{item.course}</div>
               <div className="text-[#1E437A]">{item.rating}</div>
@@ -198,11 +195,13 @@ const FeedbackReviewsTable = () => {
             </div>
           ))
         ) : (
-          <div className="py-8 text-center text-gray-500">No feedback found matching your search criteria</div>
+          <div className="py-8 text-center text-gray-500">
+            No feedback found matching your search criteria
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-export default FeedbackReviewsTable;  
+export default FeedbackReviewsTable;

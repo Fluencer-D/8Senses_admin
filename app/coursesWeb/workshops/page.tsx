@@ -83,7 +83,7 @@ export default function WorkshopAdminPanel() {
   const fetchWorkshops = async () => {
     try {
       setLoading(true)
-      const response = await fetch("http://localhost:5000/api/workshops/all", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/workshops/all`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
           "Content-Type": "application/json",
@@ -103,7 +103,7 @@ export default function WorkshopAdminPanel() {
   // Create workshop
   const createWorkshop = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/workshops", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/workshops`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -134,7 +134,7 @@ export default function WorkshopAdminPanel() {
   const updateWorkshop = async () => {
     if (!selectedWorkshop) return
     try {
-      const response = await fetch(`http://localhost:5000/api/workshops/${selectedWorkshop._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/workshops/${selectedWorkshop._id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -165,7 +165,7 @@ export default function WorkshopAdminPanel() {
   const deleteWorkshop = async (id: string) => {
     if (!confirm("Are you sure you want to delete this workshop?")) return
     try {
-      const response = await fetch(`http://localhost:5000/api/workshops/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/workshops/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,

@@ -33,7 +33,7 @@ export default function InventoryComponent() {
   const [totalCount, setTotalCount] = useState(0)
   const router = useRouter()
 
-  const API_BASE_URL = "http://localhost:5000/api"
+  const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`
 
   // Fetch toys from API
   const fetchToys = async (search = "", page = 1) => {

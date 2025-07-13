@@ -33,7 +33,7 @@ const ToyManagementPage = () => {
   const [borrowers, setBorrowers] = useState<Borrower[]>([])
   const [error, setError] = useState("")
 
-  const API_BASE_URL =  "http://localhost:5000/api"
+  const API_BASE_URL =  `${process.env.NEXT_PUBLIC_API_URL}/api`
   const router = useRouter()
 
   // Fetch borrowers data

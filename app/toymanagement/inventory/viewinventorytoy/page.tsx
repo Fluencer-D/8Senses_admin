@@ -85,7 +85,7 @@ export default function StackingRingsDetails() {
   const searchParams = useSearchParams()
   const toyId = searchParams.get("id")
 
-  const API_BASE_URL = "http://localhost:5000/api"
+  const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`
   const conditionOptions = ["Excellent", "Good", "Fair", "Needs Repair", "Damaged"]
 
   // Fetch toy details with units and history
