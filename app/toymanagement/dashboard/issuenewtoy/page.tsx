@@ -1,110 +1,126 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ArrowLeft, X, Search, Calendar } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
+import { ArrowLeft, X, Search, Calendar } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Toy {
-  _id: string
-  name: string
-  category: string
-  availableUnits: number
-  image?: string
+  _id: string;
+  name: string;
+  category: string;
+  availableUnits: number;
+  image?: string;
 }
 
 interface ToyUnit {
-  _id: string
-  unitNumber: number
-  condition: string
+  _id: string;
+  unitNumber: number;
+  condition: string;
 }
 
 export default function IssueToyForm() {
-  const [borrowerName, setBorrowerName] = useState("")
-  const [phoneNumber, setPhoneNumber] = useState("")
-  const [email, setEmail] = useState("")
-  const [relationship, setRelationship] = useState("")
-  const [toySearch, setToySearch] = useState("")
-  const [selectedToy, setSelectedToy] = useState<Toy | null>(null)
-  const [availableUnits, setAvailableUnits] = useState<ToyUnit[]>([])
-  const [selectedUnit, setSelectedUnit] = useState("")
-  const [issueDate, setIssueDate] = useState(new Date().toISOString().split("T")[0])
-  const [returnDate, setReturnDate] = useState("")
-  const [additionalNotes, setAdditionalNotes] = useState("")
-  const [searchResults, setSearchResults] = useState<Toy[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showSearchResults, setShowSearchResults] = useState(false)
+  const [borrowerName, setBorrowerName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [relationship, setRelationship] = useState("");
+  const [toySearch, setToySearch] = useState("");
+  const [selectedToy, setSelectedToy] = useState<Toy | null>(null);
+  const [availableUnits, setAvailableUnits] = useState<ToyUnit[]>([]);
+  const [selectedUnit, setSelectedUnit] = useState("");
+  const [issueDate, setIssueDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [returnDate, setReturnDate] = useState("");
+  const [additionalNotes, setAdditionalNotes] = useState("");
+  const [searchResults, setSearchResults] = useState<Toy[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
-  const router = useRouter()
-  const API_BASE_URL =  "http://localhost:5000/api"
+  const router = useRouter();
+  const API_BASE_URL = "http://localhost:5000/api";
 
   // Search for available toys
   const searchToys = async (query: string) => {
     if (!query.trim()) {
-      setSearchResults([])
-      setShowSearchResults(false)
-      return
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
     }
 
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`${API_BASE_URL}/search-available?search=${encodeURIComponent(query)}`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-      })
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(
+        `${API_BASE_URL}/search-available?search=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }
+      );
 
       if (response.ok) {
-        const result = await response.json()
-        setSearchResults(result.data)
-        setShowSearchResults(true)
+        const result = await response.json();
+        setSearchResults(result.data);
+        setShowSearchResults(true);
       }
     } catch (error) {
-      console.error("Error searching toys:", error)
+      console.error("Error searching toys:", error);
     }
-  }
+  };
 
   // Get available units for selected toy
   const getAvailableUnits = async (toyId: string) => {
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`${API_BASE_URL}/toys/${toyId}/available-units`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-      })
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(
+        `${API_BASE_URL}/toys/${toyId}/available-units`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }
+      );
 
       if (response.ok) {
-        const result = await response.json()
-        console.log("working")
-        setAvailableUnits(result.data)
+        const result = await response.json();
+        console.log("working");
+        setAvailableUnits(result.data);
       }
     } catch (error) {
-      console.error("Error fetching available units:", error)
+      console.error("Error fetching available units:", error);
     }
-  }
+  };
 
   // Handle toy selection
   const handleToySelect = (toy: Toy) => {
-    setSelectedToy(toy)
-    setToySearch(toy.name)
-    setSearchResults([])
-    setShowSearchResults(false)
-    setSelectedUnit("") // Reset unit selection
-    getAvailableUnits(toy._id)
-  }
+    setSelectedToy(toy);
+    setToySearch(toy.name);
+    setSearchResults([]);
+    setShowSearchResults(false);
+    setSelectedUnit(""); // Reset unit selection
+    getAvailableUnits(toy._id);
+  };
 
   // Submit the form
   const handleSubmit = async () => {
-    if (!selectedToy || !selectedUnit || !borrowerName || !email || !phoneNumber || !issueDate || !returnDate) {
-      alert("Please fill in all required fields")
-      return
+    if (
+      !selectedToy ||
+      !selectedUnit ||
+      !borrowerName ||
+      !email ||
+      !phoneNumber ||
+      !issueDate ||
+      !returnDate
+    ) {
+      alert("Please fill in all required fields");
+      return;
     }
 
     try {
-      setIsSubmitting(true)
-      const token = localStorage.getItem("adminToken")
+      setIsSubmitting(true);
+      const token = localStorage.getItem("adminToken");
 
       const borrowingData = {
         toyId: selectedToy._id,
@@ -117,7 +133,7 @@ export default function IssueToyForm() {
         dueDate: returnDate,
         notes: additionalNotes.trim(),
         conditionOnIssue: "Good", // Default condition
-      }
+      };
 
       const response = await fetch(`${API_BASE_URL}/toys/borrowings`, {
         method: "POST",
@@ -126,50 +142,56 @@ export default function IssueToyForm() {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify(borrowingData),
-      })
+      });
 
       if (response.ok) {
-        const result = await response.json()
-        alert("Toy issued successfully!")
-        router.push("/toymanagement/dashboard")
+        const result = await response.json();
+        alert("Toy issued successfully!");
+        router.push("/toymanagement/dashboard");
       } else {
-        const errorData = await response.json()
-        alert(`Failed to issue toy: ${errorData.error || "Unknown error"}`)
+        const errorData = await response.json();
+        alert(`Failed to issue toy: ${errorData.error || "Unknown error"}`);
       }
     } catch (error) {
-      console.error("Error issuing toy:", error)
-      alert("Failed to issue toy. Please try again.")
+      console.error("Error issuing toy:", error);
+      alert("Failed to issue toy. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // Set default return date (14 days from issue date)
   useEffect(() => {
     if (issueDate) {
-      const issue = new Date(issueDate)
-      const returnDue = new Date(issue.getTime() + 14 * 24 * 60 * 60 * 1000)
-      setReturnDate(returnDue.toISOString().split("T")[0])
+      const issue = new Date(issueDate);
+      const returnDue = new Date(issue.getTime() + 14 * 24 * 60 * 60 * 1000);
+      setReturnDate(returnDue.toISOString().split("T")[0]);
     }
-  }, [issueDate])
+  }, [issueDate]);
 
   // Handle search input change with debounce
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      searchToys(toySearch)
-    }, 300)
+      searchToys(toySearch);
+    }, 300);
 
-    return () => clearTimeout(timeoutId)
-  }, [toySearch])
+    return () => clearTimeout(timeoutId);
+  }, [toySearch]);
 
   return (
     <div className="min-h-screen ml-[300px] max-w-[85%] bg-gray-50 p-6">
       <div className="w-[80%] mt-28 mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3 text-blue-600 cursor-pointer" onClick={() => router.back()}>
+          <div
+            className="flex items-center gap-3 text-blue-600 cursor-pointer"
+            onClick={() => router.back()}
+          >
             <ArrowLeft className="w-4 h-4" />
-            <span style={{ color: "#456696" }} className="text-sm font-medium font-semibold">
+            <span
+              style={{ color: "#456696" }}
+              className="text-sm font-medium font-semibold"
+            >
               Back
             </span>
           </div>
@@ -182,19 +204,28 @@ export default function IssueToyForm() {
           </button>
         </div>
 
-        <h1 style={{ color: "#1E437A" }} className="text-2xl font-semibold mb-4 -mt-5">
+        <h1
+          style={{ color: "#1E437A" }}
+          className="text-2xl font-semibold mb-4 -mt-5"
+        >
           Issue a Toy
         </h1>
 
         {/* Borrower Details Section */}
         <div className="mb-6 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-base font-semibold text-gray-900 mb-6" style={{ color: "#1E437A" }}>
+          <h2
+            className="text-base font-semibold text-gray-900 mb-6"
+            style={{ color: "#1E437A" }}
+          >
             Borrower Details
           </h2>
 
           <div className="space-y-5">
             <div>
-              <label htmlFor="borrower-name" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="borrower-name"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Borrower Name *
               </label>
               <input
@@ -211,7 +242,10 @@ export default function IssueToyForm() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="phone-number" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="phone-number"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Phone Number *
                 </label>
                 <input
@@ -226,7 +260,10 @@ export default function IssueToyForm() {
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email *
                 </label>
                 <input
@@ -243,7 +280,10 @@ export default function IssueToyForm() {
             </div>
 
             <div>
-              <label htmlFor="relationship" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="relationship"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Relationship to Child
               </label>
               <select
@@ -265,7 +305,10 @@ export default function IssueToyForm() {
 
         {/* Toy Details Section */}
         <div className="mb-6 bg-white rounded-lg shadow-sm p-6">
-          <h2 style={{ color: "#1E437A" }} className="text-base font-semibold text-gray-900 mb-6">
+          <h2
+            style={{ color: "#1E437A" }}
+            className="text-base font-semibold text-gray-900 mb-6"
+          >
             Toy Details
           </h2>
 
@@ -291,7 +334,9 @@ export default function IssueToyForm() {
                       onClick={() => handleToySelect(toy)}
                       className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                     >
-                      <div className="font-medium text-gray-900">{toy.name}</div>
+                      <div className="font-medium text-gray-900">
+                        {toy.name}
+                      </div>
                       <div className="text-sm text-gray-500">
                         {toy.category} • {toy.availableUnits} available
                       </div>
@@ -305,7 +350,10 @@ export default function IssueToyForm() {
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="toy-name" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="toy-name"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Toy Name
                     </label>
                     <input
@@ -318,7 +366,10 @@ export default function IssueToyForm() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="category"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Category
                     </label>
                     <input
@@ -333,7 +384,10 @@ export default function IssueToyForm() {
                 </div>
 
                 <div>
-                  <label htmlFor="toy-unit" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="toy-unit"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Select Toy Unit *
                   </label>
                   <select
@@ -359,14 +413,20 @@ export default function IssueToyForm() {
 
         {/* Borrowing Details & Confirmation Section */}
         <div className="mb-6 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-base font-semibold text-gray-900 mb-6" style={{ color: "#1E437A" }}>
+          <h2
+            className="text-base font-semibold text-gray-900 mb-6"
+            style={{ color: "#1E437A" }}
+          >
             Borrowing Details & Confirmation
           </h2>
 
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="issue-date" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="issue-date"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Issue Date *
                 </label>
                 <div className="relative">
@@ -383,7 +443,10 @@ export default function IssueToyForm() {
                 </div>
               </div>
               <div>
-                <label htmlFor="return-date" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="return-date"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Return Due Date *
                 </label>
                 <div className="relative">
@@ -402,7 +465,10 @@ export default function IssueToyForm() {
             </div>
 
             <div>
-              <label htmlFor="additional-notes" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="additional-notes"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Additional Notes (Optional)
               </label>
               <textarea
@@ -437,5 +503,5 @@ export default function IssueToyForm() {
         </div>
       </div>
     </div>
-  )
+  );
 }
