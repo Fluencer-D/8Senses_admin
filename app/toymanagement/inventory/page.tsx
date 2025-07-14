@@ -1,49 +1,66 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ArrowLeft, Search, Filter, Eye, Edit, Trash2, Download, Plus, ChevronLeft, ChevronRight } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
+import {
+  ArrowLeft,
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Toy {
-  _id: string
-  name: string
-  category: string
-  description: string
-  totalUnits: number
-  availableUnits: number
-  image: string
-  createdBy: string
-  createdAt: string
-  updatedAt: string
-  id: string
+  _id: string;
+  name: string;
+  category: string;
+  description: string;
+  totalUnits: number;
+  availableUnits: number;
+  image: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  id: string;
 }
 
 interface ApiResponse {
-  success: boolean
-  count: number
-  data: Toy[]
+  success: boolean;
+  count: number;
+  data: Toy[];
 }
 
 export default function InventoryComponent() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [toys, setToys] = useState<Toy[]>([])
-  const [loading, setLoading] = useState(true)
-  const [totalCount, setTotalCount] = useState(0)
-  const router = useRouter()
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [toys, setToys] = useState<Toy[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [apiBaseUrl, setApiBaseUrl] = useState<string | null>(null);
+  const router = useRouter();
 
-  const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`
+  useEffect(() => {
+    // Only runs on client
+    setApiBaseUrl(`${process.env.NEXT_PUBLIC_API_URL}/api`);
+  }, []);
 
   // Fetch toys from API
   const fetchToys = async (search = "", page = 1) => {
-    try {
-      setLoading(true)
-      const token = localStorage.getItem("adminToken")
+    if (!apiBaseUrl) return;
 
-      let url = `${API_BASE_URL}/toys?page=${page}&limit=10`
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("adminToken");
+
+      let url = `${apiBaseUrl}/toys?page=${page}&limit=10`;
       if (search.trim()) {
-        url += `&search=${encodeURIComponent(search)}`
+        url += `&search=${encodeURIComponent(search)}`;
       }
 
       const response = await fetch(url, {
@@ -51,112 +68,131 @@ export default function InventoryComponent() {
           "Content-Type": "application/json",
           ...(token && { Authorization: `Bearer ${token}` }),
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`)
+        throw new Error(`API Error: ${response.status}`);
       }
 
-      const result: ApiResponse = await response.json()
-      setToys(result.data)
-      setTotalCount(result.count)
+      const result: ApiResponse = await response.json();
+      setToys(result.data);
+      setTotalCount(result.count);
     } catch (error) {
-      console.error("Error fetching toys:", error)
-      alert("Failed to fetch toys. Please try again.")
+      console.error("Error fetching toys:", error);
+      alert("Failed to fetch toys. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Delete toy
   const deleteToy = async (toyId: string) => {
-    if (!confirm("Are you sure you want to delete this toy?")) {
-      return
-    }
+    if (!confirm("Are you sure you want to delete this toy?")) return;
+    if (!apiBaseUrl) return;
 
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`${API_BASE_URL}/toys/${toyId}`, {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(`${apiBaseUrl}/toys/${toyId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           ...(token && { Authorization: `Bearer ${token}` }),
         },
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `Delete failed: ${response.status}`)
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Delete failed: ${response.status}`);
       }
 
-      alert("Toy deleted successfully!")
-      fetchToys(searchTerm, currentPage) // Refresh the list
+      alert("Toy deleted successfully!");
+      fetchToys(searchTerm, currentPage); // Refresh the list
     } catch (error) {
-      console.error("Error deleting toy:", error)
-      alert(`Failed to delete toy: ${error instanceof Error ? error.message : "Unknown error"}`)
+      console.error("Error deleting toy:", error);
+      alert(
+        `Failed to delete toy: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
-  }
+  };
 
   // Export toys data
   const exportToys = async () => {
+    if (!apiBaseUrl) return;
+
     try {
-      const token = localStorage.getItem("adminToken")
-      const response = await fetch(`${API_BASE_URL}/toys?export=true`, {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(`${apiBaseUrl}/toys?export=true`, {
         headers: {
           "Content-Type": "application/json",
           ...(token && { Authorization: `Bearer ${token}` }),
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Export failed: ${response.status}`)
+        throw new Error(`Export failed: ${response.status}`);
       }
 
-      const data = await response.json()
+      const data = await response.json();
 
       // Create CSV content
       const csvContent = [
-        ["Name", "Category", "Total Units", "Available Units", "Description"].join(","),
+        [
+          "Name",
+          "Category",
+          "Total Units",
+          "Available Units",
+          "Description",
+        ].join(","),
         ...data.data.map((toy: Toy) =>
-          [`"${toy.name}"`, `"${toy.category}"`, toy.totalUnits, toy.availableUnits, `"${toy.description || ""}"`].join(
-            ",",
-          ),
+          [
+            `"${toy.name}"`,
+            `"${toy.category}"`,
+            toy.totalUnits,
+            toy.availableUnits,
+            `"${toy.description || ""}"`,
+          ].join(",")
         ),
-      ].join("\n")
+      ].join("\n");
 
       // Download CSV
-      const blob = new Blob([csvContent], { type: "text/csv" })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `toys-inventory-${new Date().toISOString().split("T")[0]}.csv`
-      a.click()
-      window.URL.revokeObjectURL(url)
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `toys-inventory-${
+        new Date().toISOString().split("T")[0]
+      }.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Error exporting toys:", error)
-      alert("Failed to export toys data.")
+      console.error("Error exporting toys:", error);
+      alert("Failed to export toys data.");
     }
-  }
+  };
 
   // Handle search
   const handleSearch = (value: string) => {
-    setSearchTerm(value)
-    setCurrentPage(1)
-    fetchToys(value, 1)
-  }
+    setSearchTerm(value);
+    setCurrentPage(1);
+    fetchToys(value, 1);
+  };
 
   // Handle page change
   const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    fetchToys(searchTerm, page)
-  }
+    setCurrentPage(page);
+    fetchToys(searchTerm, page);
+  };
 
   // Load toys on component mount
   useEffect(() => {
-    fetchToys()
-  }, [])
+    if (apiBaseUrl) {
+      fetchToys();
+    }
+  }, [apiBaseUrl]);
 
-  const totalPages = Math.ceil(totalCount / 10)
+  const totalPages = Math.ceil(totalCount / 10);
 
   return (
     <div
@@ -167,7 +203,10 @@ export default function InventoryComponent() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-brandblue cursor-pointer" onClick={() => router.back()}>
+            <div
+              className="flex items-center gap-2 text-brandblue cursor-pointer"
+              onClick={() => router.back()}
+            >
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm font-medium">Back</span>
             </div>
@@ -192,7 +231,10 @@ export default function InventoryComponent() {
             </Link>
           </div>
         </div>
-        <h1 style={{ color: "#1E437A" }} className="text-2xl block font-semibold text-brandblue -mt-5 mb-5">
+        <h1
+          style={{ color: "#1E437A" }}
+          className="text-2xl block font-semibold text-brandblue -mt-5 mb-5"
+        >
           Inventory
         </h1>
 
@@ -220,11 +262,21 @@ export default function InventoryComponent() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">Toy Name</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">Category</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">Total Units</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">Available Units</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">Actions</th>
+                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">
+                    Toy Name
+                  </th>
+                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">
+                    Category
+                  </th>
+                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">
+                    Total Units
+                  </th>
+                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">
+                    Available Units
+                  </th>
+                  <th className="text-left py-4 px-6 text-sm font-medium text-brandblue">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -246,8 +298,9 @@ export default function InventoryComponent() {
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center text-lg overflow-hidden">
-                            {console.log(toy,"toy")}
-                            {toy.image && toy.image !== "/placeholder.svg?height=200&width=200" ? (
+                            {toy.image &&
+                            toy.image !==
+                              "/placeholder.svg?height=200&width=200" ? (
                               <img
                                 src={toy.image || "/placeholder.svg"}
                                 alt={toy.name}
@@ -258,28 +311,42 @@ export default function InventoryComponent() {
                             )}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-brandblue">{toy.name}</p>
-                            <p className="text-xs text-gray-500">{toy.description?.substring(0, 50)}...</p>
+                            <p className="text-sm font-medium text-brandblue">
+                              {toy.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {toy.description?.substring(0, 50)}...
+                            </p>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="text-sm text-brandblue font-medium">{toy.category}</span>
+                        <span className="text-sm text-brandblue font-medium">
+                          {toy.category}
+                        </span>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="text-sm text-brandblue font-medium">{toy.totalUnits}</span>
+                        <span className="text-sm text-brandblue font-medium">
+                          {toy.totalUnits}
+                        </span>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="text-sm text-brandblue font-medium">{toy.availableUnits}</span>
+                        <span className="text-sm text-brandblue font-medium">
+                          {toy.availableUnits}
+                        </span>
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
-                          <Link href={`/toymanagement/inventory/viewinventorytoy?id=${toy._id}`}>
+                          <Link
+                            href={`/toymanagement/inventory/viewinventorytoy?id=${toy._id}`}
+                          >
                             <button className="p-1.5 text-brandblue hover:text-brandblue hover:bg-blue-50 rounded">
                               <Eye className="w-4 h-4" />
                             </button>
                           </Link>
-                          <Link href={`/toymanagement/inventory/edittoy?id=${toy._id}`}>
+                          <Link
+                            href={`/toymanagement/inventory/edittoy?id=${toy._id}`}
+                          >
                             <button className="p-1.5 text-brandblue hover:text-green-600 hover:bg-green-50 rounded">
                               <Edit className="w-4 h-4" />
                             </button>
@@ -302,8 +369,8 @@ export default function InventoryComponent() {
           {/* Pagination */}
           <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-white">
             <div className="text-sm text-brandblue">
-              Showing {Math.min((currentPage - 1) * 10 + 1, totalCount)}-{Math.min(currentPage * 10, totalCount)} from{" "}
-              {totalCount}
+              Showing {Math.min((currentPage - 1) * 10 + 1, totalCount)}-
+              {Math.min(currentPage * 10, totalCount)} from {totalCount}
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -315,26 +382,32 @@ export default function InventoryComponent() {
               </button>
 
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const page = i + 1
+                const page = i + 1;
                 return (
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
                     className={`w-8 h-8 text-sm font-medium rounded ${
-                      currentPage === page ? "bg-blue-600 text-white" : "text-brandblue hover:bg-gray-100"
+                      currentPage === page
+                        ? "bg-blue-600 text-white"
+                        : "text-brandblue hover:bg-gray-100"
                     }`}
                   >
                     {page}
                   </button>
-                )
+                );
               })}
 
-              {totalPages > 5 && <span className="text-brandblue px-2">...</span>}
+              {totalPages > 5 && (
+                <span className="text-brandblue px-2">...</span>
+              )}
 
               <button
                 className="p-2 text-brandblue hover:text-brandblue disabled:opacity-50"
                 disabled={currentPage === totalPages}
-                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                onClick={() =>
+                  handlePageChange(Math.min(totalPages, currentPage + 1))
+                }
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -343,5 +416,5 @@ export default function InventoryComponent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
