@@ -90,7 +90,7 @@ export default function IssueToyForm() {
     setLoadingUnits(true)
     try {
       const token = localStorage.getItem("adminToken")
-      const response = await fetch(`${API_BASE_URL}/toys/${toyId}/units`, {
+      const response = await fetch(`${API_BASE_URL}/api/toys/${toyId}/units`, {
         // This is the endpoint you provided
         headers: {
           "Content-Type": "application/json",
@@ -225,7 +225,7 @@ export default function IssueToyForm() {
 
       console.log("Submitting borrowing data:", borrowingData)
 
-      const response = await fetch(`${API_BASE_URL}/toys/borrowings`, {
+      const response = await fetch(`${API_BASE_URL}/api/toys/borrowings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
