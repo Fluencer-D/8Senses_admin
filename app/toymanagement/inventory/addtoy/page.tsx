@@ -3,8 +3,6 @@
 import type React from "react"
 import { useState } from "react"
 import { ArrowLeft, Plus, Upload, X } from "lucide-react"
-import { useRouter } from "next/navigation"
-
 interface AddNewToyProps {
   onClose: () => void
 }
@@ -17,8 +15,6 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
   const [toyUnits, setToyUnits] = useState("")
   const [uploadedImages, setUploadedImages] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const router = useRouter();
   // API Base URL - adjust according to your backend
   const NEXT_PUBLIC_API_URL =  `${process.env.NEXT_PUBLIC_API_URL}/api`
 
@@ -34,28 +30,28 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
     setUploadedImages((prev) => prev.filter((_, i) => i !== index))
   }
 
-  // Upload images to backend
+  // Upload images to Cloudinary
   const uploadImages = async (images: File[]): Promise<string[]> => {
     const uploadPromises = images.map(async (image) => {
       const formData = new FormData()
-      formData.append("image", image)
-
+      formData.append("file", image)
+      formData.append("upload_preset", "my_unsigned_preset") // Replace with your upload preset
+      
       try {
-        const token = localStorage.getItem("adminToken")
-        const response = await fetch(`${NEXT_PUBLIC_API_URL}/upload/image`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        })
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/dlehbizfp/image/upload`, // Replace with your cloud name
+          {
+            method: "POST",
+            body: formData,
+          }
+        )
 
         if (!response.ok) {
           throw new Error(`Upload failed: ${response.status}`)
         }
 
         const result = await response.json()
-        return result.imageUrl || result.url // Adjust based on your API response
+        return result.secure_url // Cloudinary returns secure_url
       } catch (error) {
         console.error("Image upload failed:", error)
         // Return placeholder for failed uploads
@@ -143,7 +139,7 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
       setUploadedImages([])
 
       // Close the form
-      router.back();
+      onClose();
 
       // Optionally refresh the page or update parent component
       window.location.reload() // Simple refresh - you can improve this with state management

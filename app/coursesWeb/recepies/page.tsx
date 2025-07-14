@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 import {
   Search,
   Plus,
@@ -20,6 +19,7 @@ import {
   ArrowLeft,
   Wheat,
   Calculator,
+  Upload,
 } from "lucide-react"
 
 interface Recipe {
@@ -52,6 +52,7 @@ const CATEGORIES = ["Breakfast", "Lunch", "Dinner", "Dessert", "Snack"]
 export default function RecipeAdminPanel() {
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
   const [currentView, setCurrentView] = useState<"list" | "create" | "edit">("list")
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
@@ -78,6 +79,50 @@ export default function RecipeAdminPanel() {
     isGlutenFree: true,
     tags: [""],
   })
+
+  // Cloudinary upload function
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', 'my_unsigned_preset') // Replace with your Cloudinary upload preset
+    formData.append('cloud_name', 'dlehbizfp') // Replace with your Cloudinary cloud name
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dlehbizfp/image/upload`, // Replace with your cloud name
+        {
+          method: 'POST',
+          body: formData,
+        }
+      )
+      
+      const data = await response.json()
+      if (data.secure_url) {
+        return data.secure_url
+      } else {
+        throw new Error('Upload failed')
+      }
+    } catch (error) {
+      console.error('Error uploading to Cloudinary:', error)
+      throw error
+    }
+  }
+
+  // Handle image upload
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      setUploading(true)
+      const imageUrl = await uploadToCloudinary(file)
+      setFormData(prev => ({ ...prev, image: imageUrl }))
+    } catch (error) {
+      alert('Failed to upload image. Please try again.')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   // Fetch all recipes
   const fetchRecipes = async () => {
@@ -364,7 +409,7 @@ export default function RecipeAdminPanel() {
                   className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-100"
                 >
                   <div className="relative h-56">
-                    <Image src={recipe.image || "/placeholder.svg"} alt={recipe.title} fill className="object-cover" />
+                    <img src={recipe.image || "/placeholder.svg"} alt={recipe.title} className="w-full h-full object-cover" />
                     <div className="absolute top-4 right-4">
                       <span
                         className={`px-3 py-1 text-sm font-bold rounded-full shadow-lg ${
@@ -560,15 +605,34 @@ export default function RecipeAdminPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-slate-800 mb-2">Image URL</label>
-                    <input
-                    style={{color:"black"}}
-                      type="text"
-                      value={formData.image}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, image: e.target.value }))}
-                      className="w-full px-4 py-3 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
-                      placeholder="Enter image URL"
-                    />
+                    <label className="block text-sm font-bold text-slate-800 mb-2">Recipe Image</label>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl cursor-pointer hover:bg-indigo-700 transition-all duration-200 font-semibold">
+                          <Upload className="w-4 h-4" />
+                          {uploading ? "Uploading..." : "Upload Image"}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            disabled={uploading}
+                          />
+                        </label>
+                        {uploading && (
+                          <div className="animate-spin rounded-full h-6 w-6 border-2 border-indigo-500 border-t-transparent"></div>
+                        )}
+                      </div>
+                      {formData.image && (
+                        <div className="relative w-full h-40 border-2 border-slate-200 rounded-xl overflow-hidden">
+                          <img 
+                            src={formData.image} 
+                            alt="Recipe preview" 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex items-center bg-slate-50 p-4 rounded-xl">

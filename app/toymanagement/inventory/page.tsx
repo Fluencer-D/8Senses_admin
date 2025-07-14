@@ -246,6 +246,7 @@ export default function InventoryComponent() {
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center text-lg overflow-hidden">
+                            {console.log(toy,"toy")}
                             {toy.image && toy.image !== "/placeholder.svg?height=200&width=200" ? (
                               <img
                                 src={toy.image || "/placeholder.svg"}
