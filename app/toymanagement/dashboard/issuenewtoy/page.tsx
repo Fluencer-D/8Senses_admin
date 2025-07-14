@@ -45,7 +45,7 @@ export default function IssueToyForm() {
   const [loadingUnits, setLoadingUnits] = useState(false)
 
   const router = useRouter()
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_BASE_URL = "http://localhost:5000/api"
 
   // Search for available toys (this API returns units without _id)
   const searchToys = async (query: string) => {
@@ -57,7 +57,7 @@ export default function IssueToyForm() {
 
     try {
       const token = localStorage.getItem("adminToken")
-      const response = await fetch(`${API_BASE_URL}/api/search-available?search=${encodeURIComponent(query)}`, {
+      const response = await fetch(`${API_BASE_URL}/search-available?search=${encodeURIComponent(query)}`, {
         headers: {
           "Content-Type": "application/json",
           ...(token && { Authorization: `Bearer ${token}` }),
