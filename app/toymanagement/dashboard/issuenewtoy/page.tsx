@@ -57,7 +57,7 @@ export default function IssueToyForm() {
 
     try {
       const token = localStorage.getItem("adminToken")
-      const response = await fetch(`${API_BASE_URL}/search-available?search=${encodeURIComponent(query)}`, {
+      const response = await fetch(`${API_BASE_URL}/api/search-available?search=${encodeURIComponent(query)}`, {
         headers: {
           "Content-Type": "application/json",
           ...(token && { Authorization: `Bearer ${token}` }),
