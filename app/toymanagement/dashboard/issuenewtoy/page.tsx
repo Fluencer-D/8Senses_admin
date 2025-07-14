@@ -223,8 +223,6 @@ export default function IssueToyForm() {
         conditionOnIssue: selectedUnitData.condition, // Use the condition from the fetched unit
       }
 
-      console.log("Submitting borrowing data:", borrowingData)
-
       const response = await fetch(`${API_BASE_URL}/api/toys/borrowings`, {
         method: "POST",
         headers: {
