@@ -65,6 +65,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   });
 
   const [activeTab, setActiveTab] = useState<string>("Dashboard");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Prevent hydration mismatch
+    setMounted(true);
+  }, []);
 
   const toggleSection = (section: SectionKeys) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -72,7 +78,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
   const handleTabClick = (tab: string, parent?: SectionKeys) => {
     setActiveTab(tab);
-
     if (parent) {
       setOpenSections((prev) => ({ ...prev, [parent]: true }));
     }
@@ -81,6 +86,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const getSvgColor = (tab: string) => {
     return activeTab === tab ? "#FFFFFF" : "#456696";
   };
+
+  if (!mounted) return null; // Prevent initial SSR mismatch
 
   return (
     <aside
