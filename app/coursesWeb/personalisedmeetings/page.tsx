@@ -47,6 +47,7 @@ export default function MeetingAdminPanel() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlanFilter, setSelectedPlanFilter] = useState("");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("");
+  const [isClient, setIsClient] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -62,6 +63,11 @@ export default function MeetingAdminPanel() {
 
   // API Base URL (adjust if your Express server is on a different port/domain)
   const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/meetings`; // Assuming Express server runs on port 5000
+
+  // Set client flag after hydration
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Fetch all meetings
   const fetchMeetings = async () => {
@@ -224,6 +230,14 @@ export default function MeetingAdminPanel() {
   }, []);
 
   const getMeetingStatus = (meeting: Meeting) => {
+    // Return a default status during SSR to prevent hydration mismatch
+    if (!isClient) {
+      return {
+        status: "Upcoming",
+        icon: <Hourglass className="w-3 h-3" />,
+        color: "bg-blue-100 text-blue-800",
+      };
+    }
     const now = new Date();
     const meetingDate = new Date(meeting.date);
     const [startHour, startMinute] = meeting.startTime.split(":").map(Number);
