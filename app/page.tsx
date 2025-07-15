@@ -10,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     const token = getAdminToken();
     if (token) {
-      router.replace("/dashbaord"); // or some secure route
+      router.replace("/dashboard"); // or some secure route
     } else {
       router.replace("/admin");
     }
