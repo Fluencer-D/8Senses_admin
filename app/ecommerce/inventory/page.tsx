@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getAdminToken } from "@/utils/storage";
 
 interface InventoryItem {
   _id: string;
@@ -25,7 +26,7 @@ const Inventory = () => {
   useEffect(() => {
     const fetchInventory = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = getAdminToken();
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/products/admin/all-inventory`,
           {

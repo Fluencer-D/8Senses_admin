@@ -1,5 +1,6 @@
 "use client"
 
+import { getAdminToken } from "@/utils/storage"
 import { Suspense } from "react"
 
 // Loading component for Suspense fallback
@@ -56,7 +57,7 @@ function UpdateStockContent() {
 
     const fetchProductDetails = async () => {
       try {
-        const token = localStorage.getItem("adminToken")
+        const token = getAdminToken()
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -86,7 +87,7 @@ function UpdateStockContent() {
     if (!newStockLevel) return
 
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/admin/${productId}/stock`, {
         method: "PUT",
         headers: {

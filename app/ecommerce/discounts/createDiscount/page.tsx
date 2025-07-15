@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ChevronDownIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getAdminToken } from "@/utils/storage";
 
 interface DiscountData {
   code: string;
@@ -41,7 +42,7 @@ const DiscountForm: React.FC = () => {
     };
   
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
   
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/discounts`, {
         method: "POST",

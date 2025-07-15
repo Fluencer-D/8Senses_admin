@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { ArrowLeft, Search, X, Filter, CheckCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { getAdminToken } from "@/utils/storage"
 
 interface Borrower {
   _id: string
@@ -88,7 +89,7 @@ export default function ProcessReturn() {
   // Get auth token (you might need to adjust this based on your auth implementation)
   const getAuthToken = () => {
     // Replace this with your actual token retrieval method
-    return localStorage.getItem("adminToken") || ""
+    return getAdminToken() || ""
   }
 
   // Load all borrowings on component mount

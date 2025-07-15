@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Suspense } from "react";
+import { getAdminToken } from "@/utils/storage";
 
 // Loading component for Suspense fallback
 function OrderDetailsLoading() {
@@ -75,7 +76,7 @@ function OrderDetailsContent() {
     const fetchOrderDetails = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = getAdminToken();
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`,
           {
@@ -127,7 +128,7 @@ function OrderDetailsContent() {
 
   const handleUpdateShipping = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/status`,
         {
@@ -154,7 +155,7 @@ function OrderDetailsContent() {
 
   const handleProcessRefund = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/refund`,
         {

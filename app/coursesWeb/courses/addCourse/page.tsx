@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { getAdminToken } from '@/utils/storage';
 
 // Define types to match the MongoDB schema
 interface VideoData {
@@ -116,7 +117,7 @@ const CourseCreationPage: React.FC = () => {
         const formData = new FormData();
         formData.append("thumbnail", file);
   
-        const token = localStorage.getItem("adminToken");
+        const token = getAdminToken();
   
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload/course/thumbnail`, {
           method: "POST",
@@ -169,7 +170,7 @@ const handleAddVideo = async (): Promise<void> => {
     const formData = new FormData();
     formData.append("video", videoFile);
 
-    const token = localStorage.getItem("adminToken");
+    const token = getAdminToken();
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload/course/video`, {
       method: "POST",
@@ -310,7 +311,7 @@ const handleAddVideo = async (): Promise<void> => {
       setError(null);
       
       // Retrieve the auth token from wherever you store it (localStorage, context, etc.)
-      const token = localStorage.getItem('adminToken'); // Or however you store your token
+      const token = getAdminToken(); // Or however you store your token
       
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses`, {
         method: 'POST',

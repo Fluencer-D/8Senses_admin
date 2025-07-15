@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getAdminToken } from "@/utils/storage";
 
 interface Toy {
   _id: string;
@@ -56,7 +57,7 @@ export default function InventoryComponent() {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
 
       let url = `${apiBaseUrl}/toys?page=${page}&limit=10`;
       if (search.trim()) {
@@ -91,7 +92,7 @@ export default function InventoryComponent() {
     if (!apiBaseUrl) return;
 
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const response = await fetch(`${apiBaseUrl}/toys/${toyId}`, {
         method: "DELETE",
         headers: {
@@ -122,7 +123,7 @@ export default function InventoryComponent() {
     if (!apiBaseUrl) return;
 
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const response = await fetch(`${apiBaseUrl}/toys?export=true`, {
         headers: {
           "Content-Type": "application/json",

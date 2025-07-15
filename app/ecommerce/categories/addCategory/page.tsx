@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getAdminToken } from "@/utils/storage";
 
 const AddCategory = () => {
   const router = useRouter();
@@ -15,7 +16,7 @@ const AddCategory = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = getAdminToken();
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -40,7 +41,7 @@ const AddCategory = () => {
   };
 
   const handleSubmit = async () => {
-    const token = localStorage.getItem("adminToken");
+    const token = getAdminToken();
 
     const payload = {
       name: categoryName,

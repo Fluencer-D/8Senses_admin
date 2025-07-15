@@ -1,5 +1,6 @@
 "use client"
 
+import { getAdminToken } from "@/utils/storage"
 import { Suspense } from "react"
 
 // Loading component for Suspense fallback
@@ -148,7 +149,7 @@ function BorrowerProfileContent() {
     try {
       setLoading(true)
       setError("")
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${API_BASE_URL}/borrowers/${borrowingId}`, {
         headers: {
           "Content-Type": "application/json",
@@ -178,7 +179,7 @@ function BorrowerProfileContent() {
   const sendReminder = async (borrowingId: string, toyName: string) => {
     try {
       setSendingReminder(borrowingId)
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${API_BASE_URL}/borrowers/${borrowingId}/send-reminder`, {
         method: "POST",
         headers: {

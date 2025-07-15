@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { ArrowLeft, X, Search, Calendar } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { getAdminToken } from "@/utils/storage"
 
 interface Toy {
   _id: string
@@ -56,7 +57,7 @@ export default function IssueToyForm() {
     }
 
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${API_BASE_URL}/api/search-available?search=${encodeURIComponent(query)}`, {
         headers: {
           "Content-Type": "application/json",
@@ -89,7 +90,7 @@ export default function IssueToyForm() {
   const getRealToyUnits = async (toyId: string) => {
     setLoadingUnits(true)
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${API_BASE_URL}/api/toys/${toyId}/units`, {
         // This is the endpoint you provided
         headers: {
@@ -200,7 +201,7 @@ export default function IssueToyForm() {
 
     try {
       setIsSubmitting(true)
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
 
       // Find the selected unit data using the real _id
       const selectedUnitData = availableUnits.find((unit) => unit._id === selectedUnitId)

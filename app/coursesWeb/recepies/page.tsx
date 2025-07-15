@@ -21,6 +21,7 @@ import {
   Calculator,
   Upload,
 } from "lucide-react"
+import { getAdminToken } from "@/utils/storage"
 
 interface Recipe {
   _id: string
@@ -130,7 +131,7 @@ export default function RecipeAdminPanel() {
       setLoading(true)
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes/all`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
       })
@@ -151,7 +152,7 @@ export default function RecipeAdminPanel() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -183,7 +184,7 @@ export default function RecipeAdminPanel() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes/${selectedRecipe._id}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -215,7 +216,7 @@ export default function RecipeAdminPanel() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
       })

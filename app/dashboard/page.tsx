@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { ChevronDown, ClipboardList, ShoppingCart, Users } from "lucide-react";
 import { Dialog } from "@headlessui/react";
+import { getAdminToken } from "@/utils/storage";
 
 interface OrderItem {
   product: string;
@@ -108,7 +109,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
         setLoading(true);
 
         // Fetch orders from your backend API
-        const token = localStorage.getItem("adminToken"); // Get auth token
+        const token = getAdminToken(); // Get auth token
         if (!token) throw new Error("Login first");
         const ordersResponse = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/orders?page=${currentPage}&limit=${ORDERS_PER_PAGE}`,
@@ -218,7 +219,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
   const handleSendMotivation = async () => {
     try {
       setSending(true);
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/emails/motivation`,
         {

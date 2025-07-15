@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
+import { getAdminToken } from "@/utils/storage"
 
 interface OrderDetails {
   _id: string
@@ -49,7 +50,7 @@ const UpdateShippingStatus = () => {
 
       try {
         setLoading(true)
-        const token = localStorage.getItem("adminToken")
+        const token = getAdminToken()
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -87,7 +88,7 @@ const UpdateShippingStatus = () => {
 
     setIsSubmitting(true)
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const payload: {
         status: string
         trackingNumber?: string

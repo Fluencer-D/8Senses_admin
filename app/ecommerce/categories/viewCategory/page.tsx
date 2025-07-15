@@ -1,5 +1,6 @@
 "use client"
 
+import { getAdminToken } from "@/utils/storage"
 import { Suspense } from "react"
 
 // Loading component for Suspense fallback
@@ -39,7 +40,7 @@ function CategoryDetailsContent() {
   useEffect(() => {
     if (!categoryId) return
 
-    const token = localStorage.getItem("adminToken")
+    const token = getAdminToken()
 
     const fetchData = async () => {
       try {
@@ -78,7 +79,7 @@ function CategoryDetailsContent() {
   }
 
   const handleSave = async () => {
-    const token = localStorage.getItem("adminToken")
+    const token = getAdminToken()
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories/${categoryId}`, {
         method: "PUT",

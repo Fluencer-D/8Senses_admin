@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { getAdminToken } from "@/utils/storage"
 
 const AddPlanPage = () => {
   const router = useRouter()
@@ -23,10 +24,23 @@ const AddPlanPage = () => {
   const [isClient, setIsClient] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+
 
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+
+  useEffect(() => {
+    setIsClient(true);
+    if (typeof window !== "undefined") {
+      const token = getAdminToken();
+      setAdminToken(token);
+    }
+  }, []);
+
+
 
   // Validation function
   const validateForm = () => {
@@ -75,6 +89,9 @@ const AddPlanPage = () => {
     router.push("/subscription/plans")
   }
 
+
+
+
   // Handle save button click
   const handleSave = async () => {
     if (!validateForm()) {
@@ -106,7 +123,7 @@ const AddPlanPage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization":`Bearer ${localStorage.getItem("adminToken")}`
+          "Authorization": adminToken ? `Bearer ${adminToken}` : "",
         },
         body: JSON.stringify(planData),
       })

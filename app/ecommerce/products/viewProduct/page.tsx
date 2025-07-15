@@ -3,6 +3,7 @@ import { useState, useEffect, type ChangeEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 import axios from "axios"
+import { getAdminToken } from "@/utils/storage"
 
 // Loading component for Suspense fallback
 function ProductDetailsLoading() {
@@ -100,7 +101,7 @@ function ProductDetailsContent() {
     }
 
     const fetchEverything = async () => {
-      const token = localStorage.getItem("token") || localStorage.getItem("adminToken")
+      const token =  getAdminToken()
       if (!token) {
         setLoading(false)
         setError("Authentication token not found. Please log in.")
@@ -195,7 +196,7 @@ function ProductDetailsContent() {
       console.log("Sending product data:", productData) // Log the data before sending
 
       // Get the token from localStorage or your auth state
-      const token = localStorage.getItem("adminToken") // or however you store your auth token
+      const token = getAdminToken() // or however you store your auth token
       // Check if we have a token
       if (!token) {
         setError("You are not logged in. Please log in to update products.")

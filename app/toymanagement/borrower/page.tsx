@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { getAdminToken } from "@/utils/storage"
 
 interface Borrower {
   _id: string
@@ -41,7 +42,7 @@ const ToyManagementPage = () => {
     try {
       setLoading(true)
       setError("")
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
 
       let url = `${API_BASE_URL}/borrowers`
       if (search.trim()) {
@@ -73,7 +74,7 @@ const ToyManagementPage = () => {
   // Send reminder to borrower
   const sendReminder = async (borrowerEmail: string, borrowerName: string) => {
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${API_BASE_URL}/borrowers/${encodeURIComponent(borrowerEmail)}/send-reminder`, {
         method: "POST",
         headers: {

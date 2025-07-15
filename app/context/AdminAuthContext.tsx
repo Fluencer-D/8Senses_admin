@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
+import { getAdminToken } from '@/utils/storage';
 
 interface AdminAuthContextType {
   isAuthenticated: boolean;
@@ -14,7 +15,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
+    const token = getAdminToken();
     setIsAuthenticated(!!token);
   }, []);
 

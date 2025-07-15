@@ -1,4 +1,5 @@
 "use client";
+import { getAdminToken } from "@/utils/storage";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
@@ -66,7 +67,7 @@ const Products = () => {
   const handleDeleteProduct = async (productId: string) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        const token = localStorage.getItem("adminToken"); // if your backend is protected
+        const token = getAdminToken(); // if your backend is protected
   
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/products/admin/${productId}`,

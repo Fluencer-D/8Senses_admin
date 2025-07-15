@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { ArrowLeft, Filter, Eye, Edit, Trash2, Plus, Save, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
+import { getAdminToken } from "@/utils/storage"
 
 interface Toy {
   _id: string
@@ -99,7 +100,7 @@ export default function StackingRingsDetails() {
     try {
       setLoading(true)
       setError("")
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
 
       const response = await fetch(`${API_BASE_URL}/toys/${toyId}`, {
         headers: {
@@ -135,7 +136,7 @@ export default function StackingRingsDetails() {
     }
 
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${API_BASE_URL}/toys/${apiData.toy._id}`, {
         method: "DELETE",
         headers: {
@@ -165,7 +166,7 @@ export default function StackingRingsDetails() {
 
     try {
       setDeletingUnit(unitId)
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${API_BASE_URL}/toys/units/${unitId}`, {
         method: "DELETE",
         headers: {
@@ -257,7 +258,7 @@ export default function StackingRingsDetails() {
 
     try {
       setSaving(true)
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
 
       const payload = {
         condition: unitFormData.condition,
@@ -310,7 +311,7 @@ export default function StackingRingsDetails() {
 
     try {
       setSaving(true)
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
 
       const payload = {
         condition: unitFormData.condition,

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import axios from "axios"
+import { getAdminToken } from "@/utils/storage"
 
 // Define type for member data, aligning with backend User schema
 interface MemberData {
@@ -41,7 +42,7 @@ const MemberDetailsPage = () => {
 
       setLoading(true)
       try {
-        const token = localStorage.getItem("adminToken")
+        const token = getAdminToken()
         if (!token) {
           setError("Authentication token not found. Please log in.")
           setLoading(false)
@@ -75,7 +76,7 @@ const MemberDetailsPage = () => {
 
     setIsSendingReminder(true)
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       if (!token) {
         alert("Authentication token not found. Please log in.")
         setIsSendingReminder(false)

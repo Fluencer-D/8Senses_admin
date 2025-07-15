@@ -19,6 +19,7 @@ import {
   Sun,
   Apple,
 } from "lucide-react"
+import { getAdminToken } from "@/utils/storage"
 
 interface Meal {
   day: string
@@ -60,7 +61,7 @@ export default function DetoxAdminPanel() {
       setLoading(true)
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/detox/detox-plans`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
       })
@@ -81,7 +82,7 @@ export default function DetoxAdminPanel() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/detox/create-detox`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -111,7 +112,7 @@ export default function DetoxAdminPanel() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/detox/detox-plan/${selectedDetoxPlan._id}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -141,7 +142,7 @@ export default function DetoxAdminPanel() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/detox/detox-plan/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
       })

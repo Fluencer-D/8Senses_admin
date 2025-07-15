@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getAdminToken } from "@/utils/storage";
 
 interface DashboardStats {
   toysAvailable: number;
@@ -54,7 +55,7 @@ const ToyManagementPage = () => {
   // Fetch dashboard statistics
   const fetchDashboardStats = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const response = await fetch(`${API_BASE_URL}/dashboard/stats`, {
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +78,7 @@ const ToyManagementPage = () => {
   const fetchBorrowedToys = async (search = "") => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
 
       let url = `${API_BASE_URL}/dashboard/borrowed-toys`;
       if (search.trim()) {
@@ -111,7 +112,7 @@ const ToyManagementPage = () => {
     toyName: string
   ) => {
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const response = await fetch(`${API_BASE_URL}/dashboard/send-reminder`, {
         method: "POST",
         headers: {
@@ -142,7 +143,7 @@ const ToyManagementPage = () => {
     if (!conditionOnReturn) return;
 
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const response = await fetch(
         `${API_BASE_URL}/dashboard/process-return/${borrowingId}`,
         {

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getAdminToken } from "@/utils/storage";
 
 interface Category {
   _id: string;
@@ -20,7 +21,7 @@ const Categories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = getAdminToken();
 
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/categories`,
@@ -79,7 +80,7 @@ const Categories = () => {
     if (!confirmed) return;
 
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/categories/${id}`,
         {

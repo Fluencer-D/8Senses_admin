@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import React from "react";
+import { getAdminToken } from "@/utils/storage";
 
 interface Webinar {
   _id: string;
@@ -26,7 +27,7 @@ const WebinarsManagement = () => {
   useEffect(() => {
     const fetchWebinars = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = getAdminToken();
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/webinars`,
           {
@@ -136,7 +137,7 @@ const WebinarsManagement = () => {
     if (!confirm("Are you sure you want to delete this webinar?")) return;
 
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/webinars/${id}`,
         {

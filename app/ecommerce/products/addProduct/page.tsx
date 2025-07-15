@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getAdminToken } from "@/utils/storage";
 
 const AddProduct = () => {
   const router = useRouter();
@@ -30,7 +31,7 @@ const AddProduct = () => {
       if (typeof window === "undefined") return;
   
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = getAdminToken();
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/categories`,
           {
@@ -133,7 +134,7 @@ const AddProduct = () => {
     if (!validateForm()) return;
   
     setIsLoading(true);
-    const token = localStorage.getItem("adminToken");
+    const token = getAdminToken();
   
     try {
       let imageUrl = "";

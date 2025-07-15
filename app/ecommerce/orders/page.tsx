@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getAdminToken } from "@/utils/storage";
 
 type OrderStatus = "Completed" | "Pending" | "Processing" | "Refunded" | string;
 
@@ -24,7 +25,7 @@ const Orders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = getAdminToken();
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
           {

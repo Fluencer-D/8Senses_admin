@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { ArrowLeft, Plus, Upload, X } from "lucide-react"
+import { getAdminToken } from "@/utils/storage"
 interface AddNewToyProps {
   onClose: () => void
 }
@@ -65,7 +66,7 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
   // Create toy via API
   const createToy = async (toyData: any) => {
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${NEXT_PUBLIC_API_URL}/toys`, {
         method: "POST",
         headers: {

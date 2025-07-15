@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getAdminToken } from "@/utils/storage";
 
 interface Course {
   thumbnail: string;
@@ -26,7 +27,7 @@ const CoursesManagement = () => {
           `${process.env.NEXT_PUBLIC_API_URL}/api/courses`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+              Authorization: `Bearer ${getAdminToken()}`,
             },
           }
         );
@@ -84,7 +85,7 @@ const CoursesManagement = () => {
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            Authorization: `Bearer ${getAdminToken()}`,
           },
         }
       );

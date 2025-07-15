@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { getAdminToken } from "@/utils/storage";
 
 interface WebinarFormData {
   title: string;
@@ -124,7 +125,7 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
       const thumbnailFormData = new FormData();
       thumbnailFormData.append("thumbnail", file);
 
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const headers = {
         "Content-Type": "multipart/form-data",
         Authorization: token ? `Bearer ${token}` : "",
@@ -254,7 +255,7 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
         return;
       }
 
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const headers = {
         "Content-Type": "application/json",
         Authorization: token ? `Bearer ${token}` : "",

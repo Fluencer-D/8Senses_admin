@@ -1,5 +1,6 @@
 "use client"
 
+import { getAdminToken } from "@/utils/storage"
 import { useRouter } from "next/navigation"
 import type React from "react"
 import { useState, useEffect } from "react"
@@ -39,13 +40,14 @@ const PlansPage: React.FC = () => {
 
   // Fetch plans from API
   const fetchPlans = async () => {
+    
     try {
       setIsLoading(true)
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
         },
       })
       const result = await response.json()
@@ -91,7 +93,7 @@ const PlansPage: React.FC = () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
         },
       })
       const result = await response.json()
@@ -113,7 +115,7 @@ const PlansPage: React.FC = () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
         },
       })
       const result = await response.json()
@@ -163,7 +165,7 @@ const PlansPage: React.FC = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
         },
         body: JSON.stringify(editFormData),
       })
@@ -190,7 +192,7 @@ const PlansPage: React.FC = () => {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            Authorization: `Bearer ${getAdminToken()}`,
           },
         })
         const result = await response.json()

@@ -23,6 +23,7 @@ import {
   ArrowLeft,
   Eye,
 } from "lucide-react"
+import { getAdminToken } from "@/utils/storage"
 
 interface Workshop {
   _id: string
@@ -85,7 +86,7 @@ export default function WorkshopAdminPanel() {
       setLoading(true)
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/workshops/all`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
       })
@@ -106,7 +107,7 @@ export default function WorkshopAdminPanel() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/workshops`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -137,7 +138,7 @@ export default function WorkshopAdminPanel() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/workshops/${selectedWorkshop._id}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -168,7 +169,7 @@ export default function WorkshopAdminPanel() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/workshops/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${getAdminToken()}`,
           "Content-Type": "application/json",
         },
       })

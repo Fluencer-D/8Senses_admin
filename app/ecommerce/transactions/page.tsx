@@ -1,4 +1,5 @@
 "use client";
+import { getAdminToken } from "@/utils/storage";
 import { useEffect, useState } from "react";
 
 interface Transaction {
@@ -33,7 +34,7 @@ const Transactions = () => {
     if (typeof window === "undefined") return;
 
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = getAdminToken();
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/transactions`,
         {

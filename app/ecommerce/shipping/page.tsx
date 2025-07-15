@@ -1,4 +1,5 @@
 "use client"
+import { getAdminToken } from "@/utils/storage"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
@@ -22,7 +23,7 @@ const ShippingDashboard = () => {
   const fetchShippingOrders = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/orders`, // Assuming /api/orders fetches all orders
         {

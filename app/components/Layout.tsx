@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Navbar from "./navbar/page";
 import Sidebar from "./sidebar/page";
 import { useRouter } from "next/router";
+import { getAdminToken } from "@/utils/storage";
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -11,7 +12,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(true); // Sidebar state
   // const router = useRouter();
 
-  if(!localStorage.getItem("adminToken")){
+  if(!getAdminToken()){
     // router.replace("/")
   }
 
@@ -19,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex">
       {/* Sidebar Component */}
       {
-        localStorage.getItem("adminToken") && <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+        getAdminToken() && <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
       }
 
       <div className="flex-1">

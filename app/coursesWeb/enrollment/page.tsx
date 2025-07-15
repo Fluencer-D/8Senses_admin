@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getAdminToken } from "@/utils/storage";
 
 interface Enrollment {
   _id: string;
@@ -20,7 +21,7 @@ const WebinarEnrollmentTable = () => {
   useEffect(() => {
     const fetchEnrollments = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = getAdminToken();
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/course-enrollments`,
           {

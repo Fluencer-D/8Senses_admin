@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { ArrowLeft, Save, Trash2, Plus } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { getAdminToken } from "@/utils/storage"
 
 interface ToyUnit {
   _id: string
@@ -55,7 +56,7 @@ export default function EditToyDetails() {
 
     try {
       setLoading(true)
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
 
       const response = await fetch(`${API_BASE_URL}/toys/${toyId}`, {
         headers: {
@@ -96,7 +97,7 @@ export default function EditToyDetails() {
   // Fetch borrowing information
   const fetchBorrowingInfo = async (borrowingId: string, unitId: string) => {
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${API_BASE_URL}/toys/borrowings/${borrowingId}`, {
         headers: {
           "Content-Type": "application/json",
@@ -124,7 +125,7 @@ export default function EditToyDetails() {
   const updateToyDetails = async () => {
     try {
       setSaving(true)
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
 
       const toyData = {
         name: toyName.trim(),
@@ -159,7 +160,7 @@ export default function EditToyDetails() {
   // Update toy unit
   const updateUnit = async (unitId: string, field: string, value: string) => {
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const updateData = { [field]: field === "isAvailable" ? value === "true" : value }
 
       const response = await fetch(`${API_BASE_URL}/toys/units/${unitId}`, {
@@ -202,7 +203,7 @@ export default function EditToyDetails() {
     }
 
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const response = await fetch(`${API_BASE_URL}/toys/units/${unitId}`, {
         method: "DELETE",
         headers: {
@@ -228,7 +229,7 @@ export default function EditToyDetails() {
   // Add new toy unit
   const addNewUnit = async () => {
     try {
-      const token = localStorage.getItem("adminToken")
+      const token = getAdminToken()
       const maxUnitNumber = Math.max(...units.map((u) => u.unitNumber), 0)
 
       const newUnitData = {
