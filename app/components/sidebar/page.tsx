@@ -14,6 +14,7 @@ interface OpenSections {
   courses: boolean;
   subscription: boolean;
   "toy management": boolean;
+  "staff services": boolean
 }
 
 interface SidebarProps {
@@ -36,15 +37,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     coursesWeb: [
       // { name: "Courses", path: "/coursesWeb/courses" },
       { name: "Webinars", path: "/coursesWeb/webinars" },
-      // { name: "Enrollment", path: "/coursesWeb/enrollment" },
-      // { name: "Feedback", path: "/coursesWeb/feedback&reviews" },
       { name: "Recepies", path: "/coursesWeb/recepies" },
       { name: "Workshops", path: "/coursesWeb/workshops" },
       { name: "Detox diet plans", path: "/coursesWeb/detoxplans" },
+
       {
         name: "Personalised meetings",
         path: "/coursesWeb/personalisedmeetings",
       },
+    ],
+    staff: [
+      { name: "Staff", path: "/staffmanagement" },
+      { name: "Services", path: "/serviceManagement" },
     ],
     subscription: [
       { name: "Members", path: "/subscription/members" },
@@ -62,6 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     courses: false,
     subscription: false,
     "toy management": false,
+    "staff services": false
   });
 
   const [activeTab, setActiveTab] = useState<string>("Dashboard");
@@ -91,9 +96,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
   return (
     <aside
-      className={`w-70 h-screen px-4 font-sans py-6 fixed bg-white flex flex-col transition-all duration-300 ${
-        isOpen ? "left-0" : "-left-70"
-      }`}
+      className={`w-70 h-screen px-4 font-sans py-6 fixed bg-white flex flex-col transition-all duration-300 ${isOpen ? "left-0" : "-left-70"
+        }`}
     >
       {/* Logo */}
       <div className="flex items-center justify-center mb-6">
@@ -106,11 +110,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           <ul className="space-y-3">
             {/* Dashboard */}
             <li
-              className={`flex items-center space-x-3 ml-0.5 px-4 py-3 rounded-lg cursor-pointer ${
-                activeTab === "Dashboard"
+              className={`flex items-center space-x-3 ml-0.5 px-4 py-3 rounded-lg cursor-pointer ${activeTab === "Dashboard"
                   ? "bg-[#C83C92] text-white"
                   : "text-[#456696]"
-              }`}
+                }`}
               onClick={() => handleTabClick("Dashboard")}
             >
               <svg
@@ -153,11 +156,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             {/* Ecommerce Dropdown */}
             <li>
               <button
-                className={`w-full flex justify-between items-center px-4 py-3 font-bold hover:bg-[#C83C9226] rounded-lg transition ${
-                  openSections.ecommerce
+                className={`w-full flex justify-between items-center px-4 py-3 font-bold hover:bg-[#C83C9226] rounded-lg transition ${openSections.ecommerce
                     ? "bg-[#C83C9226] text-[#456696]"
                     : "text-[#456696]"
-                }`}
+                  }`}
                 onClick={() => toggleSection("ecommerce")}
               >
                 <div className="flex items-center space-x-3">
@@ -178,9 +180,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   <span>Ecommerce</span>
                 </div>
                 <ChevronDown
-                  className={`w-5 h-5 transition-transform ${
-                    openSections.ecommerce ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 transition-transform ${openSections.ecommerce ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <motion.div
@@ -196,11 +197,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   {menuItems.ecommerce.map((item) => (
                     <li
                       key={item.name}
-                      className={`px-4 py-2 cursor-pointer rounded-md ${
-                        activeTab === item.name
+                      className={`px-4 py-2 cursor-pointer rounded-md ${activeTab === item.name
                           ? "bg-[#C83C92] text-white"
                           : "text-[#456696] hover:text-black"
-                      }`}
+                        }`}
                       onClick={() => {
                         handleTabClick(item.name, "ecommerce");
                         router.push(item.path);
@@ -216,11 +216,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             {/* Courses & Webinars Dropdown */}
             <li>
               <button
-                className={`w-full flex justify-between items-center px-4 py-3 font-bold hover:bg-[#C83C9226] rounded-lg transition ${
-                  openSections.courses
+                className={`w-full flex justify-between items-center px-4 py-3 font-bold hover:bg-[#C83C9226] rounded-lg transition ${openSections.courses
                     ? "bg-[#C83C9226] text-[#456696]"
                     : "text-[#456696]"
-                }`}
+                  }`}
                 onClick={() => toggleSection("courses")}
               >
                 <div className="flex items-center space-x-3">
@@ -249,9 +248,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   <span>Courses & Webinars</span>
                 </div>
                 <ChevronDown
-                  className={`w-5 h-5 transition-transform ${
-                    openSections.courses ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 transition-transform ${openSections.courses ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <motion.div
@@ -267,11 +265,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   {menuItems.coursesWeb.map((item) => (
                     <li
                       key={item.name}
-                      className={`px-4 py-2 cursor-pointer rounded-md ${
-                        activeTab === item.name
+                      className={`px-4 py-2 cursor-pointer rounded-md ${activeTab === item.name
                           ? "bg-[#C83C92] text-white"
                           : "text-[#456696] hover:text-black"
-                      }`}
+                        }`}
                       onClick={() => {
                         handleTabClick(item.name, "courses");
                         router.push(item.path);
@@ -287,11 +284,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             {/* Subscription Dropdown */}
             <li>
               <button
-                className={`w-full flex justify-between items-center px-4 py-3 font-bold hover:bg-[#C83C9226] rounded-lg transition ${
-                  openSections.subscription
+                className={`w-full flex justify-between items-center px-4 py-3 font-bold hover:bg-[#C83C9226] rounded-lg transition ${openSections.subscription
                     ? "bg-[#C83C9226] text-[#456696]"
                     : "text-[#456696]"
-                }`}
+                  }`}
                 onClick={() => toggleSection("subscription")}
               >
                 <div className="flex items-center space-x-3">
@@ -326,9 +322,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   <span>Subscription</span>
                 </div>
                 <ChevronDown
-                  className={`w-5 h-5 transition-transform ${
-                    openSections.subscription ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 transition-transform ${openSections.subscription ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <motion.div
@@ -344,11 +339,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   {menuItems.subscription.map((item) => (
                     <li
                       key={item.name}
-                      className={`px-4 py-2 cursor-pointer rounded-md ${
-                        activeTab === item.name
+                      className={`px-4 py-2 cursor-pointer rounded-md ${activeTab === item.name
                           ? "bg-[#C83C92] text-white"
                           : "text-[#456696] hover:text-black"
-                      }`}
+                        }`}
                       onClick={() => {
                         handleTabClick(item.name, "subscription");
                         router.push(item.path);
@@ -364,11 +358,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             {/* Toy Management Library */}
             <li>
               <button
-                className={`w-full flex justify-between items-center px-4 py-3 font-bold hover:bg-[#C83C9226] rounded-lg transition ${
-                  openSections.courses
+                className={`w-full flex justify-between items-center px-4 py-3 font-bold hover:bg-[#C83C9226] rounded-lg transition ${openSections.courses
                     ? "bg-[#C83C9226] text-[#456696]"
                     : "text-[#456696]"
-                }`}
+                  }`}
                 onClick={() => toggleSection("toy management")}
               >
                 <div className="flex items-center space-x-3">
@@ -397,9 +390,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   <span>Toy Management</span>
                 </div>
                 <ChevronDown
-                  className={`w-5 h-5 transition-transform ${
-                    openSections.courses ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 transition-transform ${openSections.courses ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <motion.div
@@ -415,13 +407,80 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   {menuItems.toyManagement.map((item) => (
                     <li
                       key={item.name}
-                      className={`px-4 py-2 cursor-pointer rounded-md ${
-                        activeTab === item.name
+                      className={`px-4 py-2 cursor-pointer rounded-md ${activeTab === item.name
                           ? "bg-[#C83C92] text-white"
                           : "text-[#456696] hover:text-black"
-                      }`}
+                        }`}
                       onClick={() => {
                         handleTabClick(item.name, "toy management");
+                        router.push(item.path);
+                      }}
+                    >
+                      {item.name}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            </li>
+
+
+            <li>
+              <button
+                className={`w-full flex justify-between items-center px-4 py-3 font-bold hover:bg-[#C83C9226] rounded-lg transition ${openSections.courses
+                    ? "bg-[#C83C9226] text-[#456696]"
+                    : "text-[#456696]"
+                  }`}
+                onClick={() => toggleSection("staff services")}
+              >
+                <div className="flex items-center space-x-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M6.51398 2C5.20998 2.129 4.33198 2.419 3.67598 3.076C2.50098 4.253 2.50098 6.148 2.50098 9.939V13.959C2.50098 17.749 2.50098 19.645 3.67598 20.823C4.85098 22.001 6.74298 22 10.526 22H12.533C16.316 22 18.208 22 19.383 20.823C20.45 19.753 20.549 18.106 20.558 14.977"
+                      stroke={getSvgColor("Courses & Webinars")}
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M10.5262 7.00004L11.5292 10.5C12.0892 11.61 12.7922 11.9 14.5392 12C15.9282 11.966 16.7342 11.802 17.4222 11.204C17.8912 10.796 18.1032 10.181 18.2062 9.56904L18.5502 7.50004M21.0582 5.50004V10.5M8.6012 4.93304C10.1882 3.61604 11.6022 2.90904 14.5352 2.13104C14.8661 2.04368 15.2142 2.04541 15.5442 2.13604C18.1402 2.85004 19.5422 3.48404 21.4202 4.89404C21.5002 4.95404 21.5242 5.06604 21.4682 5.14904C20.8552 6.05104 19.4862 6.78204 16.1282 8.08404C15.4288 8.35317 14.6536 8.34889 13.9572 8.07204C10.3812 6.65204 8.7372 5.89204 8.5372 5.10304C8.5307 5.07156 8.53326 5.03887 8.54459 5.00878C8.55592 4.97869 8.57555 4.95243 8.6012 4.93304Z"
+                      stroke={getSvgColor("Courses & Webinars")}
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span>Staff & Services</span>
+                </div>
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform ${openSections.courses ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{
+                  height: openSections["staff services"] ? "auto" : 0,
+                  opacity: openSections["staff services"] ? 1 : 0,
+                }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="overflow-hidden ml-6 mt-2"
+              >
+                <ul className="space-y-1">
+                  {menuItems.staff.map((item) => (
+                    <li
+                      key={item.name}
+                      className={`px-4 py-2 cursor-pointer rounded-md ${activeTab === item.name
+                          ? "bg-[#C83C92] text-white"
+                          : "text-[#456696] hover:text-black"
+                        }`}
+                      onClick={() => {
+                        handleTabClick(item.name, "staff services");
                         router.push(item.path);
                       }}
                     >
