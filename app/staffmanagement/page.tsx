@@ -1,46 +1,49 @@
-"use client"
+"use client";
 
-import { getAdminToken } from "@/utils/storage"
-import type React from "react"
-import { useState, useEffect } from "react"
+import { getAdminToken } from "@/utils/storage";
+import type React from "react";
+import { useState, useEffect } from "react";
 
 interface User {
-  _id: string
-  firstName: string
-  lastName: string
-  email: string
-  phone?: string
-  role: "therapist" | "receptionist"
-  dateOfBirth?: string
-  profilePicture?: string
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  role: "therapist" | "receptionist";
+  dateOfBirth?: string;
+  profilePicture?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface UserFormData {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  phone: string
-  role: "therapist" | "receptionist"
-  dateOfBirth: string
-  profilePicture: string
-  isActive: boolean
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone: string;
+  role: "therapist" | "receptionist";
+  designation: string;
+  dateOfBirth: string;
+  profilePicture: string;
+  isActive: boolean;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function DoctorManagement() {
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterRole, setFilterRole] = useState("All Roles")
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState("All Roles");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null
+  );
   const [formData, setFormData] = useState<UserFormData>({
     firstName: "",
     lastName: "",
@@ -48,44 +51,52 @@ export default function DoctorManagement() {
     password: "",
     phone: "",
     role: "therapist",
+    designation: "",
     dateOfBirth: "",
     profilePicture: "",
     isActive: true,
-  })
-  const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  });
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   // Show notification
   const showNotification = (type: "success" | "error", message: string) => {
-    setNotification({ type, message })
-    setTimeout(() => setNotification(null), 5000)
-  }
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 5000);
+  };
 
   // Get auth token
   const getAuthToken = () => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("token") || localStorage.getItem("authToken") || ""
+      return (
+        localStorage.getItem("token") || localStorage.getItem("authToken") || ""
+      );
     }
-    return ""
-  }
+    return "";
+  };
 
   // Create API URL
   const createApiUrl = (endpoint: string) => {
-    const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint
-    return `${API_BASE_URL}/${cleanEndpoint}`
-  }
+    const cleanEndpoint = endpoint.startsWith("/")
+      ? endpoint.slice(1)
+      : endpoint;
+    return `${API_BASE_URL}/${cleanEndpoint}`;
+  };
 
   // Generic API call function
   const apiCall = async (endpoint: string, options: RequestInit = {}) => {
     try {
-      const url = createApiUrl(endpoint)
+      const url = createApiUrl(endpoint);
       const token = getAdminToken();
 
       const defaultHeaders: HeadersInit = {
         "Content-Type": "application/json",
-      }
+      };
 
       if (token) {
-        defaultHeaders.Authorization = `Bearer ${token}`
+        defaultHeaders.Authorization = `Bearer ${token}`;
       }
 
       const config: RequestInit = {
@@ -94,55 +105,62 @@ export default function DoctorManagement() {
           ...defaultHeaders,
           ...options.headers,
         },
-      }
+      };
 
-      const response = await fetch(url, config)
+      const response = await fetch(url, config);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json()
-      return data
+      const data = await response.json();
+      return data;
     } catch (error) {
-      console.error("API call error:", error)
-      throw error
+      console.error("API call error:", error);
+      throw error;
     }
-  }
+  };
 
   // Fetch users
   const fetchUsers = async () => {
     try {
-      const data = await apiCall("api/users")
+      const data = await apiCall("api/users");
       if (data.success) {
         // Filter only therapists and receptionists
         const filteredUsers = data.data.filter(
-          (user: User) => user.role === "therapist" || user.role === "receptionist",
-        )
-        setUsers(filteredUsers)
+          (user: User) =>
+            user.role === "therapist" || user.role === "receptionist"
+        );
+        setUsers(filteredUsers);
       } else {
-        showNotification("error", data.error || "Failed to fetch users")
+        showNotification("error", data.error || "Failed to fetch users");
       }
     } catch (error) {
-      console.error("Fetch users error:", error)
-      showNotification("error", "Failed to fetch users. Please check your connection.")
+      console.error("Fetch users error:", error);
+      showNotification(
+        "error",
+        "Failed to fetch users. Please check your connection."
+      );
     }
-  }
+  };
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        await fetchUsers()
+        await fetchUsers();
       } catch (error) {
-        console.error("Error loading data:", error)
-        showNotification("error", "Failed to load data. Please refresh the page.")
+        console.error("Error loading data:", error);
+        showNotification(
+          "error",
+          "Failed to load data. Please refresh the page."
+        );
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    loadData()
-  }, [])
+    };
+    loadData();
+  }, []);
 
   // Filter users
   const filteredUsers = users.filter((user) => {
@@ -150,12 +168,14 @@ export default function DoctorManagement() {
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (user.phone && user.phone.toLowerCase().includes(searchTerm.toLowerCase()))
+      (user.phone &&
+        user.phone.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesFilter = filterRole === "All Roles" || user.role === filterRole
+    const matchesFilter =
+      filterRole === "All Roles" || user.role === filterRole;
 
-    return matchesSearch && matchesFilter
-  })
+    return matchesSearch && matchesFilter;
+  });
 
   // Reset form
   const resetForm = () => {
@@ -166,81 +186,87 @@ export default function DoctorManagement() {
       password: "",
       phone: "",
       role: "therapist",
+      designation: "",
       dateOfBirth: "",
       profilePicture: "",
       isActive: true,
-    })
-  }
+    });
+  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!formData.firstName || !formData.lastName || !formData.email) {
-      showNotification("error", "Please fill in all required fields")
-      return
+      showNotification("error", "Please fill in all required fields");
+      return;
     }
 
     if (!selectedUser && !formData.password) {
-      showNotification("error", "Password is required for new users")
-      return
+      showNotification("error", "Password is required for new users");
+      return;
     }
 
     try {
-      const submitData = { ...formData }
+      const submitData = { ...formData };
 
       // Don't send password if editing and it's empty
       if (selectedUser && !formData.password) {
-        delete submitData.password
+        delete submitData.password;
       }
 
-      const endpoint = selectedUser ? `api/users/${selectedUser._id}` : "api/auth/register"
-      const method = selectedUser ? "PUT" : "POST"
+      const endpoint = selectedUser
+        ? `api/users/${selectedUser._id}`
+        : "api/auth/register";
+      const method = selectedUser ? "PUT" : "POST";
 
       const data = await apiCall(endpoint, {
         method,
         body: JSON.stringify(submitData),
-      })
+      });
 
       if (data.success) {
-        showNotification("success", `User ${selectedUser ? "updated" : "created"} successfully`)
-        await fetchUsers()
-        setIsAddDialogOpen(false)
-        setIsEditDialogOpen(false)
-        resetForm()
-        setSelectedUser(null)
+        showNotification(
+          "success",
+          `User ${selectedUser ? "updated" : "created"} successfully`
+        );
+        await fetchUsers();
+        setIsAddDialogOpen(false);
+        setIsEditDialogOpen(false);
+        resetForm();
+        setSelectedUser(null);
       } else {
-        showNotification("error", data.error || "Operation failed")
+        showNotification("error", data.error || "Operation failed");
       }
     } catch (error) {
-      console.error("Submit error:", error)
-      showNotification("error", "Network error occurred")
+      console.error("Submit error:", error);
+      showNotification("error", "Network error occurred");
     }
-  }
+  };
 
   // Handle delete
   const handleDelete = async (userId: string) => {
     try {
       const data = await apiCall(`api/users/${userId}`, {
         method: "DELETE",
-      })
+      });
 
       if (data.success) {
-        showNotification("success", "User deleted successfully")
-        await fetchUsers()
+        showNotification("success", "User deleted successfully");
+        await fetchUsers();
       } else {
-        showNotification("error", data.error || "Delete failed")
+        showNotification("error", data.error || "Delete failed");
       }
     } catch (error) {
-      console.error("Delete error:", error)
-      showNotification("error", "Network error occurred")
+      console.error("Delete error:", error);
+      showNotification("error", "Network error occurred");
     }
-    setShowDeleteConfirm(null)
-  }
+    setShowDeleteConfirm(null);
+  };
 
   // Handle edit
   const handleEdit = (user: User) => {
-    setSelectedUser(user)
+    setSelectedUser(user);
     setFormData({
       firstName: user.firstName,
       lastName: user.lastName,
@@ -248,30 +274,36 @@ export default function DoctorManagement() {
       password: "", // Don't populate password for security
       phone: user.phone || "",
       role: user.role,
+      designation: (user as any).designation || "",
       dateOfBirth: user.dateOfBirth ? user.dateOfBirth.split("T")[0] : "",
       profilePicture: user.profilePicture || "",
       isActive: user.isActive,
-    })
-    setIsEditDialogOpen(true)
-  }
+    });
+    setIsEditDialogOpen(true);
+  };
 
   // Toggle user status
   const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
-      const endpoint = currentStatus ? `api/users/${userId}/deactivate` : `api/users/${userId}/activate`
-      const data = await apiCall(endpoint, { method: "PUT" })
+      const endpoint = currentStatus
+        ? `api/users/${userId}/deactivate`
+        : `api/users/${userId}/activate`;
+      const data = await apiCall(endpoint, { method: "PUT" });
 
       if (data.success) {
-        showNotification("success", `User ${currentStatus ? "deactivated" : "activated"} successfully`)
-        await fetchUsers()
+        showNotification(
+          "success",
+          `User ${currentStatus ? "deactivated" : "activated"} successfully`
+        );
+        await fetchUsers();
       } else {
-        showNotification("error", data.error || "Status update failed")
+        showNotification("error", data.error || "Status update failed");
       }
     } catch (error) {
-      console.error("Status toggle error:", error)
-      showNotification("error", "Network error occurred")
+      console.error("Status toggle error:", error);
+      showNotification("error", "Network error occurred");
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -281,7 +313,7 @@ export default function DoctorManagement() {
           <p className="mt-4 text-gray-600">Loading users...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -290,7 +322,9 @@ export default function DoctorManagement() {
       {notification && (
         <div
           className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
-            notification.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
+            notification.type === "success"
+              ? "bg-green-500 text-white"
+              : "bg-red-500 text-white"
           }`}
         >
           {notification.message}
@@ -301,18 +335,30 @@ export default function DoctorManagement() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Doctor Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Doctor Management
+            </h1>
             <p className="text-gray-600">Manage therapists and receptionists</p>
           </div>
           <button
             onClick={() => {
-              resetForm()
-              setIsAddDialogOpen(true)
+              resetForm();
+              setIsAddDialogOpen(true);
             }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             Add User
           </button>
@@ -323,7 +369,12 @@ export default function DoctorManagement() {
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-6 w-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -334,14 +385,21 @@ export default function DoctorManagement() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{users.length}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {users.length}
+                </p>
               </div>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <div className="p-2 bg-green-100 rounded-lg">
-                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-6 w-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -352,14 +410,21 @@ export default function DoctorManagement() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Therapists</p>
-                <p className="text-2xl font-bold text-gray-900">{users.filter((u) => u.role === "therapist").length}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {users.filter((u) => u.role === "therapist").length}
+                </p>
               </div>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <div className="p-2 bg-purple-100 rounded-lg">
-                <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-6 w-6 text-purple-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -369,7 +434,9 @@ export default function DoctorManagement() {
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Receptionists</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Receptionists
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {users.filter((u) => u.role === "receptionist").length}
                 </p>
@@ -379,13 +446,27 @@ export default function DoctorManagement() {
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <div className="p-2 bg-orange-100 rounded-lg">
-                <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <svg
+                  className="h-6 w-6 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Active Users</p>
-                <p className="text-2xl font-bold text-gray-900">{users.filter((u) => u.isActive).length}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Active Users
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {users.filter((u) => u.isActive).length}
+                </p>
               </div>
             </div>
           </div>
@@ -410,7 +491,7 @@ export default function DoctorManagement() {
                   />
                 </svg>
                 <input
-                  style={{color:"black"}}
+                  style={{ color: "black" }}
                   type="text"
                   placeholder="Search users..."
                   value={searchTerm}
@@ -421,7 +502,7 @@ export default function DoctorManagement() {
             </div>
             <div className="w-full md:w-64">
               <select
-                style={{color:"black"}}
+                style={{ color: "black" }}
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -437,7 +518,9 @@ export default function DoctorManagement() {
         {/* Users Table */}
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Users ({filteredUsers.length})</h3>
+            <h3 className="text-lg font-medium text-gray-900">
+              Users ({filteredUsers.length})
+            </h3>
             <p className="text-sm text-gray-500">Manage all user accounts</p>
           </div>
           <div className="overflow-x-auto">
@@ -492,12 +575,18 @@ export default function DoctorManagement() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.phone || "N/A"}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {user.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {user.phone || "N/A"}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.role === "therapist" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"
+                          user.role === "therapist"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-purple-100 text-purple-800"
                         }`}
                       >
                         {user.role}
@@ -505,7 +594,9 @@ export default function DoctorManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
-                        onClick={() => toggleUserStatus(user._id, user.isActive)}
+                        onClick={() =>
+                          toggleUserStatus(user._id, user.isActive)
+                        }
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full cursor-pointer ${
                           user.isActive
                             ? "bg-green-100 text-green-800 hover:bg-green-200"
@@ -521,7 +612,12 @@ export default function DoctorManagement() {
                           onClick={() => handleEdit(user)}
                           className="text-indigo-600 hover:text-indigo-900 p-1 rounded"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -534,7 +630,12 @@ export default function DoctorManagement() {
                           onClick={() => setShowDeleteConfirm(user._id)}
                           className="text-red-600 hover:text-red-900 p-1 rounded"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -552,7 +653,9 @@ export default function DoctorManagement() {
           </div>
           {filteredUsers.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500">No users found matching your criteria.</p>
+              <p className="text-gray-500">
+                No users found matching your criteria.
+              </p>
             </div>
           )}
         </div>
@@ -563,29 +666,45 @@ export default function DoctorManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">{selectedUser ? "Edit User" : "Add New User"}</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {selectedUser ? "Edit User" : "Add New User"}
+              </h2>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    First Name *
+                  </label>
                   <input
-                  style={{color:"black"}}
+                    style={{ color: "black" }}
                     type="text"
                     value={formData.firstName}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, firstName: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        firstName: e.target.value,
+                      }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Last Name *
+                  </label>
                   <input
-                  style={{color:"black"}}
+                    style={{ color: "black" }}
                     type="text"
                     value={formData.lastName}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, lastName: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        lastName: e.target.value,
+                      }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
@@ -593,48 +712,73 @@ export default function DoctorManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email *
+                </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, email: e.target.value }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password {!selectedUser && "*"}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password {!selectedUser && "*"}
+                </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required={!selectedUser}
-                  placeholder={selectedUser ? "Leave blank to keep current password" : ""}
+                  placeholder={
+                    selectedUser ? "Leave blank to keep current password" : ""
+                  }
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone
+                  </label>
                   <input
-                  style={{color:"black"}}
+                    style={{ color: "black" }}
                     type="tel"
                     value={formData.phone}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Role *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Role *
+                  </label>
                   <select
-                  style={{color:"black"}}
+                    style={{ color: "black" }}
                     value={formData.role}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, role: e.target.value as "therapist" | "receptionist" }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        role: e.target.value as "therapist" | "receptionist",
+                      }))
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
@@ -643,26 +787,59 @@ export default function DoctorManagement() {
                     <option value="receptionist">Receptionist</option>
                   </select>
                 </div>
+                {/* designation */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Designation
+                  </label>
+                  <input
+                    style={{ color: "black" }}
+                    type="text"
+                    value={formData.designation}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        designation: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., Senior Therapist"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date of Birth
+                </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   type="date"
                   value={formData.dateOfBirth}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, dateOfBirth: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      dateOfBirth: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Profile Picture URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Profile Picture URL
+                </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   type="url"
                   value={formData.profilePicture}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, profilePicture: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      profilePicture: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="https://example.com/image.jpg"
                 />
@@ -670,14 +847,22 @@ export default function DoctorManagement() {
 
               <div className="flex items-center">
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   type="checkbox"
                   id="isActive"
                   checked={formData.isActive}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      isActive: e.target.checked,
+                    }))
+                  }
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                <label
+                  htmlFor="isActive"
+                  className="ml-2 block text-sm text-gray-900"
+                >
                   Active Account
                 </label>
               </div>
@@ -686,16 +871,19 @@ export default function DoctorManagement() {
                 <button
                   type="button"
                   onClick={() => {
-                    setIsAddDialogOpen(false)
-                    setIsEditDialogOpen(false)
-                    resetForm()
-                    setSelectedUser(null)
+                    setIsAddDialogOpen(false);
+                    setIsEditDialogOpen(false);
+                    resetForm();
+                    setSelectedUser(null);
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
                   {selectedUser ? "Update User" : "Create User"}
                 </button>
               </div>
@@ -709,9 +897,12 @@ export default function DoctorManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Delete User</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Delete User
+              </h3>
               <p className="text-sm text-gray-500 mb-4">
-                Are you sure you want to delete this user? This action cannot be undone.
+                Are you sure you want to delete this user? This action cannot be
+                undone.
               </p>
               <div className="flex justify-end space-x-3">
                 <button
@@ -732,5 +923,5 @@ export default function DoctorManagement() {
         </div>
       )}
     </div>
-  )
+  );
 }
