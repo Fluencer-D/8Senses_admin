@@ -135,7 +135,7 @@ const Transactions = () => {
         </div>
 
         {/* Export Button */}
-        <button className="flex items-center gap-2 bg-pink-50 text-[#C83C92] px-4 py-2 rounded-lg">
+        {/* <button className="flex items-center gap-2 bg-pink-50 text-[#C83C92] px-4 py-2 rounded-lg">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -152,7 +152,7 @@ const Transactions = () => {
             <path d="M6 11L10 15L14 11" />
           </svg>
           Export
-        </button>
+        </button> */}
       </div>
 
       {/* Search and Filters */}

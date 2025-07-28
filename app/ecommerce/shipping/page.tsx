@@ -1,110 +1,124 @@
-"use client"
-import { getAdminToken } from "@/utils/storage"
-import Link from "next/link"
-import { useEffect, useState } from "react"
+"use client";
+import { getAdminToken } from "@/utils/storage";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface ShippingOrder {
-  _id: string
-  orderId: string
-  customerName: string
-  trackingId: string
-  status: "Pending" | "Shipped" | "Delivered" | "Cancelled" | "Refunded" // Expanded status types
-  dateShipped: string
+  _id: string;
+  orderId: string;
+  customerName: string;
+  trackingId: string;
+  status: "Pending" | "Shipped" | "Delivered" | "Cancelled" | "Refunded"; // Expanded status types
+  dateShipped: string;
 }
 
 const ShippingDashboard = () => {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [shippingOrders, setShippingOrders] = useState<ShippingOrder[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const itemsPerPage = 10
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [shippingOrders, setShippingOrders] = useState<ShippingOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const itemsPerPage = 10;
 
   const fetchShippingOrders = async () => {
     try {
-      setLoading(true)
-      const token = getAdminToken()
+      setLoading(true);
+      const token = getAdminToken();
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/orders`, // Assuming /api/orders fetches all orders
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
-      )
-      if (!response.ok) throw new Error("Failed to fetch shipping orders")
-      const result = await response.json()
-      console.log("Fetched orders:", result) //debug
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch shipping orders");
+      const result = await response.json();
+      console.log("Fetched orders:", result); //debug
 
       // Filter for relevant statuses for shipping dashboard
       const relevantOrders = result.data.filter((order: any) =>
-        ["pending", "processing", "shipped", "delivered", "cancelled", "refunded"].includes(order.status),
-      )
+        [
+          "pending",
+          "processing",
+          "shipped",
+          "delivered",
+          "cancelled",
+          "refunded",
+        ].includes(order.status)
+      );
 
-      const normalizedData: ShippingOrder[] = relevantOrders.map((order: any) => ({
-        _id: order._id,
-        orderId: order.orderNumber || order._id.substring(0, 8).toUpperCase(), // Use orderNumber or part of ID
-        customerName: `${order.customerInfo?.firstName || ""} ${order.customerInfo?.lastName || ""}`.trim(),
-        trackingId: order.trackingNumber || "N/A", // Use actual trackingNumber
-        status: normalizeStatus(order.status),
-        dateShipped: order.shippingDate ? new Date(order.shippingDate).toLocaleDateString() : "N/A",
-      }))
-      setShippingOrders(normalizedData)
+      const normalizedData: ShippingOrder[] = relevantOrders.map(
+        (order: any) => ({
+          _id: order._id,
+          orderId: order.orderNumber || order._id.substring(0, 8).toUpperCase(), // Use orderNumber or part of ID
+          customerName: `${order.customerInfo?.firstName || ""} ${
+            order.customerInfo?.lastName || ""
+          }`.trim(),
+          trackingId: order.trackingNumber || "N/A", // Use actual trackingNumber
+          status: normalizeStatus(order.status),
+          dateShipped: order.shippingDate
+            ? new Date(order.shippingDate).toLocaleDateString()
+            : "N/A",
+        })
+      );
+      setShippingOrders(normalizedData);
     } catch (err: any) {
-      console.error("Error fetching shipping orders:", err)
-      setError(err.message)
+      console.error("Error fetching shipping orders:", err);
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchShippingOrders()
-  }, [])
+    fetchShippingOrders();
+  }, []);
 
   // Normalise order status for display
   const normalizeStatus = (status: string): ShippingOrder["status"] => {
-    const lower = status?.toLowerCase()
-    if (lower === "shipped") return "Shipped"
-    if (lower === "delivered") return "Delivered"
-    if (lower === "cancelled") return "Cancelled"
-    if (lower === "refunded" || lower === "partially_refunded") return "Refunded"
-    return "Pending" // pending, processing, etc.
-  }
+    const lower = status?.toLowerCase();
+    if (lower === "shipped") return "Shipped";
+    if (lower === "delivered") return "Delivered";
+    if (lower === "cancelled") return "Cancelled";
+    if (lower === "refunded" || lower === "partially_refunded")
+      return "Refunded";
+    return "Pending"; // pending, processing, etc.
+  };
 
   const filteredData = shippingOrders.filter(
     (item) =>
       item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.orderId.includes(searchQuery) ||
-      item.trackingId.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+      item.trackingId.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const totalItems = filteredData.length
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem)
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
   const getStatusBadgeClass = (status: ShippingOrder["status"]): string => {
     switch (status) {
       case "Shipped":
-        return "bg-[#E8F8FD] text-[#13B2E4]"
+        return "bg-[#E8F8FD] text-[#13B2E4]";
       case "Pending":
-        return "bg-[#FDF1E8] text-[#E46A11]"
+        return "bg-[#FDF1E8] text-[#E46A11]";
       case "Delivered":
-        return "bg-[#E7F4EE] text-[#0D894F]"
+        return "bg-[#E7F4EE] text-[#0D894F]";
       case "Cancelled":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "Refunded":
-        return "bg-purple-100 text-purple-800"
+        return "bg-purple-100 text-purple-800";
       default:
-        return "bg-gray-100 text-gray-600"
+        return "bg-gray-100 text-gray-600";
     }
-  }
+  };
 
   const goToPage = (page: number) => {
-    setCurrentPage(page)
-  }
+    setCurrentPage(page);
+  };
 
   if (loading)
     return (
@@ -113,7 +127,7 @@ const ShippingDashboard = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C83C92]"></div>
         </div>
       </div>
-    )
+    );
   if (error)
     return (
       <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto">
@@ -127,7 +141,7 @@ const ShippingDashboard = () => {
           </button>
         </div>
       </div>
-    )
+    );
 
   return (
     <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto overflow-y-auto hide-scrollbar">
@@ -136,13 +150,13 @@ const ShippingDashboard = () => {
         <div>
           <h1 className="text-[#333843] text-3xl">Shipping</h1>
           <div className="text-gray-500 text-sm mt-1">
-            <span className="text-blue-600 cursor-pointer">E-commerce</span> &gt;{" "}
-            <span className="text-gray-800">Shipping</span>
+            <span className="text-blue-600 cursor-pointer">E-commerce</span>{" "}
+            &gt; <span className="text-gray-800">Shipping</span>
           </div>
         </div>
         {/* Action Buttons - Added Create button */}
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-pink-50 text-[#C83C92] px-4 py-2 rounded-lg">
+          {/* <button className="flex items-center gap-2 bg-pink-50 text-[#C83C92] px-4 py-2 rounded-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -159,7 +173,7 @@ const ShippingDashboard = () => {
               <path d="M6 11L10 15L14 11" />
             </svg>
             Export
-          </button>
+          </button> */}
         </div>
       </div>
       {/* Search and Filters - Matched with Discounts style */}
@@ -191,7 +205,13 @@ const ShippingDashboard = () => {
         {/* Date and Filter Buttons */}
         <div className="flex gap-3">
           <button className="flex items-center gap-x-2 p-3 rounded-lg border-2 h-10 bg-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 20 15" fill="none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="19"
+              height="19"
+              viewBox="0 0 20 15"
+              fill="none"
+            >
               <path
                 d="M10.8333 6.66667C10.8333 7.1269 11.2064 7.5 11.6667 7.5C12.1269 7.5 12.5 7.1269 12.5 6.66667V5.83333H16.6667C17.1269 5.83333 17.5 5.46024 17.5 5C17.5 4.53976 17.1269 4.16667 16.6667 4.16667H12.5V3.33333C12.5 2.8731 12.1269 2.5 11.6667 2.5C11.2064 2.5 10.8333 2.8731 10.8333 3.33333V6.66667Z"
                 fill="#667085"
@@ -234,23 +254,46 @@ const ShippingDashboard = () => {
         </div>
         {/* Table Content */}
         {currentItems.map((order) => {
-          const statusClass = getStatusBadgeClass(order.status)
+          const statusClass = getStatusBadgeClass(order.status);
           return (
-            <div key={order._id} className="grid grid-cols-6 p-4 border-b border-gray-200 items-center">
-              <div className="col-span-1 text-[#1E437A] font-medium">#{order.orderId}</div>
-              <div className="col-span-1 text-[#1E437A]">{order.customerName}</div>
-              <div className="col-span-1 text-[#1E437A] font-medium truncate max-w-[180px]">{order.trackingId}</div>
-              <div className="col-span-1">
-                <span className={`px-3 py-1 rounded-full text-sm ${statusClass}`}>{order.status}</span>
+            <div
+              key={order._id}
+              className="grid grid-cols-6 p-4 border-b border-gray-200 items-center"
+            >
+              <div className="col-span-1 text-[#1E437A] font-medium">
+                #{order.orderId}
               </div>
-              <div className="col-span-1 text-[#1E437A]">{order.dateShipped}</div>
+              <div className="col-span-1 text-[#1E437A]">
+                {order.customerName}
+              </div>
+              <div className="col-span-1 text-[#1E437A] font-medium truncate max-w-[180px]">
+                {order.trackingId}
+              </div>
               <div className="col-span-1">
-                {order.status === "Delivered" || order.status === "Cancelled" || order.status === "Refunded" ? (
+                <span
+                  className={`px-3 py-1 rounded-full text-sm ${statusClass}`}
+                >
+                  {order.status}
+                </span>
+              </div>
+              <div className="col-span-1 text-[#1E437A]">
+                {order.dateShipped}
+              </div>
+              <div className="col-span-1">
+                {order.status === "Delivered" ||
+                order.status === "Cancelled" ||
+                order.status === "Refunded" ? (
                   <Link
                     href={`/ecommerce/shipping/${order._id}`} // Link to view details
                     className="flex items-center gap-1 text-[#C83C92]"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                    >
                       <path
                         fillRule="evenodd"
                         clipRule="evenodd"
@@ -265,7 +308,13 @@ const ShippingDashboard = () => {
                     href={`/ecommerce/shipping/${order._id}`} // Link to update status
                     className="flex items-center gap-1 text-[#C83C92]"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                    >
                       <path
                         fillRule="evenodd"
                         clipRule="evenodd"
@@ -278,14 +327,15 @@ const ShippingDashboard = () => {
                 )}
               </div>
             </div>
-          )
+          );
         })}
       </div>
       {/* Pagination - Matched with Discounts style */}
       <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
         {/* Showing results */}
         <div>
-          Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)} from {totalItems}
+          Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)}{" "}
+          from {totalItems}
         </div>
         {/* Pagination Buttons */}
         <div className="flex gap-2">
@@ -302,7 +352,9 @@ const ShippingDashboard = () => {
             <button
               key={page}
               className={`w-8 h-8 flex items-center justify-center rounded-lg ${
-                currentPage === page ? "bg-[#C83C92] text-white" : "border border-gray-300 hover:bg-gray-100"
+                currentPage === page
+                  ? "bg-[#C83C92] text-white"
+                  : "border border-gray-300 hover:bg-gray-100"
               }`}
               onClick={() => goToPage(page)}
             >
@@ -320,7 +372,7 @@ const ShippingDashboard = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ShippingDashboard
+export default ShippingDashboard;

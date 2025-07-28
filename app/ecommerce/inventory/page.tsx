@@ -88,7 +88,7 @@ const Inventory = () => {
         </div>
 
         {/* Export Button */}
-        <div>
+        {/* <div>
           <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -115,7 +115,7 @@ const Inventory = () => {
             </svg>
             Export
           </button>
-        </div>
+        </div> */}
       </div>
       <div className="flex justify-between items-center mb-6">
         <div className="relative w-80">

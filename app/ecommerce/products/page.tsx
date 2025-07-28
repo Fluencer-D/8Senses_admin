@@ -36,21 +36,23 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/products`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch products");
         }
         const responseData = await response.json();
-  
+
         console.log("Fetched API Response:", responseData); // Debugging
-  
+
         // Extract products from the `data` key
         if (responseData && Array.isArray(responseData.data)) {
           setProducts(responseData.data);
         } else {
           throw new Error("Unexpected API response format");
         }
-  
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -58,17 +60,16 @@ const Products = () => {
         setLoading(false);
       }
     };
-  
+
     fetchProducts();
   }, []);
-  
-  
+
   // Handle product deletion
   const handleDeleteProduct = async (productId: string) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         const token = getAdminToken(); // if your backend is protected
-  
+
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/products/admin/${productId}`,
           {
@@ -78,12 +79,12 @@ const Products = () => {
             },
           }
         );
-  
+
         if (!response.ok) {
           const err = await response.json();
           throw new Error(err.message || "Failed to delete product");
         }
-  
+
         // Remove from local state
         setProducts((prev) => prev.filter((p) => p._id !== productId));
       } catch (error) {
@@ -92,7 +93,6 @@ const Products = () => {
       }
     }
   };
-  
 
   // Helper function to get status color based on status
   const getStatusColor = (status: string): string => {
@@ -113,10 +113,10 @@ const Products = () => {
   // Helper function to format date
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
@@ -132,15 +132,20 @@ const Products = () => {
   };
 
   // Filter products based on search query
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (product.sku && product.sku.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.sku &&
+        product.sku.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredProducts.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
@@ -180,7 +185,7 @@ const Products = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -205,8 +210,8 @@ const Products = () => {
               </defs>
             </svg>
             Export
-          </button>
-          <Link href={'/ecommerce/products/addProduct'}>
+          </button> */}
+          <Link href={"/ecommerce/products/addProduct"}>
             <button className="px-4 py-2 bg-[#C83C92] text-white font-semibold rounded-md">
               + Add Product
             </button>
@@ -242,7 +247,7 @@ const Products = () => {
         </div>
 
         <div className="flex space-x-3">
-          <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -258,7 +263,7 @@ const Products = () => {
               />
             </svg>
             Select Dates
-          </button>
+          </button> */}
 
           <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
@@ -327,14 +332,19 @@ const Products = () => {
                       <td className="p-3 flex items-center space-x-3">
                         <div className="w-10 h-10 bg-gray-200 rounded-md overflow-hidden">
                           {product.images && product.images.length > 0 && (
-                            <img 
-                              src={product.images.find(img => img.isMain)?.url || product.images[0].url} 
+                            <img
+                              src={
+                                product.images.find((img) => img.isMain)?.url ||
+                                product.images[0].url
+                              }
                               alt={product.name}
                               className="w-full h-full object-cover"
                             />
                           )}
                         </div>
-                        <Link href={`/ecommerce/products/viewProduct?id=${product._id}`}>
+                        <Link
+                          href={`/ecommerce/products/viewProduct?id=${product._id}`}
+                        >
                           <span className="text-[#1E437A]">{product.name}</span>
                         </Link>
                       </td>
@@ -342,31 +352,46 @@ const Products = () => {
                         {product.sku || "N/A"}
                       </td>
                       <td className="p-3 text-[#1E437A]">
-                        {product.category ? (typeof product.category === 'object' ? product.category.name : 'Loading...') : 'Uncategorized'}
+                        {product.category
+                          ? typeof product.category === "object"
+                            ? product.category.name
+                            : "Loading..."
+                          : "Uncategorized"}
                       </td>
                       <td className="p-3 text-[#456696]">
-                        <span className={stockInfo.color || ""}>{stockInfo.status}</span>
+                        <span className={stockInfo.color || ""}>
+                          {stockInfo.status}
+                        </span>
                       </td>
                       <td className="p-3 text-[#456696]">
                         ${product.price.toFixed(2)}
                         {product.discountType !== "none" && (
                           <span className="ml-2 text-sm line-through text-gray-400">
-                            ${product.discountedPrice && product.discountedPrice < product.price 
-                              ? product.price.toFixed(2) 
-                              : ''}
+                            $
+                            {product.discountedPrice &&
+                            product.discountedPrice < product.price
+                              ? product.price.toFixed(2)
+                              : ""}
                           </span>
                         )}
                       </td>
                       <td className="p-3">
                         <span
-                          className={`px-2 py-1 rounded-lg text-sm ${getStatusColor(product.status)}`}
+                          className={`px-2 py-1 rounded-lg text-sm ${getStatusColor(
+                            product.status
+                          )}`}
                         >
-                          {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                          {product.status.charAt(0).toUpperCase() +
+                            product.status.slice(1)}
                         </span>
                       </td>
-                      <td className="p-3 text-[#456696]">{formatDate(product.createdAt)}</td>
+                      <td className="p-3 text-[#456696]">
+                        {formatDate(product.createdAt)}
+                      </td>
                       <td className="p-3 flex space-x-2">
-                        <Link href={`/ecommerce/products/viewProduct?id=${product._id}`}>
+                        <Link
+                          href={`/ecommerce/products/viewProduct?id=${product._id}`}
+                        >
                           <button className="cursor-pointer">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -384,7 +409,9 @@ const Products = () => {
                             </svg>
                           </button>
                         </Link>
-                        <Link href={`/ecommerce/products/viewProduct?id=${product._id}`}>
+                        <Link
+                          href={`/ecommerce/products/viewProduct?id=${product._id}`}
+                        >
                           <button className="cursor-pointer">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -402,7 +429,10 @@ const Products = () => {
                             </svg>
                           </button>
                         </Link>
-                        <button className="mb-5 cursor-pointer" onClick={() => handleDeleteProduct(product._id)}>
+                        <button
+                          className="mb-5 cursor-pointer"
+                          onClick={() => handleDeleteProduct(product._id)}
+                        >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="20"
@@ -418,20 +448,20 @@ const Products = () => {
                               d="M12.5 8.95829C12.5 8.49806 12.1269 8.12496 11.6666 8.12496C11.2064 8.12496 10.8333 8.49806 10.8333 8.95829V13.9583C10.8333 14.4185 11.2064 14.7916 11.6666 14.7916C12.1269 14.7916 12.5 14.4185 12.5 13.9583V8.95829Z"
                               fill="#456696"
                             />
-<path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M15 4.99996V4.16663C15 2.78591 13.8807 1.66663 12.5 1.66663H7.49996C6.11925 1.66663 4.99996 2.78591 4.99996 4.16663V4.99996H3.74996C3.28972 4.99996 2.91663 5.37306 2.91663 5.83329C2.91663 6.29353 3.28972 6.66663 3.74996 6.66663H4.16663V15.8333C4.16663 17.214 5.28591 18.3333 6.66663 18.3333H13.3333C14.714 18.3333 15.8333 17.214 15.8333 15.8333V6.66663H16.25C16.7102 6.66663 17.0833 6.29353 17.0833 5.83329C17.0833 5.37306 16.7102 4.99996 16.25 4.99996H15ZM12.5 3.33329H7.49996C7.03972 3.33329 6.66663 3.70639 6.66663 4.16663V4.99996H13.3333V4.16663C13.3333 3.70639 12.9602 3.33329 12.5 3.33329ZM14.1666 6.66663H5.83329V15.8333C5.83329 16.2935 6.20639 16.6666 6.66663 16.6666H13.3333C13.7935 16.6666 14.1666 16.2935 14.1666 15.8333V6.66663Z"
-                fill="#456696"
-              />
-            </svg>
-          </button>
-        </td>
-      </tr>
-    );
-  })}
-</tbody>
-</table>
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M15 4.99996V4.16663C15 2.78591 13.8807 1.66663 12.5 1.66663H7.49996C6.11925 1.66663 4.99996 2.78591 4.99996 4.16663V4.99996H3.74996C3.28972 4.99996 2.91663 5.37306 2.91663 5.83329C2.91663 6.29353 3.28972 6.66663 3.74996 6.66663H4.16663V15.8333C4.16663 17.214 5.28591 18.3333 6.66663 18.3333H13.3333C14.714 18.3333 15.8333 17.214 15.8333 15.8333V6.66663H16.25C16.7102 6.66663 17.0833 6.29353 17.0833 5.83329C17.0833 5.37306 16.7102 4.99996 16.25 4.99996H15ZM12.5 3.33329H7.49996C7.03972 3.33329 6.66663 3.70639 6.66663 4.16663V4.99996H13.3333V4.16663C13.3333 3.70639 12.9602 3.33329 12.5 3.33329ZM14.1666 6.66663H5.83329V15.8333C5.83329 16.2935 6.20639 16.6666 6.66663 16.6666H13.3333C13.7935 16.6666 14.1666 16.2935 14.1666 15.8333V6.66663Z"
+                              fill="#456696"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           )}
         </div>
       </div>
@@ -440,7 +470,9 @@ const Products = () => {
       {!loading && filteredProducts.length > 0 && (
         <div className="flex justify-between items-center mt-4 p-2">
           <div className="text-sm text-gray-600">
-            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredProducts.length)} of {filteredProducts.length} entries
+            Showing {indexOfFirstItem + 1} to{" "}
+            {Math.min(indexOfLastItem, filteredProducts.length)} of{" "}
+            {filteredProducts.length} entries
           </div>
           <div className="flex space-x-1">
             <button

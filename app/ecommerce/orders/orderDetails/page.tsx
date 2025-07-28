@@ -187,7 +187,7 @@ function OrderDetailsContent() {
         <div className="flex justify-between items-center">
           <h1 className="text-[#333843] text-3xl">Orders</h1>
           {/* Export Button */}
-          <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -212,7 +212,7 @@ function OrderDetailsContent() {
               </defs>
             </svg>
             Export
-          </button>
+          </button> */}
         </div>
         <div className="text-gray-500 text-sm mt-1 flex items-center">
           <span className="text-[#1E437A] cursor-pointer">E-commerce</span>
