@@ -1,43 +1,45 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { ArrowLeft, Plus, Upload, X } from "lucide-react"
-import { getAdminToken } from "@/utils/storage"
+import type React from "react";
+import { useState } from "react";
+import { ArrowLeft, Plus, Upload, X } from "lucide-react";
+import { getAdminToken } from "@/utils/storage";
+import { useRouter } from "next/navigation";
 interface AddNewToyProps {
-  onClose: () => void
+  onClose: () => void;
 }
 
 export default function AddNewToy({ onClose }: AddNewToyProps) {
-  const [toyName, setToyName] = useState("")
-  const [category, setCategory] = useState("")
-  const [ageGroup, setAgeGroup] = useState("")
-  const [description, setDescription] = useState("")
-  const [toyUnits, setToyUnits] = useState("")
-  const [uploadedImages, setUploadedImages] = useState<File[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [toyName, setToyName] = useState("");
+  const [category, setCategory] = useState("");
+  const [ageGroup, setAgeGroup] = useState("");
+  const [description, setDescription] = useState("");
+  const [toyUnits, setToyUnits] = useState("");
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   // API Base URL - adjust according to your backend
-  const NEXT_PUBLIC_API_URL =  `${process.env.NEXT_PUBLIC_API_URL}/api`
+  const NEXT_PUBLIC_API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
+    const files = event.target.files;
     if (files) {
-      const newImages = Array.from(files)
-      setUploadedImages((prev) => [...prev, ...newImages])
+      const newImages = Array.from(files);
+      setUploadedImages((prev) => [...prev, ...newImages]);
     }
-  }
+  };
 
   const removeImage = (index: number) => {
-    setUploadedImages((prev) => prev.filter((_, i) => i !== index))
-  }
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
   // Upload images to Cloudinary
   const uploadImages = async (images: File[]): Promise<string[]> => {
     const uploadPromises = images.map(async (image) => {
-      const formData = new FormData()
-      formData.append("file", image)
-      formData.append("upload_preset", "my_unsigned_preset") // Replace with your upload preset
-      
+      const formData = new FormData();
+      formData.append("file", image);
+      formData.append("upload_preset", "my_unsigned_preset"); // Replace with your upload preset
+
       try {
         const response = await fetch(
           `https://api.cloudinary.com/v1_1/dlehbizfp/image/upload`, // Replace with your cloud name
@@ -45,28 +47,28 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
             method: "POST",
             body: formData,
           }
-        )
+        );
 
         if (!response.ok) {
-          throw new Error(`Upload failed: ${response.status}`)
+          throw new Error(`Upload failed: ${response.status}`);
         }
 
-        const result = await response.json()
-        return result.secure_url // Cloudinary returns secure_url
+        const result = await response.json();
+        return result.secure_url; // Cloudinary returns secure_url
       } catch (error) {
-        console.error("Image upload failed:", error)
+        console.error("Image upload failed:", error);
         // Return placeholder for failed uploads
-        return "/placeholder.svg?height=200&width=200"
+        return "/placeholder.svg?height=200&width=200";
       }
-    })
+    });
 
-    return Promise.all(uploadPromises)
-  }
+    return Promise.all(uploadPromises);
+  };
 
   // Create toy via API
   const createToy = async (toyData: any) => {
     try {
-      const token = getAdminToken()
+      const token = getAdminToken();
       const response = await fetch(`${NEXT_PUBLIC_API_URL}/toys`, {
         method: "POST",
         headers: {
@@ -74,41 +76,41 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify(toyData),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `API Error: ${response.status}`)
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API Error: ${response.status}`);
       }
 
-      return await response.json()
+      return await response.json();
     } catch (error) {
-      console.error("Create toy failed:", error)
-      throw error
+      console.error("Create toy failed:", error);
+      throw error;
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       // Validate required fields
       if (!toyName.trim()) {
-        alert("Toy name is required")
-        return
+        alert("Toy name is required");
+        return;
       }
       if (!category) {
-        alert("Category is required")
-        return
+        alert("Category is required");
+        return;
       }
 
-      let imageUrls: string[] = []
+      let imageUrls: string[] = [];
 
       // Upload images if any
       if (uploadedImages.length > 0) {
-        console.log("Uploading images...")
-        imageUrls = await uploadImages(uploadedImages)
+        console.log("Uploading images...");
+        imageUrls = await uploadImages(uploadedImages);
       }
 
       // Prepare toy data for backend
@@ -121,36 +123,40 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
         // Note: You might need to add ageGroup to your backend schema
         // ageGroup: ageGroup,
         // images: imageUrls, // If you want to store multiple images
-      }
+      };
 
-      console.log("Creating toy with data:", toyData)
+      console.log("Creating toy with data:", toyData);
 
       // Create toy via API
-      const result = await createToy(toyData)
+      const result = await createToy(toyData);
 
-      console.log("Toy created successfully:", result)
-      alert("Toy added successfully!")
+      console.log("Toy created successfully:", result);
+      alert("Toy added successfully!");
 
       // Reset form
-      setToyName("")
-      setCategory("")
-      setAgeGroup("")
-      setDescription("")
-      setToyUnits("")
-      setUploadedImages([])
+      setToyName("");
+      setCategory("");
+      setAgeGroup("");
+      setDescription("");
+      setToyUnits("");
+      setUploadedImages([]);
 
       // Close the form
       onClose();
 
       // Optionally refresh the page or update parent component
-      window.location.reload() // Simple refresh - you can improve this with state management
+      window.location.reload(); // Simple refresh - you can improve this with state management
     } catch (error) {
-      console.error("Error adding toy:", error)
-      alert(`Failed to add toy: ${error instanceof Error ? error.message : "Unknown error"}`)
+      console.error("Error adding toy:", error);
+      alert(
+        `Failed to add toy: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div
@@ -160,7 +166,16 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
       <div className="max-w-7xl pl-32 pt-24 mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={onClose}>
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => {
+              if (window.history.length > 2) {
+                router.back();
+              } else {
+                router.push("/toymanagement/dashboard");
+              }
+            }}
+          >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back</span>
           </div>
@@ -170,11 +185,16 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
         <form onSubmit={handleSubmit}>
           {/* Basic Toy Information */}
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-6">Basic Toy Information</h2>
+            <h2 className="text-lg font-semibold mb-6">
+              Basic Toy Information
+            </h2>
 
             <div className="space-y-5">
               <div>
-                <label htmlFor="toy-name" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="toy-name"
+                  className="block text-sm font-medium mb-2"
+                >
                   Toy Name *
                 </label>
                 <input
@@ -191,7 +211,10 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="category" className="block text-sm font-medium mb-2">
+                  <label
+                    htmlFor="category"
+                    className="block text-sm font-medium mb-2"
+                  >
                     Category *
                   </label>
                   <select
@@ -216,15 +239,22 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
                     <option value="Gross Motor">Gross Motor</option>
                     <option value="Cognitive">Cognitive</option>
                     <option value="Sensory & Grip">Sensory & Grip</option>
-                    <option value="STEM & Problem-Solving">STEM & Problem-Solving</option>
+                    <option value="STEM & Problem-Solving">
+                      STEM & Problem-Solving
+                    </option>
                     <option value="Hand Strength">Hand Strength</option>
-                    <option value="Balance & Coordination">Balance & Coordination</option>
+                    <option value="Balance & Coordination">
+                      Balance & Coordination
+                    </option>
                     <option value="Calming & Sensory">Calming & Sensory</option>
                     <option value="Tactile & Sensory">Tactile & Sensory</option>
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="age-group" className="block text-sm font-medium mb-2">
+                  <label
+                    htmlFor="age-group"
+                    className="block text-sm font-medium mb-2"
+                  >
                     Age Group
                   </label>
                   <select
@@ -246,7 +276,10 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
               </div>
 
               <div>
-                <label htmlFor="description" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium mb-2"
+                >
                   Description (Optional)
                 </label>
                 <textarea
@@ -261,7 +294,10 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
               </div>
 
               <div>
-                <label htmlFor="toy-units" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="toy-units"
+                  className="block text-sm font-medium mb-2"
+                >
                   Add Toy Units
                 </label>
                 <input
@@ -290,14 +326,24 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
                     <Upload className="w-6 h-6 text-gray-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-1">Upload toy images</p>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                    <p className="text-sm font-medium mb-1">
+                      Upload toy images
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      PNG, JPG, GIF up to 10MB
+                    </p>
                   </div>
                   <label className="cursor-pointer">
                     <span className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium bg-white hover:bg-gray-50">
                       Choose Files
                     </span>
-                    <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
                   </label>
                 </div>
               </div>
@@ -305,13 +351,17 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
               {/* Uploaded Images Preview */}
               {uploadedImages.length > 0 && (
                 <div>
-                  <p className="text-sm font-medium mb-3">Uploaded Images ({uploadedImages.length})</p>
+                  <p className="text-sm font-medium mb-3">
+                    Uploaded Images ({uploadedImages.length})
+                  </p>
                   <div className="grid grid-cols-4 gap-4">
                     {uploadedImages.map((file, index) => (
                       <div key={index} className="relative group">
                         <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                           <img
-                            src={URL.createObjectURL(file) || "/placeholder.svg"}
+                            src={
+                              URL.createObjectURL(file) || "/placeholder.svg"
+                            }
                             alt={`Upload ${index + 1}`}
                             className="w-full h-full object-cover"
                           />
@@ -323,7 +373,9 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
                         >
                           <X className="w-3 h-3" />
                         </button>
-                        <p className="text-xs text-gray-500 mt-1 truncate">{file.name}</p>
+                        <p className="text-xs text-gray-500 mt-1 truncate">
+                          {file.name}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -345,7 +397,13 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
             </button>
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                if (window.history.length > 2) {
+                  router.back();
+                } else {
+                  router.push("/toymanagement/dashboard");
+                }
+              }}
               className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-md font-medium"
             >
               Cancel
@@ -354,5 +412,5 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
         </form>
       </div>
     </div>
-  )
+  );
 }

@@ -208,7 +208,7 @@ const WebinarsManagement = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -233,7 +233,7 @@ const WebinarsManagement = () => {
               </defs>
             </svg>
             Export
-          </button>
+          </button> */}
           <Link href={"/coursesWeb/webinars/addWebinar"}>
             <button className="px-4 py-2 bg-[#C83C92] text-white font-semibold rounded-md">
               + Schedule New Webinar

@@ -834,7 +834,7 @@ const PlansPage: React.FC = () => {
                   name="description"
                   value={editFormData.description || ""}
                   onChange={handleEditFormChange}
-                  className="col-span-3 flex h-24 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                  className="col-span-3 flex h-24 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -1052,7 +1052,7 @@ const PlansPage: React.FC = () => {
               <button
                 onClick={() => setShowEditModal(false)}
                 disabled={isSubmitting}
-                className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium shadow-sm ring-offset-white transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               >
                 Cancel
               </button>

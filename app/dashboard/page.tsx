@@ -220,6 +220,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
     try {
       setSending(true);
       const token = getAdminToken();
+      console.log(token); //debug
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/emails/motivation`,
         {
@@ -305,21 +306,21 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       >
         <Dialog.Panel className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-          <Dialog.Title className="text-lg font-bold mb-4">
+          <Dialog.Title className="text-lg font-bold mb-4 text-black">
             Send Motivational Email
           </Dialog.Title>
           <div className="space-y-4">
             <input
               type="text"
               placeholder="Subject"
-              className="w-full border px-3 py-2 rounded-md"
+              className="w-full border px-3 py-2 rounded-md text-black"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
             />
             <textarea
               placeholder="Quote / Message"
               rows={4}
-              className="w-full border px-3 py-2 rounded-md"
+              className="w-full border px-3 py-2 rounded-md text-black"
               value={quote}
               onChange={(e) => setQuote(e.target.value)}
             />
@@ -329,7 +330,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 rounded-md"
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
               >
                 Cancel
               </button>
@@ -464,17 +465,15 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
                         <th className="px-6 py-3">Product</th>
                         <th className="px-6 py-3 flex items-center">
                           <span className="mr-1">Date</span>
-                          <ChevronDown className="w-4 h-4" />
                         </th>
                         <th className="px-6 py-3">Customer</th>
                         <th className="px-6 py-3 flex items-center">
                           <span className="mr-1">Total</span>
-                          <ChevronDown className="w-4 h-4" />
                         </th>
                         <th className="px-6 py-3">Payment</th>
                         <th className="px-6 py-3 flex items-center">
                           <span className="mr-1">Status</span>
-                          <ChevronDown className="w-4 h-4" />
+                          {/* <ChevronDown className="w-4 h-4" /> */}
                         </th>
                         <th className="px-6 py-3">Action</th>
                       </tr>
