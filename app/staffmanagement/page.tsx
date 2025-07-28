@@ -267,6 +267,7 @@ export default function DoctorManagement() {
   // Handle edit
   const handleEdit = (user: User) => {
     setSelectedUser(user);
+    console.log("Editing user:", user.dateOfBirth);
     setFormData({
       firstName: user.firstName,
       lastName: user.lastName,
@@ -275,7 +276,9 @@ export default function DoctorManagement() {
       phone: user.phone || "",
       role: user.role,
       designation: (user as any).designation || "",
-      dateOfBirth: user.dateOfBirth ? user.dateOfBirth.split("T")[0] : "",
+      dateOfBirth: user.dateOfBirth
+        ? new Date(user.dateOfBirth).toISOString().split("T")[0]
+        : "",
       profilePicture: user.profilePicture || "",
       isActive: user.isActive,
     });

@@ -136,7 +136,7 @@ const Categories = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -161,7 +161,7 @@ const Categories = () => {
               </defs>
             </svg>
             Export
-          </button>
+          </button> */}
           <Link href={"/ecommerce/categories/addCategory"}>
             <button className="px-4 py-2 bg-[#C83C92] text-white font-semibold rounded-md">
               + Add Category
@@ -216,7 +216,7 @@ const Categories = () => {
             Select Dates
           </button> */}
 
-          <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
+          {/* <button className="flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -250,7 +250,7 @@ const Categories = () => {
               />
             </svg>
             Filters
-          </button>
+          </button> */}
         </div>
       </div>
 

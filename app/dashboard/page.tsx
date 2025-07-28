@@ -370,7 +370,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
               {/* Button next to tabs */}
               <button
                 onClick={() => setModalOpen(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition shadow"
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition shadow ml-[-60px]"
               >
                 ✉️ Motivational Email
               </button>
