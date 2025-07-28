@@ -39,6 +39,7 @@ const MembersTable = () => {
           }
         );
         setMembersData(res.data.data);
+        console.log(res.data.data); //debug
       } catch (err) {
         console.error("Failed to fetch members:", err);
       } finally {
@@ -54,11 +55,13 @@ const MembersTable = () => {
   // Filter based on search input
   const filteredMembers = membersData.filter(
     (item) =>
-      item.memberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.tier.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      new Date(item.renewalDate).toLocaleDateString().includes(searchTerm)
+      (item.memberName?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase()
+      ) ||
+      (item.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (item.tier?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (item.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      new Date(item.renewalDate || "").toLocaleDateString().includes(searchTerm)
   );
 
   // Status badge component

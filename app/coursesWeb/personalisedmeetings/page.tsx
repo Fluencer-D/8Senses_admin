@@ -422,7 +422,7 @@ export default function MeetingAdminPanel() {
                       placeholder="Search by title, doctor, or link..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-12 pr-5 py-4 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
+                      className="w-full pl-12 pr-5 py-4 text-lg text-black border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -433,7 +433,7 @@ export default function MeetingAdminPanel() {
                   <select
                     value={selectedPlanFilter}
                     onChange={(e) => setSelectedPlanFilter(e.target.value)}
-                    className="w-full px-5 py-4 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
+                    className="w-full px-5 py-4 text-lg text-black border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
                   >
                     <option value="">All Plans</option>
                     {PLAN_OPTIONS.map((plan) => (
@@ -450,7 +450,7 @@ export default function MeetingAdminPanel() {
                   <select
                     value={selectedStatusFilter}
                     onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                    className="w-full px-5 py-4 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
+                    className="w-full px-5 py-4 text-lg text-black border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
                   >
                     <option value="">All Statuses</option>
                     {["Upcoming", "Ongoing", "Completed"].map((status) => (

@@ -1,223 +1,255 @@
-"use client"
+"use client";
 
-import { getAdminToken } from "@/utils/storage"
-import { useRouter } from "next/navigation"
-import type React from "react"
-import { useState, useEffect } from "react"
+import { getAdminToken } from "@/utils/storage";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { useState, useEffect } from "react";
 
 interface PlanData {
-  _id: string
-  name: string
-  price: number
-  billingCycle: "monthly" | "quarterly" | "biannual" | "annual"
-  description: string
-  status: "active" | "inactive" | "archived"
+  _id: string;
+  name: string;
+  price: number;
+  billingCycle: "monthly" | "quarterly" | "biannual" | "annual";
+  description: string;
+  status: "active" | "inactive" | "archived";
   features: {
-    accessToWebinars: boolean
-    customerDiscounts: boolean
-    autoRenewal: boolean
-    displayOnPricingPage: boolean
-    accessToPremiumCourses: boolean
-  }
-  trialPeriod: number
-  gracePeriod: number
-  order: number
-  createdAt: string
-  updatedAt: string
+    accessToWebinars: boolean;
+    customerDiscounts: boolean;
+    autoRenewal: boolean;
+    displayOnPricingPage: boolean;
+    accessToPremiumCourses: boolean;
+  };
+  trialPeriod: number;
+  gracePeriod: number;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const PlansPage: React.FC = () => {
-  const router = useRouter()
-  const [plansData, setPlansData] = useState<PlanData[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const [plansData, setPlansData] = useState<PlanData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [showViewModal, setShowViewModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null)
-  const [editFormData, setEditFormData] = useState<Partial<PlanData>>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<PlanData>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch plans from API
   const fetchPlans = async () => {
-    
     try {
-      setIsLoading(true)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getAdminToken()}`,
-        },
-      })
-      const result = await response.json()
+      setIsLoading(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getAdminToken()}`,
+          },
+        }
+      );
+      const result = await response.json();
       if (response.ok && result.success) {
-        setPlansData(result.data)
+        setPlansData(result.data);
       } else {
-        setError(result.error || "Failed to fetch plans")
+        setError(result.error || "Failed to fetch plans");
       }
     } catch (error) {
-      console.error("Error fetching plans:", error)
-      setError("Failed to fetch plans")
+      console.error("Error fetching plans:", error);
+      setError("Failed to fetch plans");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchPlans()
-  }, [])
+    fetchPlans();
+  }, []);
 
   const formatPrice = (price: number, billingCycle: string) => {
-    const formattedPrice = `$${price.toFixed(2)}`
+    const formattedPrice = `₹${price.toFixed(2)}`;
     const cycleMap: { [key: string]: string } = {
       monthly: "/month",
       quarterly: "/quarter",
       biannual: "/6 months",
       annual: "/year",
-    }
-    return `${formattedPrice}${cycleMap[billingCycle] || ""}`
-  }
+    };
+    return `${formattedPrice}${cycleMap[billingCycle] || ""}`;
+  };
 
   const getBenefitsSummary = (features: PlanData["features"]) => {
-    const benefits = []
-    if (features.accessToWebinars) benefits.push("Webinars")
-    if (features.accessToPremiumCourses) benefits.push("Premium Courses")
-    if (features.customerDiscounts) benefits.push("Discounts")
-    return benefits.length > 0 ? benefits.join(", ") : "Basic access"
-  }
+    const benefits = [];
+    if (features.accessToWebinars) benefits.push("Webinars");
+    if (features.accessToPremiumCourses) benefits.push("Premium Courses");
+    if (features.customerDiscounts) benefits.push("Discounts");
+    return benefits.length > 0 ? benefits.join(", ") : "Basic access";
+  };
 
   const handleViewPlan = async (id: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getAdminToken()}`,
-        },
-      })
-      const result = await response.json()
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getAdminToken()}`,
+          },
+        }
+      );
+      const result = await response.json();
       if (response.ok && result.success) {
-        setSelectedPlan(result.data)
-        setShowViewModal(true)
+        setSelectedPlan(result.data);
+        setShowViewModal(true);
       } else {
-        alert(`Error fetching plan: ${result.error || "Unknown error"}`)
+        alert(`Error fetching plan: ${result.error || "Unknown error"}`);
       }
     } catch (error) {
-      console.error("Error fetching plan for view:", error)
-      alert("Failed to fetch plan details.")
+      console.error("Error fetching plan for view:", error);
+      alert("Failed to fetch plan details.");
     }
-  }
+  };
 
   const handleEditPlan = async (id: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getAdminToken()}`,
-        },
-      })
-      const result = await response.json()
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getAdminToken()}`,
+          },
+        }
+      );
+      const result = await response.json();
       if (response.ok && result.success) {
-        setSelectedPlan(result.data)
-        setEditFormData(result.data) // Initialize form data with current plan data
-        setShowEditModal(true)
+        setSelectedPlan(result.data);
+        setEditFormData(result.data); // Initialize form data with current plan data
+        setShowEditModal(true);
       } else {
-        alert(`Error fetching plan for edit: ${result.error || "Unknown error"}`)
+        alert(
+          `Error fetching plan for edit: ${result.error || "Unknown error"}`
+        );
       }
     } catch (error) {
-      console.error("Error fetching plan for edit:", error)
-      alert("Failed to fetch plan details for editing.")
+      console.error("Error fetching plan for edit:", error);
+      alert("Failed to fetch plan details for editing.");
     }
-  }
+  };
 
-  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
+  const handleEditFormChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value, type } = e.target;
     if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked
+      const checked = (e.target as HTMLInputElement).checked;
       setEditFormData((prev) => ({
         ...prev,
         features: {
           ...prev.features,
           [name]: checked,
         },
-      }))
-    } else if (name === "price" || name === "trialPeriod" || name === "gracePeriod" || name === "order") {
+      }));
+    } else if (
+      name === "price" ||
+      name === "trialPeriod" ||
+      name === "gracePeriod" ||
+      name === "order"
+    ) {
       setEditFormData((prev) => ({
         ...prev,
         [name]: Number(value),
-      }))
+      }));
     } else {
       setEditFormData((prev) => ({
         ...prev,
         [name]: value,
-      }))
+      }));
     }
-  }
+  };
 
   const handleSaveEdit = async () => {
-    if (!selectedPlan?._id) return
+    if (!selectedPlan?._id) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${selectedPlan._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getAdminToken()}`,
-        },
-        body: JSON.stringify(editFormData),
-      })
-      const result = await response.json()
-      if (response.ok && result.success) {
-        alert("Plan updated successfully!")
-        setShowEditModal(false)
-        fetchPlans() // Refresh the plans list
-      } else {
-        alert(`Error updating plan: ${result.error || "Unknown error"}`)
-      }
-    } catch (error) {
-      console.error("Error updating plan:", error)
-      alert("Failed to update plan. Please try again.")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleDeletePlan = async (id: string) => {
-    if (confirm("Are you sure you want to delete this plan?")) {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${id}`, {
-          method: "DELETE",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${selectedPlan._id}`,
+        {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${getAdminToken()}`,
           },
-        })
-        const result = await response.json()
+          body: JSON.stringify(editFormData),
+        }
+      );
+      const result = await response.json();
+      if (response.ok && result.success) {
+        alert("Plan updated successfully!");
+        setShowEditModal(false);
+        fetchPlans(); // Refresh the plans list
+      } else {
+        alert(`Error updating plan: ${result.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Error updating plan:", error);
+      alert("Failed to update plan. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeletePlan = async (id: string) => {
+    if (confirm("Are you sure you want to delete this plan?")) {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans/${id}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getAdminToken()}`,
+            },
+          }
+        );
+        const result = await response.json();
         if (response.ok && result.success) {
-          alert("Plan deleted successfully!")
-          fetchPlans() // Refresh the plans list
+          alert("Plan deleted successfully!");
+          fetchPlans(); // Refresh the plans list
         } else {
-          alert(`Error: ${result.error}`)
+          alert(`Error: ${result.error}`);
         }
       } catch (error) {
-        console.error("Error deleting plan:", error)
-        alert("Failed to delete plan. Please try again.")
+        console.error("Error deleting plan:", error);
+        alert("Failed to delete plan. Please try again.");
       }
     }
-  }
+  };
 
   const handleAddNewPlan = () => {
-    router.push("/subscription/plans/addPlan")
-  }
+    router.push("/subscription/plans/addPlan");
+  };
 
   const handleExport = async () => {
     try {
       // Create CSV content
       const csvContent = [
-        ["Plan Name", "Price", "Billing Cycle", "Status", "Benefits", "Created Date"].join(","),
+        [
+          "Plan Name",
+          "Price",
+          "Billing Cycle",
+          "Status",
+          "Benefits",
+          "Created Date",
+        ].join(","),
         ...plansData.map((plan) =>
           [
             plan.name,
@@ -226,24 +258,26 @@ const PlansPage: React.FC = () => {
             plan.status,
             getBenefitsSummary(plan.features),
             new Date(plan.createdAt).toLocaleDateString(),
-          ].join(","),
+          ].join(",")
         ),
-      ].join("\n")
+      ].join("\n");
       // Create and download file
-      const blob = new Blob([csvContent], { type: "text/csv" })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `subscription-plans-${new Date().toISOString().split("T")[0]}.csv`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `subscription-plans-${
+        new Date().toISOString().split("T")[0]
+      }.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Error exporting plans:", error)
-      alert("Failed to export plans")
+      console.error("Error exporting plans:", error);
+      alert("Failed to export plans");
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -252,7 +286,7 @@ const PlansPage: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C83C92]"></div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -260,12 +294,15 @@ const PlansPage: React.FC = () => {
       <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-600">Error: {error}</p>
-          <button onClick={fetchPlans} className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+          <button
+            onClick={fetchPlans}
+            className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
             Retry
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -338,7 +375,10 @@ const PlansPage: React.FC = () => {
         {plansData.length === 0 ? (
           <div className="py-8 px-6 text-center text-gray-500">
             No plans found.{" "}
-            <button onClick={handleAddNewPlan} className="text-[#C83C92] hover:underline">
+            <button
+              onClick={handleAddNewPlan}
+              className="text-[#C83C92] hover:underline"
+            >
               Create your first plan
             </button>
           </div>
@@ -349,24 +389,36 @@ const PlansPage: React.FC = () => {
               className="grid grid-cols-5 py-4 px-6 border-t border-gray-200 items-center hover:bg-gray-50"
             >
               <div className="text-[#1E437A] font-medium">{plan.name}</div>
-              <div className="text-[#1E437A]">{formatPrice(plan.price, plan.billingCycle)}</div>
+              <div className="text-[#1E437A]">
+                {formatPrice(plan.price, plan.billingCycle)}
+              </div>
               <div>
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    plan.status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                    plan.status === "active"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
                   }`}
                 >
                   {plan.status}
                 </span>
               </div>
-              <div className="text-[#667085]">{getBenefitsSummary(plan.features)}</div>
+              <div className="text-[#667085]">
+                {getBenefitsSummary(plan.features)}
+              </div>
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => handleViewPlan(plan._id)}
                   className="p-1.5 text-gray-500 hover:text-[#1E437A]"
                   title="View Plan"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
                     <path
                       fillRule="evenodd"
                       clipRule="evenodd"
@@ -380,7 +432,13 @@ const PlansPage: React.FC = () => {
                   className="p-1.5 text-gray-500 hover:text-[#1E437A]"
                   title="Edit Plan"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
                     <path
                       fillRule="evenodd"
                       clipRule="evenodd"
@@ -394,7 +452,13 @@ const PlansPage: React.FC = () => {
                   className="p-1.5 text-gray-500 hover:text-[#F04438]"
                   title="Delete Plan"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
                     <path
                       d="M8.33366 8.12508C8.7939 8.12508 9.16699 8.49818 9.16699 8.95842V13.9584C9.16699 14.4187 8.7939 14.7917 8.33366 14.7917C7.87342 14.7917 7.50033 14.4187 7.50033 13.9584V8.95842C7.50033 8.49818 7.87342 8.12508 8.33366 8.12508Z"
                       fill="#456696"
@@ -422,7 +486,9 @@ const PlansPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="relative w-full max-w-2xl rounded-lg bg-white p-6 shadow-lg">
             <div className="flex items-center justify-between pb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Plan Details: {selectedPlan.name}</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Plan Details: {selectedPlan.name}
+              </h2>
               <button
                 onClick={() => setShowViewModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -444,14 +510,19 @@ const PlansPage: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <p className="text-sm text-gray-500 mb-4">Detailed information about the selected subscription plan.</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Detailed information about the selected subscription plan.
+            </p>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-name" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-name"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Name
                 </label>
                 <input
-                  style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-name"
                   value={selectedPlan.name || ""}
                   readOnly
@@ -459,11 +530,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-description" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-description"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Description
                 </label>
                 <textarea
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-description"
                   value={selectedPlan.description || ""}
                   readOnly
@@ -471,11 +545,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-price" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-price"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Price
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-price"
                   value={selectedPlan.price.toFixed(2) || ""}
                   readOnly
@@ -483,11 +560,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-billingCycle" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-billingCycle"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Billing Cycle
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-billingCycle"
                   value={selectedPlan.billingCycle || ""}
                   readOnly
@@ -495,11 +575,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-status" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-status"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Status
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-status"
                   value={selectedPlan.status || ""}
                   readOnly
@@ -507,11 +590,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-trialPeriod" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-trialPeriod"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Trial Period (days)
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-trialPeriod"
                   value={selectedPlan.trialPeriod.toString() || "0"}
                   readOnly
@@ -519,11 +605,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-gracePeriod" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-gracePeriod"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Grace Period (days)
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-gracePeriod"
                   value={selectedPlan.gracePeriod.toString() || "0"}
                   readOnly
@@ -531,11 +620,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-order" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-order"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Order
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-order"
                   value={selectedPlan.order.toString() || "0"}
                   readOnly
@@ -543,95 +635,126 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-start gap-4">
-                <label className="text-right pt-2 text-sm font-medium text-gray-700">Features</label>
+                <label className="text-right pt-2 text-sm font-medium text-gray-700">
+                  Features
+                </label>
                 <div className="col-span-3 grid gap-2">
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="view-webinars"
                       checked={selectedPlan.features?.accessToWebinars}
                       disabled
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="view-webinars" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="view-webinars"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Access to Webinars
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="view-discounts"
                       checked={selectedPlan.features?.customerDiscounts}
                       disabled
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="view-discounts" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="view-discounts"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Customer Discounts
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="view-autoRenewal"
                       checked={selectedPlan.features?.autoRenewal}
                       disabled
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="view-autoRenewal" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="view-autoRenewal"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Auto Renewal
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="view-display"
                       checked={selectedPlan.features?.displayOnPricingPage}
                       disabled
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="view-display" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="view-display"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Display on Pricing Page
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="view-premiumCourses"
                       checked={selectedPlan.features?.accessToPremiumCourses}
                       disabled
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="view-premiumCourses" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="view-premiumCourses"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Access to Premium Courses
                     </label>
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-createdAt" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-createdAt"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Created At
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-createdAt"
-                  value={selectedPlan.createdAt ? new Date(selectedPlan.createdAt).toLocaleString() : ""}
+                  value={
+                    selectedPlan.createdAt
+                      ? new Date(selectedPlan.createdAt).toLocaleString()
+                      : ""
+                  }
                   readOnly
                   className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="view-updatedAt" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="view-updatedAt"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Updated At
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="view-updatedAt"
-                  value={selectedPlan.updatedAt ? new Date(selectedPlan.updatedAt).toLocaleString() : ""}
+                  value={
+                    selectedPlan.updatedAt
+                      ? new Date(selectedPlan.updatedAt).toLocaleString()
+                      : ""
+                  }
                   readOnly
                   className="col-span-3 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
@@ -654,7 +777,9 @@ const PlansPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="relative w-full max-w-2xl rounded-lg bg-white p-6 shadow-lg">
             <div className="flex items-center justify-between pb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Edit Plan: {selectedPlan.name}</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Edit Plan: {selectedPlan.name}
+              </h2>
               <button
                 onClick={() => setShowEditModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -677,15 +802,19 @@ const PlansPage: React.FC = () => {
               </button>
             </div>
             <p className="text-sm text-gray-500 mb-4">
-              Make changes to the subscription plan here. Click save when you're done.
+              Make changes to the subscription plan here. Click save when you're
+              done.
             </p>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="edit-name" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="edit-name"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Name
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="edit-name"
                   name="name"
                   value={editFormData.name || ""}
@@ -694,7 +823,10 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="edit-description" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="edit-description"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Description
                 </label>
                 <textarea
@@ -706,11 +838,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="edit-price" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="edit-price"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Price
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="edit-price"
                   name="price"
                   type="number"
@@ -721,12 +856,15 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="edit-billingCycle" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="edit-billingCycle"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Billing Cycle
                 </label>
                 <select
                   id="edit-billingCycle"
-                  style={{color:"black"}}
+                  style={{ color: "black" }}
                   name="billingCycle"
                   value={editFormData.billingCycle || ""}
                   onChange={handleEditFormChange}
@@ -740,11 +878,14 @@ const PlansPage: React.FC = () => {
                 </select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="edit-status" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="edit-status"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Status
                 </label>
                 <select
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="edit-status"
                   name="status"
                   value={editFormData.status || ""}
@@ -758,11 +899,14 @@ const PlansPage: React.FC = () => {
                 </select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="edit-trialPeriod" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="edit-trialPeriod"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Trial Period (days)
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="edit-trialPeriod"
                   name="trialPeriod"
                   type="number"
@@ -772,11 +916,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="edit-gracePeriod" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="edit-gracePeriod"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Grace Period (days)
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="edit-gracePeriod"
                   name="gracePeriod"
                   type="number"
@@ -786,11 +933,14 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="edit-order" className="text-right text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="edit-order"
+                  className="text-right text-sm font-medium text-gray-700"
+                >
                   Order
                 </label>
                 <input
-                style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="edit-order"
                   name="order"
                   type="number"
@@ -800,11 +950,13 @@ const PlansPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-4 items-start gap-4">
-                <label className="text-right pt-2 text-sm font-medium text-gray-700">Features</label>
+                <label className="text-right pt-2 text-sm font-medium text-gray-700">
+                  Features
+                </label>
                 <div className="col-span-3 grid gap-2">
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="accessToWebinars"
                       name="accessToWebinars"
@@ -812,27 +964,35 @@ const PlansPage: React.FC = () => {
                       onChange={handleEditFormChange}
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="accessToWebinars" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="accessToWebinars"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Access to Webinars
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="customerDiscounts"
                       name="customerDiscounts"
-                      checked={editFormData.features?.customerDiscounts || false}
+                      checked={
+                        editFormData.features?.customerDiscounts || false
+                      }
                       onChange={handleEditFormChange}
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="customerDiscounts" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="customerDiscounts"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Customer Discounts
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="autoRenewal"
                       name="autoRenewal"
@@ -840,35 +1000,48 @@ const PlansPage: React.FC = () => {
                       onChange={handleEditFormChange}
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="autoRenewal" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="autoRenewal"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Auto Renewal
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="displayOnPricingPage"
                       name="displayOnPricingPage"
-                      checked={editFormData.features?.displayOnPricingPage || false}
+                      checked={
+                        editFormData.features?.displayOnPricingPage || false
+                      }
                       onChange={handleEditFormChange}
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="displayOnPricingPage" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="displayOnPricingPage"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Display on Pricing Page
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
-                    style={{color:"black"}}
+                      style={{ color: "black" }}
                       type="checkbox"
                       id="accessToPremiumCourses"
                       name="accessToPremiumCourses"
-                      checked={editFormData.features?.accessToPremiumCourses || false}
+                      checked={
+                        editFormData.features?.accessToPremiumCourses || false
+                      }
                       onChange={handleEditFormChange}
                       className="h-4 w-4 rounded border-gray-300 text-[#C83C92] focus:ring-[#C83C92]"
                     />
-                    <label htmlFor="accessToPremiumCourses" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="accessToPremiumCourses"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Access to Premium Courses
                     </label>
                   </div>
@@ -895,7 +1068,7 @@ const PlansPage: React.FC = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default PlansPage
+export default PlansPage;

@@ -258,10 +258,13 @@ const Transactions = () => {
               >
                 #{txn?.orderNumber}
               </div>
-              <div className="text-[#1E437A] truncate" title={txn?.customerName}>
+              <div
+                className="text-[#1E437A] truncate"
+                title={txn?.customerName}
+              >
                 {txn?.customerName}
               </div>
-              <div className="text-[#1E437A]">${txn?.amount.toFixed(2)}</div>
+              <div className="text-[#1E437A]">₹{txn?.amount.toFixed(2)}</div>
               <div>
                 <span
                   className={`px-3 py-1 rounded-full text-sm ${getStatusBadgeStyle(
@@ -321,7 +324,7 @@ const Transactions = () => {
                   {selectedTransaction.customerName}
                 </p>
                 <p>
-                  <strong>Amount:</strong> $
+                  <strong>Amount:</strong> ₹
                   {selectedTransaction.amount.toFixed(2)}
                 </p>
                 <p>

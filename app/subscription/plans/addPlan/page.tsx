@@ -1,36 +1,34 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { getAdminToken } from "@/utils/storage"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getAdminToken } from "@/utils/storage";
 
 const AddPlanPage = () => {
-  const router = useRouter()
+  const router = useRouter();
 
   // State variables for form fields
-  const [planName, setPlanName] = useState("")
-  const [planDescription, setPlanDescription] = useState("")
-  const [planStatus, setPlanStatus] = useState("active")
-  const [price, setPrice] = useState("")
-  const [billingCycle, setBillingCycle] = useState("")
-  const [trialPeriod, setTrialPeriod] = useState("")
-  const [gracePeriod, setGracePeriod] = useState("")
-  const [order, setOrder] = useState("")
-  const [accessToWebinars, setAccessToWebinars] = useState(false)
-  const [accessToPremiumCourses, setAccessToPremiumCourses] = useState(false)
-  const [customerDiscounts, setCustomerDiscounts] = useState(false)
-  const [autoRenewal, setAutoRenewal] = useState(true)
-  const [displayOnPricingPage, setDisplayOnPricingPage] = useState(true)
-  const [isClient, setIsClient] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [planName, setPlanName] = useState("");
+  const [planDescription, setPlanDescription] = useState("");
+  const [planStatus, setPlanStatus] = useState("active");
+  const [price, setPrice] = useState("");
+  const [billingCycle, setBillingCycle] = useState("");
+  const [trialPeriod, setTrialPeriod] = useState("");
+  const [gracePeriod, setGracePeriod] = useState("");
+  const [order, setOrder] = useState("");
+  const [accessToWebinars, setAccessToWebinars] = useState(false);
+  const [accessToPremiumCourses, setAccessToPremiumCourses] = useState(false);
+  const [customerDiscounts, setCustomerDiscounts] = useState(false);
+  const [autoRenewal, setAutoRenewal] = useState(true);
+  const [displayOnPricingPage, setDisplayOnPricingPage] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [adminToken, setAdminToken] = useState<string | null>(null);
 
-
   useEffect(() => {
-    setIsClient(true)
-  }, [])
-
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     setIsClient(true);
@@ -40,65 +38,68 @@ const AddPlanPage = () => {
     }
   }, []);
 
-
-
   // Validation function
   const validateForm = () => {
-    const newErrors: { [key: string]: string } = {}
+    const newErrors: { [key: string]: string } = {};
 
     if (!planName.trim()) {
-      newErrors.planName = "Plan name is required"
+      newErrors.planName = "Plan name is required";
     } else if (planName.length < 2) {
-      newErrors.planName = "Plan name must be at least 2 characters"
+      newErrors.planName = "Plan name must be at least 2 characters";
     }
 
     if (!planDescription.trim()) {
-      newErrors.planDescription = "Plan description is required"
+      newErrors.planDescription = "Plan description is required";
     } else if (planDescription.length < 10) {
-      newErrors.planDescription = "Plan description must be at least 10 characters"
+      newErrors.planDescription =
+        "Plan description must be at least 10 characters";
     }
 
     if (!price) {
-      newErrors.price = "Price is required"
+      newErrors.price = "Price is required";
     } else if (isNaN(Number(price)) || Number(price) < 0) {
-      newErrors.price = "Price must be a valid number greater than or equal to 0"
+      newErrors.price =
+        "Price must be a valid number greater than or equal to 0";
     }
 
     if (!billingCycle) {
-      newErrors.billingCycle = "Billing cycle is required"
+      newErrors.billingCycle = "Billing cycle is required";
     }
 
-    if (trialPeriod && (isNaN(Number(trialPeriod)) || Number(trialPeriod) < 0)) {
-      newErrors.trialPeriod = "Trial period must be a valid number"
+    if (
+      trialPeriod &&
+      (isNaN(Number(trialPeriod)) || Number(trialPeriod) < 0)
+    ) {
+      newErrors.trialPeriod = "Trial period must be a valid number";
     }
 
-    if (gracePeriod && (isNaN(Number(gracePeriod)) || Number(gracePeriod) < 0)) {
-      newErrors.gracePeriod = "Grace period must be a valid number"
+    if (
+      gracePeriod &&
+      (isNaN(Number(gracePeriod)) || Number(gracePeriod) < 0)
+    ) {
+      newErrors.gracePeriod = "Grace period must be a valid number";
     }
 
     if (order && (isNaN(Number(order)) || Number(order) < 0)) {
-      newErrors.order = "Order must be a valid number"
+      newErrors.order = "Order must be a valid number";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   // Handle cancel button click
   const handleCancel = () => {
-    router.push("/subscription/plans")
-  }
-
-
-
+    router.push("/subscription/plans");
+  };
 
   // Handle save button click
   const handleSave = async () => {
     if (!validateForm()) {
-      return
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       const planData = {
@@ -117,40 +118,45 @@ const AddPlanPage = () => {
           displayOnPricingPage,
           accessToPremiumCourses,
         },
-      }
+      };
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": adminToken ? `Bearer ${adminToken}` : "",
-        },
-        body: JSON.stringify(planData),
-      })
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/plans`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: adminToken ? `Bearer ${adminToken}` : "",
+          },
+          body: JSON.stringify(planData),
+        }
+      );
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (result.success) {
-        alert("Plan created successfully!")
-        router.push("/subscription/plans")
+        alert("Plan created successfully!");
+        router.push("/subscription/plans");
       } else {
         if (result.errors) {
-          const errorMessages = result.errors.map((err: any) => err.msg).join(", ")
-          alert(`Error: ${errorMessages}`)
+          const errorMessages = result.errors
+            .map((err: any) => err.msg)
+            .join(", ");
+          alert(`Error: ${errorMessages}`);
         } else {
-          alert(`Error: ${result.error}`)
+          alert(`Error: ${result.error}`);
         }
       }
     } catch (error) {
-      console.error("Error creating plan:", error)
-      alert("Failed to create plan. Please try again.")
+      console.error("Error creating plan:", error);
+      alert("Failed to create plan. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (!isClient) {
-    return null
+    return null;
   }
 
   return (
@@ -160,8 +166,8 @@ const AddPlanPage = () => {
       <div className="flex justify-between items-center mb-4">
         {/* Breadcrumbs */}
         <div className="text-gray-500 text-sm">
-          <span className="text-blue-600 cursor-pointer">Subscription</span> &gt;{" "}
-          <span className="text-blue-600 cursor-pointer">Plans</span> &gt;{" "}
+          <span className="text-blue-600 cursor-pointer">Subscription</span>{" "}
+          &gt; <span className="text-blue-600 cursor-pointer">Plans</span> &gt;{" "}
           <span className="text-gray-800 font-semibold">Add Plan</span>
         </div>
         {/* Action Buttons */}
@@ -185,7 +191,13 @@ const AddPlanPage = () => {
               </>
             ) : (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
                   <path
                     fillRule="evenodd"
                     clipRule="evenodd"
@@ -204,34 +216,52 @@ const AddPlanPage = () => {
       <div className="space-y-6">
         {/* Basic Plan Details */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-lg font-medium text-[#333843] mb-4">Basic Plan Details</h2>
+          <h2 className="text-lg font-medium text-[#333843] mb-4">
+            Basic Plan Details
+          </h2>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-[#1E437A] mb-1">Plan Name</label>
+            <label className="block text-sm font-medium text-[#1E437A] mb-1">
+              Plan Name
+            </label>
             <input
               type="text"
               placeholder="Type plan name here..."
               value={planName}
               onChange={(e) => setPlanName(e.target.value)}
-              className={`w-full border p-2 rounded-md text-[#858D9D] bg-[#F9F9FC] ${errors.planName ? "border-red-500" : "border-gray-300"}`}
+              className={`w-full border p-2 rounded-md text-[#858D9D] bg-[#F9F9FC] ${
+                errors.planName ? "border-red-500" : "border-gray-300"
+              }`}
             />
-            {errors.planName && <p className="text-red-500 text-sm mt-1">{errors.planName}</p>}
+            {errors.planName && (
+              <p className="text-red-500 text-sm mt-1">{errors.planName}</p>
+            )}
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-[#1E437A] mb-1">Plan Description</label>
+            <label className="block text-sm font-medium text-[#1E437A] mb-1">
+              Plan Description
+            </label>
             <textarea
               placeholder="Type plan description here..."
               value={planDescription}
               onChange={(e) => setPlanDescription(e.target.value)}
-              className={`w-full border p-2 rounded-md h-32 text-[#858D9D] bg-[#F9F9FC] ${errors.planDescription ? "border-red-500" : "border-gray-300"}`}
+              className={`w-full border p-2 rounded-md h-32 text-[#858D9D] bg-[#F9F9FC] ${
+                errors.planDescription ? "border-red-500" : "border-gray-300"
+              }`}
             />
-            {errors.planDescription && <p className="text-red-500 text-sm mt-1">{errors.planDescription}</p>}
+            {errors.planDescription && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.planDescription}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[#1E437A] mb-1">Plan Status</label>
+              <label className="block text-sm font-medium text-[#1E437A] mb-1">
+                Plan Status
+              </label>
               <div className="relative">
                 <select
                   value={planStatus}
@@ -242,55 +272,85 @@ const AddPlanPage = () => {
                   <option value="inactive">Inactive</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                  <svg
+                    className="w-4 h-4 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
                   </svg>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1E437A] mb-1">Display Order</label>
+              <label className="block text-sm font-medium text-[#1E437A] mb-1">
+                Display Order
+              </label>
               <input
                 type="number"
                 placeholder="Enter display order"
                 value={order}
                 onChange={(e) => setOrder(e.target.value)}
-                className={`w-full border p-2 rounded-md text-[#858D9D] bg-[#F9F9FC] ${errors.order ? "border-red-500" : "border-gray-300"}`}
+                className={`w-full border p-2 rounded-md text-[#858D9D] bg-[#F9F9FC] ${
+                  errors.order ? "border-red-500" : "border-gray-300"
+                }`}
               />
-              {errors.order && <p className="text-red-500 text-sm mt-1">{errors.order}</p>}
+              {errors.order && (
+                <p className="text-red-500 text-sm mt-1">{errors.order}</p>
+              )}
             </div>
           </div>
         </div>
 
         {/* Pricing & Duration */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-lg font-medium text-[#333843] mb-4">Pricing & Duration</h2>
+          <h2 className="text-lg font-medium text-[#333843] mb-4">
+            Pricing & Duration
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-[#1E437A] mb-1">Price</label>
+              <label className="block text-sm font-medium text-[#1E437A] mb-1">
+                Price (₹)
+              </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                  ₹
+                </span>
                 <input
                   type="number"
                   step="0.01"
                   placeholder="Enter price here"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className={`w-full border p-2 pl-6 rounded-md text-[#858D9D] bg-[#F9F9FC] ${errors.price ? "border-red-500" : "border-gray-300"}`}
+                  className={`w-full border p-2 pl-6 rounded-md text-[#858D9D] bg-[#F9F9FC] ${
+                    errors.price ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
               </div>
-              {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+              {errors.price && (
+                <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1E437A] mb-1">Billing Cycle</label>
+              <label className="block text-sm font-medium text-[#1E437A] mb-1">
+                Billing Cycle
+              </label>
               <div className="relative">
                 <select
                   value={billingCycle}
                   onChange={(e) => setBillingCycle(e.target.value)}
-                  className={`w-full border p-2 rounded-md appearance-none text-[#858D9D] bg-[#F9F9FC] pr-8 ${errors.billingCycle ? "border-red-500" : "border-gray-300"}`}
+                  className={`w-full border p-2 rounded-md appearance-none text-[#858D9D] bg-[#F9F9FC] pr-8 ${
+                    errors.billingCycle ? "border-red-500" : "border-gray-300"
+                  }`}
                 >
                   <option value="">Select billing cycle</option>
                   <option value="monthly">Monthly</option>
@@ -299,51 +359,85 @@ const AddPlanPage = () => {
                   <option value="annual">Annual</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                  <svg
+                    className="w-4 h-4 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
                   </svg>
                 </div>
               </div>
-              {errors.billingCycle && <p className="text-red-500 text-sm mt-1">{errors.billingCycle}</p>}
+              {errors.billingCycle && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.billingCycle}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             <div>
-              <label className="block text-sm font-medium text-[#1E437A] mb-1">Trial Period (days)</label>
+              <label className="block text-sm font-medium text-[#1E437A] mb-1">
+                Trial Period (days)
+              </label>
               <input
                 type="number"
                 placeholder="Enter trial period"
                 value={trialPeriod}
                 onChange={(e) => setTrialPeriod(e.target.value)}
-                className={`w-full border p-2 rounded-md text-[#858D9D] bg-[#F9F9FC] ${errors.trialPeriod ? "border-red-500" : "border-gray-300"}`}
+                className={`w-full border p-2 rounded-md text-[#858D9D] bg-[#F9F9FC] ${
+                  errors.trialPeriod ? "border-red-500" : "border-gray-300"
+                }`}
               />
-              {errors.trialPeriod && <p className="text-red-500 text-sm mt-1">{errors.trialPeriod}</p>}
+              {errors.trialPeriod && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.trialPeriod}
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1E437A] mb-1">Grace Period (days)</label>
+              <label className="block text-sm font-medium text-[#1E437A] mb-1">
+                Grace Period (days)
+              </label>
               <input
                 type="number"
                 placeholder="Enter grace period"
                 value={gracePeriod}
                 onChange={(e) => setGracePeriod(e.target.value)}
-                className={`w-full border p-2 rounded-md text-[#858D9D] bg-[#F9F9FC] ${errors.gracePeriod ? "border-red-500" : "border-gray-300"}`}
+                className={`w-full border p-2 rounded-md text-[#858D9D] bg-[#F9F9FC] ${
+                  errors.gracePeriod ? "border-red-500" : "border-gray-300"
+                }`}
               />
-              {errors.gracePeriod && <p className="text-red-500 text-sm mt-1">{errors.gracePeriod}</p>}
+              {errors.gracePeriod && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.gracePeriod}
+                </p>
+              )}
             </div>
           </div>
         </div>
 
         {/* Plan Benefits & Access */}
         <div className="p-4 bg-white rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-[#1E437A] mb-4">Plan Benefits & Access</h2>
+          <h2 className="text-lg font-semibold text-[#1E437A] mb-4">
+            Plan Benefits & Access
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-4">
               {/* Access to Webinars */}
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-[#1E437A]">Access to Webinars?</label>
+                <label className="text-sm font-medium text-[#1E437A]">
+                  Access to Webinars?
+                </label>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -352,10 +446,14 @@ const AddPlanPage = () => {
                     className="sr-only peer"
                   />
                   <div
-                    className={`relative w-11 h-6 rounded-full peer transition-colors ${accessToWebinars ? "bg-[#C83C92]" : "bg-gray-200"}`}
+                    className={`relative w-11 h-6 rounded-full peer transition-colors ${
+                      accessToWebinars ? "bg-[#C83C92]" : "bg-gray-200"
+                    }`}
                   >
                     <div
-                      className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${accessToWebinars ? "translate-x-5" : ""}`}
+                      className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${
+                        accessToWebinars ? "translate-x-5" : ""
+                      }`}
                     ></div>
                   </div>
                 </label>
@@ -363,7 +461,9 @@ const AddPlanPage = () => {
 
               {/* Customer Discounts */}
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-[#1E437A]">Customer Discounts?</label>
+                <label className="text-sm font-medium text-[#1E437A]">
+                  Customer Discounts?
+                </label>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -372,10 +472,14 @@ const AddPlanPage = () => {
                     className="sr-only peer"
                   />
                   <div
-                    className={`relative w-11 h-6 rounded-full peer transition-colors ${customerDiscounts ? "bg-[#C83C92]" : "bg-gray-200"}`}
+                    className={`relative w-11 h-6 rounded-full peer transition-colors ${
+                      customerDiscounts ? "bg-[#C83C92]" : "bg-gray-200"
+                    }`}
                   >
                     <div
-                      className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${customerDiscounts ? "translate-x-5" : ""}`}
+                      className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${
+                        customerDiscounts ? "translate-x-5" : ""
+                      }`}
                     ></div>
                   </div>
                 </label>
@@ -385,19 +489,27 @@ const AddPlanPage = () => {
             {/* Right Column */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-[#1E437A]">Access to Premium Courses?</label>
+                <label className="text-sm font-medium text-[#1E437A]">
+                  Access to Premium Courses?
+                </label>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={accessToPremiumCourses}
-                    onChange={() => setAccessToPremiumCourses(!accessToPremiumCourses)}
+                    onChange={() =>
+                      setAccessToPremiumCourses(!accessToPremiumCourses)
+                    }
                     className="sr-only peer"
                   />
                   <div
-                    className={`relative w-11 h-6 rounded-full peer transition-colors ${accessToPremiumCourses ? "bg-[#C83C92]" : "bg-gray-200"}`}
+                    className={`relative w-11 h-6 rounded-full peer transition-colors ${
+                      accessToPremiumCourses ? "bg-[#C83C92]" : "bg-gray-200"
+                    }`}
                   >
                     <div
-                      className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${accessToPremiumCourses ? "translate-x-5" : ""}`}
+                      className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${
+                        accessToPremiumCourses ? "translate-x-5" : ""
+                      }`}
                     ></div>
                   </div>
                 </label>
@@ -408,11 +520,15 @@ const AddPlanPage = () => {
 
         {/* Renewal & Payment Options */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-lg font-medium text-[#333843] mb-4">Renewal & Payment Options</h2>
+          <h2 className="text-lg font-medium text-[#333843] mb-4">
+            Renewal & Payment Options
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-[#1E437A]">Auto-Renewal?</label>
+              <label className="text-sm font-medium text-[#1E437A]">
+                Auto-Renewal?
+              </label>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -421,29 +537,41 @@ const AddPlanPage = () => {
                   className="sr-only peer"
                 />
                 <div
-                  className={`relative w-11 h-6 rounded-full peer transition-colors ${autoRenewal ? "bg-[#C83C92]" : "bg-gray-200"}`}
+                  className={`relative w-11 h-6 rounded-full peer transition-colors ${
+                    autoRenewal ? "bg-[#C83C92]" : "bg-gray-200"
+                  }`}
                 >
                   <div
-                    className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${autoRenewal ? "translate-x-5" : ""}`}
+                    className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${
+                      autoRenewal ? "translate-x-5" : ""
+                    }`}
                   ></div>
                 </div>
               </label>
             </div>
 
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-[#1E437A]">Display on Pricing Page?</label>
+              <label className="text-sm font-medium text-[#1E437A]">
+                Display on Pricing Page?
+              </label>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   checked={displayOnPricingPage}
-                  onChange={() => setDisplayOnPricingPage(!displayOnPricingPage)}
+                  onChange={() =>
+                    setDisplayOnPricingPage(!displayOnPricingPage)
+                  }
                   className="sr-only peer"
                 />
                 <div
-                  className={`relative w-11 h-6 rounded-full peer transition-colors ${displayOnPricingPage ? "bg-[#C83C92]" : "bg-gray-200"}`}
+                  className={`relative w-11 h-6 rounded-full peer transition-colors ${
+                    displayOnPricingPage ? "bg-[#C83C92]" : "bg-gray-200"
+                  }`}
                 >
                   <div
-                    className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${displayOnPricingPage ? "translate-x-5" : ""}`}
+                    className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${
+                      displayOnPricingPage ? "translate-x-5" : ""
+                    }`}
                   ></div>
                 </div>
               </label>
@@ -452,7 +580,7 @@ const AddPlanPage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AddPlanPage
+export default AddPlanPage;
