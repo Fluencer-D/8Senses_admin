@@ -219,12 +219,26 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
     fetchData();
   }, [activeTab]);
 
+  useEffect(() => {
+    if (modalOpen) {
+      setSubject("");
+      setQuote("");
+      setSendSuccess(null);
+    }
+  }, [modalOpen]);
+
   //Motivational Email
   const handleSendMotivation = async () => {
+    console.log("subject:", subject);
+    console.log("quote:", quote);
+    if (!subject.trim() || !quote.trim()) {
+      setSendSuccess("All fields are required 33333.");
+      return;
+    }
+
     try {
       setSending(true);
       const token = getAdminToken();
-      console.log(token); //debug
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/emails/motivation`,
         {
@@ -233,7 +247,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ subject, quote }),
+          body: JSON.stringify({
+            subject: subject.trim(),
+            content: quote.trim(),
+          }),
         }
       );
       const data = await res.json();
@@ -300,13 +317,20 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
         Error: {error}
       </div>
     );
+
+  const closeModal = () => {
+    setSubject("");
+    setQuote("");
+    setSendSuccess(null);
+    setModalOpen(false);
+  };
   //handle time filter
   return (
     <div className="p-6">
       {/* Modal for Motivational Email */}
       <Dialog
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModal}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       >
         <Dialog.Panel className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
@@ -316,24 +340,32 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
           <div className="space-y-4">
             <input
               type="text"
-              placeholder="Subject"
-              className="w-full border px-3 py-2 rounded-md text-black"
+              id="subject"
               value={subject}
-              onChange={(e) => setSubject(e.target.value)}
+              onChange={(e) => {
+                setSubject(e.target.value);
+                setSendSuccess(null);
+              }}
+              className="w-full border border-gray-300 rounded-md p-2 text-black"
+              placeholder="Enter subject"
             />
             <textarea
-              placeholder="Quote / Message"
-              rows={4}
-              className="w-full border px-3 py-2 rounded-md text-black"
+              id="quote"
               value={quote}
-              onChange={(e) => setQuote(e.target.value)}
+              onChange={(e) => {
+                setQuote(e.target.value);
+                setSendSuccess(null);
+              }}
+              className="w-full border border-gray-300 rounded-md p-2 text-black"
+              rows={4}
+              placeholder="Enter quote"
             />
             {sendSuccess && (
               <p className="text-sm text-green-600">{sendSuccess}</p>
             )}
             <div className="flex justify-end gap-2">
               <button
-                onClick={() => setModalOpen(false)}
+                onClick={closeModal}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
               >
                 Cancel
