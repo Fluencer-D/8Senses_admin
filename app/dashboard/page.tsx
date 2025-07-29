@@ -332,7 +332,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
     }
 
     try {
-<<<<<<< HEAD
       setSending(true)
       const token = getAdminToken()
       console.log(token) //debug
@@ -353,30 +352,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
       setSubject("")
       setQuote("")
       setModalOpen(false)
-=======
-      setSending(true);
-      const token = getAdminToken();
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/emails/motivation`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            subject: subject.trim(),
-            content: quote.trim(),
-          }),
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to send");
-      setSendSuccess("Motivational email sent!");
-      setSubject("");
-      setQuote("");
-      setModalOpen(false);
->>>>>>> a03830a821721661f443513f111f0809eba79eaa
     } catch (err: any) {
       setSendSuccess(err.message)
     } finally {
