@@ -1,142 +1,148 @@
-"use client"
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { getAdminToken } from "@/utils/storage"
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { getAdminToken } from "@/utils/storage";
 
 interface OrderDetails {
-  _id: string
-  orderNumber: string
+  _id: string;
+  orderNumber: string;
   customerInfo: {
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-  }
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
   shippingAddress: {
-    firstName: string
-    lastName: string
-    address1: string
-    address2?: string
-    city: string
-    state: string
-    postalCode: string
-    country: string
-    phone?: string
-  }
-  status: string // Backend status string
-  trackingNumber?: string
-  shippingDate?: string // ISO date string
-  estimatedDelivery?: string // ISO date string
-  createdAt: string
-  updatedAt: string
+    firstName: string;
+    lastName: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    phone?: string;
+  };
+  status: string; // Backend status string
+  trackingNumber?: string;
+  shippingDate?: string; // ISO date string
+  estimatedDelivery?: string; // ISO date string
+  createdAt: string;
+  updatedAt: string;
 }
 
 const UpdateShippingStatus = () => {
-  const router = useRouter()
-  const params = useParams()
-  const orderId = params.id as string
+  const router = useRouter();
+  const params = useParams();
+  const orderId = params.id as string;
 
-  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null)
-  const [trackingNumber, setTrackingNumber] = useState<string>("")
-  const [shippingStatus, setShippingStatus] = useState<string>("") // Corresponds to backend enum
-  const [shipmentDate, setShipmentDate] = useState<string>("")
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [trackingNumber, setTrackingNumber] = useState<string>("");
+  const [shippingStatus, setShippingStatus] = useState<string>(""); // Corresponds to backend enum
+  const [shipmentDate, setShipmentDate] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
-      if (!orderId) return
+      if (!orderId) return;
 
       try {
-        setLoading(true)
-        const token = getAdminToken()
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        setLoading(true);
+        const token = getAdminToken();
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
-          const errData = await response.json()
-          throw new Error(errData.error || "Failed to fetch order details")
+          const errData = await response.json();
+          throw new Error(errData.error || "Failed to fetch order details");
         }
 
-        const result = await response.json()
-        const order = result.data
-        setOrderDetails(order)
-        setTrackingNumber(order.trackingNumber || "")
-        setShippingStatus(order.status || "pending") // Initialize with current status
+        const result = await response.json();
+        const order = result.data;
+        setOrderDetails(order);
+        setTrackingNumber(order.trackingNumber || "");
+        setShippingStatus(order.status || "pending"); // Initialize with current status
         setShipmentDate(
           order.shippingDate
             ? new Date(order.shippingDate).toISOString().split("T")[0]
-            : new Date().toISOString().split("T")[0],
-        )
+            : new Date().toISOString().split("T")[0]
+        );
       } catch (err: any) {
-        console.error("Error fetching order details:", err)
-        setError(err.message)
+        console.error("Error fetching order details:", err);
+        setError(err.message);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchOrderDetails()
-  }, [orderId])
+    fetchOrderDetails();
+  }, [orderId]);
 
   const handleSaveChanges = async () => {
-    if (!orderDetails) return
+    if (!orderDetails) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const token = getAdminToken()
+      const token = getAdminToken();
       const payload: {
-        status: string
-        trackingNumber?: string
-        shippingDate?: string
+        status: string;
+        trackingNumber?: string;
+        shippingDate?: string;
       } = {
         status: shippingStatus,
-      }
+      };
 
       // Only include trackingNumber and shippingDate if status is 'shipped'
       if (shippingStatus === "shipped") {
         if (!trackingNumber) {
-          alert("Tracking number is required for 'Shipped' status.")
-          setIsSubmitting(false)
-          return
+          alert("Tracking number is required for 'Shipped' status.");
+          setIsSubmitting(false);
+          return;
         }
-        payload.trackingNumber = trackingNumber
-        payload.shippingDate = shipmentDate
+        payload.trackingNumber = trackingNumber;
+        payload.shippingDate = shipmentDate;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/status`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      })
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
-        const errData = await response.json()
-        throw new Error(errData.error || "Failed to update order status")
+        const errData = await response.json();
+        throw new Error(errData.error || "Failed to update order status");
       }
 
-      const result = await response.json()
-      alert("Order status updated successfully!")
-      console.log("Update result:", result)
-      router.push("/ecommerce/shipping") // Navigate back to the shipping page
+      const result = await response.json();
+      alert("Order status updated successfully!");
+      console.log("Update result:", result);
+      router.push("/ecommerce/shipping"); // Navigate back to the shipping page
     } catch (err: any) {
-      console.error("Error saving changes:", err)
-      alert(`Error: ${err.message}`)
+      console.error("Error saving changes:", err);
+      alert(`Error: ${err.message}`);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleCancel = () => {
-    router.push("/ecommerce/shipping") // Navigate back without saving changes
-  }
+    router.push("/ecommerce/shipping"); // Navigate back without saving changes
+  };
 
   if (loading)
     return (
@@ -145,7 +151,7 @@ const UpdateShippingStatus = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C83C92]"></div>
         </div>
       </div>
-    )
+    );
   if (error)
     return (
       <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto">
@@ -159,7 +165,7 @@ const UpdateShippingStatus = () => {
           </button>
         </div>
       </div>
-    )
+    );
   if (!orderDetails)
     return (
       <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto">
@@ -167,16 +173,20 @@ const UpdateShippingStatus = () => {
           <p className="text-yellow-600">Order details not found.</p>
         </div>
       </div>
-    )
+    );
 
   const customerFullName = `${orderDetails.customerInfo?.firstName || ""} ${
     orderDetails.customerInfo?.lastName || ""
-  }`.trim()
+  }`.trim();
   const fullAddress = `${orderDetails.shippingAddress.address1}, ${
-    orderDetails.shippingAddress.address2 ? orderDetails.shippingAddress.address2 + ", " : ""
-  }${orderDetails.shippingAddress.city}, ${orderDetails.shippingAddress.state}, ${
-    orderDetails.shippingAddress.postalCode
-  }, ${orderDetails.shippingAddress.country}`
+    orderDetails.shippingAddress.address2
+      ? orderDetails.shippingAddress.address2 + ", "
+      : ""
+  }${orderDetails.shippingAddress.city}, ${
+    orderDetails.shippingAddress.state
+  }, ${orderDetails.shippingAddress.postalCode}, ${
+    orderDetails.shippingAddress.country
+  }`;
 
   return (
     <div className="p-6 max-w-[84%] mt-15 ml-70 mx-auto overflow-y-auto hide-scrollbar">
@@ -185,14 +195,20 @@ const UpdateShippingStatus = () => {
         <div>
           <h1 className="text-[#333843] text-3xl">Shipping</h1>
           <div className="text-gray-500 text-sm mt-1">
-            <span className="text-[#245BA7] cursor-pointer">E-commerce</span> &gt;{" "}
-            <span className="text-[#245BA7] cursor-pointer">Shipping</span> &gt;{" "}
-            <span className="text-gray-800">Orders</span>
+            <span className="text-[#245BA7] cursor-pointer">E-commerce</span>{" "}
+            &gt; <span className="text-[#245BA7] cursor-pointer">Shipping</span>{" "}
+            &gt; <span className="text-gray-800">Orders</span>
           </div>
         </div>
         {/* Export Button (kept for consistency, though not directly related to this page's function) */}
         <button className="flex items-center gap-2 bg-[#C83C92] text-white px-4 py-2 rounded-lg font-medium">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="2 2 20 20" fill="none">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="2 2 20 20"
+            fill="none"
+          >
             <g clipPath="url(#clip0_786_597)">
               <path
                 d="M15.7071 7.20706C15.3166 7.59758 14.6834 7.59758 14.2929 7.20706L13 5.91417V15.5C13 16.0522 12.5523 16.5 12 16.5C11.4477 16.5 11 16.0522 11 15.5V5.91417L9.70711 7.20706C9.31658 7.59758 8.68342 7.59758 8.29289 7.20706C7.90237 6.81654 7.90237 6.18337 8.29289 5.79285L11.6464 2.43929C11.8417 2.24403 12.1583 2.24403 12.3536 2.43929L15.7071 5.79285C16.0976 6.18337 16.0976 6.81654 15.7071 7.20706Z"
@@ -214,19 +230,27 @@ const UpdateShippingStatus = () => {
       </div>
       {/* Order & Customer Details */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-        <h2 className="text-xl font-medium text-[#333843] mb-6">Order & Customer Details</h2>
+        <h2 className="text-xl font-medium text-[#333843] mb-6">
+          Order & Customer Details
+        </h2>
         <div className="space-y-4">
           <div>
             <p className="text-[#1E437A] mb-1">Order ID</p>
-            <p className="text-[#1E437A] text-lg font-semibold">#{orderDetails.orderNumber}</p>
+            <p className="text-[#1E437A] text-lg font-semibold">
+              #{orderDetails.orderNumber}
+            </p>
           </div>
           <div>
             <p className="text-[#1E437A] mb-1">Customer</p>
-            <p className="text-lg font-medium text-[#1E437A]">{customerFullName}</p>
+            <p className="text-lg font-medium text-[#1E437A]">
+              {customerFullName}
+            </p>
           </div>
           <div>
             <p className="text-[#1E437A] mb-1">Current Shipping Status</p>
-            <p className="text-lg font-medium text-[#1E437A]">{orderDetails.status}</p>
+            <p className="text-lg font-medium text-[#1E437A]">
+              {orderDetails.status}
+            </p>
           </div>
           <div>
             <p className="text-[#1E437A] mb-1">Address</p>
@@ -236,22 +260,27 @@ const UpdateShippingStatus = () => {
       </div>
       {/* Update Status Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-xl font-medium text-[#333843] mb-6">Update Status</h2>
+        <h2 className="text-xl font-medium text-[#333843] mb-6">
+          Update Status
+        </h2>
         <form
           onSubmit={(e) => {
-            e.preventDefault()
-            handleSaveChanges()
+            e.preventDefault();
+            handleSaveChanges();
           }}
         >
           {/* Tracking Number */}
           <div className="mb-6">
-            <label htmlFor="trackingNumber" className="block mb-2 font-medium text-[#1E437A]">
+            <label
+              htmlFor="trackingNumber"
+              className="block mb-2 font-medium text-[#1E437A]"
+            >
               Tracking Number
             </label>
             <input
               type="text"
               id="trackingNumber"
-              placeholder="Enter tracking number"
+              placeholder="Required only when updating status to shipped"
               className="w-full p-3 border bg-[#F9F9FC] border-[#E0E2E7] text-[#858D9D] rounded-md"
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
@@ -265,7 +294,10 @@ const UpdateShippingStatus = () => {
           </div>
           {/* Update Shipping Status */}
           <div className="mb-6">
-            <label htmlFor="shippingStatus" className="block mb-2 font-medium text-[#1E437A]">
+            <label
+              htmlFor="shippingStatus"
+              className="block mb-2 font-medium text-[#1E437A]"
+            >
               Update Shipping Status
             </label>
             <select
@@ -290,7 +322,10 @@ const UpdateShippingStatus = () => {
           </div>
           {/* Date of Shipment */}
           <div className="mb-6">
-            <label htmlFor="shipmentDate" className="block mb-2 font-medium text-[#1E437A]">
+            <label
+              htmlFor="shipmentDate"
+              className="block mb-2 font-medium text-[#1E437A]"
+            >
               Date of Shipment
             </label>
             <div className="relative">
@@ -343,7 +378,7 @@ const UpdateShippingStatus = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UpdateShippingStatus
+export default UpdateShippingStatus;
