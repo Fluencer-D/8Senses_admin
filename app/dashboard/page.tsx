@@ -102,6 +102,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
   const [quote, setQuote] = useState("");
   const [sending, setSending] = useState(false);
   const [sendSuccess, setSendSuccess] = useState<string | null>(null);
+  //added here
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -183,7 +187,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
           {
             id: 1,
             title: "Total Sales",
-            value: `$${totalSales.toLocaleString()}`,
+            value: `₹${totalSales.toLocaleString()}`,
             icon: <ShoppingCart className="text-green-500 w-6 h-6" />,
             bgColor: "bg-green-100",
           },
@@ -297,7 +301,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
       </div>
     );
   //handle time filter
-
   return (
     <div className="p-6">
       {/* Modal for Motivational Email */}
@@ -347,6 +350,167 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
         </Dialog.Panel>
       </Dialog>
 
+      {/* View and Edit Modal */}
+      <Dialog
+        open={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setSelectedOrder(null);
+        }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      >
+        <Dialog.Panel className="bg-white w-full max-w-2xl p-6 rounded-lg shadow-lg">
+          <Dialog.Title className="text-xl font-bold mb-4 text-black">
+            {isEditMode ? "Edit Order" : "Order Details"}
+          </Dialog.Title>
+
+          {selectedOrder ? (
+            <div className="space-y-4">
+              {/* Order Info Fields */}
+              <div>
+                <label className="block font-medium text-sm text-black">
+                  Order ID:
+                </label>
+                <p className="font-medium text-sm text-black">
+                  {selectedOrder.orderNumber}
+                </p>
+              </div>
+
+              <div>
+                <label className="block font-medium text-sm text-black">
+                  Customer:
+                </label>
+                <p className="font-medium text-sm text-black">
+                  {selectedOrder.user?.firstName} {selectedOrder.user?.lastName}{" "}
+                  ({selectedOrder.user?.email})
+                </p>
+              </div>
+
+              <div>
+                <label className="block font-medium text-sm text-black">
+                  Status:
+                </label>
+                {isEditMode ? (
+                  <select
+                    value={selectedOrder.status}
+                    onChange={(e) =>
+                      setSelectedOrder((prev) =>
+                        prev
+                          ? { ...prev, status: e.target.value as OrderStatus }
+                          : prev
+                      )
+                    }
+                    className="border px-3 py-2 rounded w-full text-black"
+                  >
+                    {[
+                      "pending",
+                      "processing",
+                      "shipped",
+                      "delivered",
+                      "cancelled",
+                      "refunded",
+                      "partially_refunded",
+                    ].map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="font-medium text-sm text-black">
+                    {selectedOrder.status}
+                  </p>
+                )}
+              </div>
+
+              {/* Tracking Number Field (only in edit mode and when status is 'shipped') */}
+              {isEditMode && selectedOrder.status === "shipped" && (
+                <div>
+                  <label className="block font-medium text-sm text-black">
+                    Tracking Number:
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedOrder.trackingNumber || ""}
+                    onChange={(e) =>
+                      setSelectedOrder((prev) =>
+                        prev
+                          ? { ...prev, trackingNumber: e.target.value }
+                          : prev
+                      )
+                    }
+                    className="border px-3 py-2 rounded w-full text-black"
+                    placeholder="Enter tracking number"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Products */}
+              <div>
+                <label className="block font-medium text-sm text-black">
+                  Products:
+                </label>
+                <ul className="list-disc ml-5 text-sm text-gray-700">
+                  {selectedOrder.items.map((item, idx) => (
+                    <li key={idx}>
+                      {item.name} × {item.quantity} — ${item.price}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Save Changes Button */}
+              {isEditMode && (
+                <button
+                  onClick={async () => {
+                    const token = getAdminToken();
+                    const updateBody: any = { status: selectedOrder.status };
+
+                    if (selectedOrder.status === "shipped") {
+                      updateBody.trackingNumber =
+                        selectedOrder.trackingNumber || "";
+                    }
+
+                    const res = await fetch(
+                      `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${selectedOrder._id}/status`,
+                      {
+                        method: "PUT",
+                        headers: {
+                          "Content-Type": "application/json",
+                          Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(updateBody),
+                      }
+                    );
+                    if (res.ok) {
+                      alert("Order updated!");
+                      setIsViewModalOpen(false);
+                      setSelectedOrder(null);
+                    } else {
+                      alert("Failed to update");
+                    }
+                  }}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Save Changes
+                </button>
+              )}
+
+              <button
+                onClick={() => setIsViewModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+              >
+                Close
+              </button>
+            </div>
+          ) : (
+            <p>Loading...</p>
+          )}
+        </Dialog.Panel>
+      </Dialog>
+
+      {/* till here */}
       <div className="flex flex-col h-screen">
         {/* Main content area */}
         <div className="flex-1 flex overflow-hidden">
@@ -406,8 +570,8 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
                 </h1>
 
                 <div className="ml-auto">
-                  <button className="flex items-center gap-x-2 p-1 rounded-lg border-2 h-9">
-                    {/* SVG icon */}
+                  {/* <button className="flex items-center gap-x-2 p-1 rounded-lg border-2 h-9">
+                    
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="19"
@@ -441,7 +605,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
                       />
                     </svg>
                     <h2 className="text-[#333843] text-lg">Filters</h2>
-                  </button>
+                  </button> */}
                 </div>
               </div>
 
@@ -567,7 +731,15 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
                                 </span>
                               </td>
                               <td className="px-6 py-4 flex items-center space-x-3 text-gray-500">
-                                <button className="hover:text-gray-700">
+                                {/* View Button */}
+                                <button
+                                  className="hover:text-gray-700"
+                                  onClick={() => {
+                                    setSelectedOrder(order);
+                                    setIsEditMode(false);
+                                    setIsViewModalOpen(true);
+                                  }}
+                                >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="20"
@@ -583,7 +755,16 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
                                     />
                                   </svg>
                                 </button>
-                                <button className="hover:text-gray-700">
+
+                                {/* Edit Button */}
+                                <button
+                                  className="hover:text-gray-700"
+                                  onClick={() => {
+                                    setSelectedOrder(order);
+                                    setIsEditMode(true);
+                                    setIsViewModalOpen(true);
+                                  }}
+                                >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="20"
