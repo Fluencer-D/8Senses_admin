@@ -82,13 +82,12 @@ export default function ProcessReturn() {
   })
   const [processing, setProcessing] = useState(false)
   const [step, setStep] = useState<"search" | "select" | "confirm">("search")
-
   const router = useRouter()
+
   const conditionOptions = ["Excellent", "Good", "Fair", "Needs Repair", "Damaged"]
 
-  // Get auth token (you might need to adjust this based on your auth implementation)
+  // Get auth token
   const getAuthToken = () => {
-    // Replace this with your actual token retrieval method
     return getAdminToken() || ""
   }
 
@@ -100,13 +99,12 @@ export default function ProcessReturn() {
   const loadAllBorrowings = async () => {
     try {
       setInitialLoading(true)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hi`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/process-return/active-borrowings`, {
         headers: {
           Authorization: `Bearer ${getAuthToken()}`,
           "Content-Type": "application/json",
         },
       })
-
       if (response.ok) {
         const result = await response.json()
         if (result.success) {
@@ -125,7 +123,6 @@ export default function ProcessReturn() {
   // Smart search for borrowers or toys
   const handleSearch = async (value: string) => {
     setSearchTerm(value)
-
     if (value.length < 2) {
       setSearchResults(null)
       setStep("search")
@@ -134,14 +131,16 @@ export default function ProcessReturn() {
 
     try {
       setLoading(true)
-
-      // Use the new smart search API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/process-return/smart-search?search=${encodeURIComponent(value)}`, {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-          "Content-Type": "application/json",
+      // Use the smart search API
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/process-return/smart-search?search=${encodeURIComponent(value)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+            "Content-Type": "application/json",
+          },
         },
-      })
+      )
 
       if (response.ok) {
         const result = await response.json()
@@ -156,12 +155,15 @@ export default function ProcessReturn() {
       }
 
       // If smart search fails, fallback to regular borrowing search
-      const borrowingResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/toys/borrowings?search=${encodeURIComponent(value)}`, {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-          "Content-Type": "application/json",
+      const borrowingResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/toys/borrowings?search=${encodeURIComponent(value)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+            "Content-Type": "application/json",
+          },
         },
-      })
+      )
 
       if (borrowingResponse.ok) {
         const borrowingResult = await borrowingResponse.json()
@@ -275,7 +277,6 @@ export default function ProcessReturn() {
 
     try {
       setProcessing(true)
-
       // Use bulk processing API if available, otherwise process individually
       const bulkResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/process-return/process-multiple`, {
         method: "POST",
@@ -317,7 +318,6 @@ export default function ProcessReturn() {
             const errorData = await response.json()
             throw new Error(`Failed to return borrowing ${borrowingId}: ${errorData.error}`)
           }
-
           return response.json()
         })
 
@@ -396,7 +396,6 @@ export default function ProcessReturn() {
   // Get selected borrowings for confirmation
   const getSelectedBorrowingsData = () => {
     if (!searchResults) return []
-
     const allBorrowings = searchResults.data.activeBorrowings || []
     return allBorrowings.filter((b) => selectedBorrowings.includes(b._id))
   }
