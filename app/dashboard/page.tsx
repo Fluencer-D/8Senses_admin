@@ -227,9 +227,9 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
           },
         )
 
-        if (!ordersResponse.ok) {
-          throw new Error("Failed to fetch orders")
-        }
+        // if (!ordersResponse.ok) {
+        //   throw new Error("Failed to fetch orders")
+        // }
 
         const responseData = await ordersResponse.json()
         console.log(responseData) //debug
@@ -772,7 +772,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
         <div className="flex-1 flex overflow-hidden">
           <div className="flex-1 p-6 bg-gray-100 rounded-xl mt-10 ml-68">
             {/* Filter Bar with Motivational Email Button */}
-            <div className="flex items-center justify-between flex-wrap gap-3 p-4 bg-gray-100 w-[105%] -ml-5">
+            <div className="flex items-center justify-between flex-wrap gap-3 p-4 bg-gray-100 w-full">
               <div className="flex items-center space-x-2 bg-white text-gray-700 text-sm border border-[#E0E2E7] w-fit px-4 py-2 rounded-lg">
                 {tabs.map((tab) => (
                   <button
@@ -791,7 +791,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
               {/* Button next to tabs */}
               <button
                 onClick={() => setModalOpen(true)}
-                className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-all shadow-md font-medium ml-[-60px] flex items-center gap-2"
+                className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-all shadow-md font-medium flex items-center gap-2"
               >
                 <span className="text-lg">✉️</span>
                 Motivational Email

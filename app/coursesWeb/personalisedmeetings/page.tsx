@@ -713,7 +713,7 @@ export default function MeetingAdminPanel() {
                 </div>
               </div>
             </div>
-            <div className="p-8">
+            <div className="p-8 text-black">
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {/* Basic Information */}
                 <div className="space-y-6">
@@ -802,7 +802,7 @@ export default function MeetingAdminPanel() {
                             date: e.target.value,
                           }))
                         }
-                        className="w-full pl-12 pr-4 py-3 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
+                        className="w-full pl-12 pr-4 py-3 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 text-gray-500"
                       />
                     </div>
                   </div>
@@ -823,7 +823,7 @@ export default function MeetingAdminPanel() {
                               startTime: e.target.value,
                             }))
                           }
-                          className="w-full pl-12 pr-4 py-3 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
+                          className="w-full pl-12 pr-4 py-3 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 text-gray-500"
                         />
                       </div>
                     </div>
@@ -842,7 +842,7 @@ export default function MeetingAdminPanel() {
                               endTime: e.target.value,
                             }))
                           }
-                          className="w-full pl-12 pr-4 py-3 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200"
+                          className="w-full pl-12 pr-4 py-3 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 text-gray-500"
                         />
                       </div>
                     </div>
