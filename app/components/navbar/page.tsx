@@ -1,50 +1,60 @@
 "use client";
-import { Bell, Mail, Menu, Search } from "lucide-react";
-import NavbarAvatar from "@/public/NavbarAvatar.png";
-import Image from "next/image";
+import { Menu } from "lucide-react";
+import { getAdminToken } from "@/utils/storage";
+import { useRouter } from "next/navigation";
+
 interface NavbarProps {
   isOpen: boolean;
-  setIsOpen: (open: boolean) => void; // Ensuring setIsOpen receives a boolean
+  setIsOpen: (open: boolean) => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
+  const router = useRouter();
+
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminDetails");
+
+    // router.push("/admin");
+    window.location.replace("/admin")
+  };
+
   return (
     <header
-      className={`transition-all font-sans duration-300 ${
-        isOpen ? "w-[86%] left-70" : "w-full left-0"
-      } h-16 flex items-center justify-between px-6 bg-white fixed top-0 z-10 border-l-1`}
+      className={`transition-all font-sans duration-300 fixed top-0 z-10 border-l-1 bg-white h-16 flex items-center justify-between px-6`}
+      style={{
+        width: isOpen && getAdminToken() ? "86%" : "100%",
+        left: isOpen && getAdminToken() ? "16.1%" : "0", // ✅ keeps alignment correct
+      }}
     >
-      {" "}
       {/* Left: Menu Button */}
+      <button
+        onClick={toggleSidebar}
+        className="text-gray-600 hover:text-gray-900 md:hidden"
+      >
+        <Menu size={24} />
+      </button>
 
-      {/* Right Section */}
-      <div className="flex items-center space-x-8">
-        <button className="text-gray-600 hover:text-gray-900">
-          
+      {/* Center: Title */}
+      <h3 className="text-blue-600 text-xl font-bold">Admin Panel</h3>
+
+      {/* Right: Logout Button */}
+      {
+        localStorage.getItem("adminToken")
+        &&
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 mr-8 text-white bg-red-500 hover:bg-red-600 rounded-md transition"
+        >
+          Logout
         </button>
-
-        {/* User Profile */}
-        <div className="flex items-center space-x-2 cursor-pointer">
-          {/* <Image
-            src={NavbarAvatar} // Replace with actual profile image
-            alt="User Profile"
-            width={45}
-            height={45}
-            className="rounded-full"
-          />
-          <div className="hidden md:flex flex-col">
-            <span className="text-sm font-semibold text-[#1A1C21]">
-              Shruti Patil
-            </span>
-            <span className="text-xs font-semibold text-[#667085]">Doctor</span>
-          </div> */}
-          <h3 className="text-blue-600 text-xl font-bold">Admin Panel</h3>
-        </div>
-      </div>
+      }
     </header>
   );
 };
+
 export default Navbar;

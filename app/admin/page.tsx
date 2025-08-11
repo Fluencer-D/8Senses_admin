@@ -33,7 +33,8 @@ export default function AdminLoginPage() {
 
       const { token } = await response.json();
       localStorage.setItem("adminToken", token);
-      router.push("/dashboard");
+      // router.push("/dashboard");
+      window.location.replace("/admin/dashboard");
     } catch (err: any) {
       setError(err.message || "An error occurred during login");
     }

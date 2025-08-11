@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./navbar/page";
 import Sidebar from "./sidebar/page";
 import { useRouter } from "next/router";
@@ -10,6 +10,10 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(true); // Sidebar state
+
+  useEffect(()=>{
+    getAdminToken();
+  },[]);
   // const router = useRouter();
 
   if(!getAdminToken()){

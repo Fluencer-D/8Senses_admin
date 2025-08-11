@@ -68,10 +68,10 @@ const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onUploadSuccess, cu
       const formData = new FormData()
           formData.append("file", file);
     formData.append("upload_preset", "my_unsigned_preset"); // Replace with your Cloudinary upload preset
-    formData.append("cloud_name", "dlehbizfp");
+    formData.append("cloud_name", "dxbdamfae");
 
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dlehbizfp/image/upload`,
+        `https://api.cloudinary.com/v1_1/dxbdamfae/image/upload`,
         {
           method: "POST",
           body: formData,

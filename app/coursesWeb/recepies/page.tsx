@@ -88,11 +88,11 @@ export default function RecipeAdminPanel() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "my_unsigned_preset"); // Replace with your Cloudinary upload preset
-    formData.append("cloud_name", "dlehbizfp"); // Replace with your Cloudinary cloud name
+    formData.append("cloud_name", "dxbdamfae"); // Replace with your Cloudinary cloud name
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dlehbizfp/image/upload`, // Replace with your cloud name
+        `https://api.cloudinary.com/v1_1/dxbdamfae/image/upload`, // Replace with your cloud name
         {
           method: "POST",
           body: formData,

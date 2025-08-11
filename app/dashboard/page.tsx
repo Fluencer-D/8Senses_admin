@@ -342,7 +342,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ subject, quote }),
+        body: JSON.stringify({ subject, content:quote }),
       })
 
       const data = await res.json()

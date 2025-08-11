@@ -42,7 +42,7 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
 
       try {
         const response = await fetch(
-          `https://api.cloudinary.com/v1_1/dlehbizfp/image/upload`, // Replace with your cloud name
+          `https://api.cloudinary.com/v1_1/dxbdamfae/image/upload`, // Replace with your cloud name
           {
             method: "POST",
             body: formData,

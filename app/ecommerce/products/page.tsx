@@ -120,49 +120,49 @@ const Products = () => {
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
+      filtered = filtered?.filter(
         (product) =>
-          product.name.toLowerCase().includes(query) || (product.sku && product.sku.toLowerCase().includes(query)),
+          product?.name.toLowerCase().includes(query) || (product?.sku && product?.sku.toLowerCase().includes(query)),
       )
     }
 
     // Category filter
-    if (filters.category) {
-      filtered = filtered.filter((product) => {
-        const categoryName = typeof product.category === "object" ? product.category.name : product.category
-        return categoryName.toLowerCase().includes(filters.category.toLowerCase())
+    if (filters?.category) {
+      filtered = filtered?.filter((product) => {
+        const categoryName = typeof product?.category === "object" ? product?.category?.name : product?.category
+        return categoryName.toLowerCase().includes(filters?.category?.toLowerCase())
       })
     }
 
     // Status filter
-    if (filters.status) {
-      filtered = filtered.filter((product) => product.status === filters.status)
+    if (filters?.status) {
+      filtered = filtered?.filter((product) => product?.status === filters?.status)
     }
 
     // Stock status filter
-    if (filters.stockStatus) {
-      filtered = filtered.filter((product) => {
-        const stockStatus = getProductStockStatus(product.quantity)
-        return stockStatus === filters.stockStatus
+    if (filters?.stockStatus) {
+      filtered = filtered?.filter((product) => {
+        const stockStatus = getProductStockStatus(product?.quantity)
+        return stockStatus === filters?.stockStatus
       })
     }
 
     // Price range filter
-    if (filters.minPrice) {
-      const minPrice = Number.parseFloat(filters.minPrice)
-      filtered = filtered.filter((product) => product.price >= minPrice)
+    if (filters?.minPrice) {
+      const minPrice = Number.parseFloat(filters?.minPrice)
+      filtered = filtered?.filter((product) => product?.price >= minPrice)
     }
 
-    if (filters.maxPrice) {
-      const maxPrice = Number.parseFloat(filters.maxPrice)
-      filtered = filtered.filter((product) => product.price <= maxPrice)
+    if (filters?.maxPrice) {
+      const maxPrice = Number.parseFloat(filters?.maxPrice)
+      filtered = filtered?.filter((product) => product?.price <= maxPrice)
     }
 
     // Date range filter
-    if (filters.dateRange) {
-      const startDate = getDateRange(filters.dateRange)
+    if (filters?.dateRange) {
+      const startDate = getDateRange(filters?.dateRange)
       if (startDate) {
-        filtered = filtered.filter((product) => new Date(product.createdAt) >= startDate)
+        filtered = filtered?.filter((product) => new Date(product?.createdAt) >= startDate)
       }
     }
 
@@ -194,7 +194,7 @@ const Products = () => {
         setProducts((prev) => prev.filter((p) => p._id !== productId))
       } catch (error) {
         console.error("Error deleting product:", error)
-        alert("Failed to delete product. Check console for more info.")
+        alert("Failed to delete product?. Check console for more info.")
       }
     }
   }
@@ -215,7 +215,7 @@ const Products = () => {
   // Get unique categories for filter dropdown
   const uniqueCategories = [
     ...new Set(
-      products.map((product) => (typeof product.category === "object" ? product.category.name : product.category)),
+      products.map((product) => (typeof product?.category === "object" ? product?.category?.name : product?.category)),
     ),
   ].filter(Boolean)
 
@@ -259,8 +259,8 @@ const Products = () => {
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem)
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
+  const currentItems = filteredProducts?.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredProducts?.length / itemsPerPage)
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -326,12 +326,12 @@ const Products = () => {
           >
             <Filter className="w-5 h-5" />
             Filters
-            {(filters.category ||
-              filters.status ||
-              filters.stockStatus ||
-              filters.minPrice ||
-              filters.maxPrice ||
-              filters.dateRange) && <span className="ml-1 bg-red-500 text-white text-xs rounded-full w-2 h-2"></span>}
+            {(filters?.category ||
+              filters?.status ||
+              filters?.stockStatus ||
+              filters?.minPrice ||
+              filters?.maxPrice ||
+              filters?.dateRange) && <span className="ml-1 bg-red-500 text-white text-xs rounded-full w-2 h-2"></span>}
           </button>
         </div>
       </div>
@@ -348,7 +348,7 @@ const Products = () => {
               </label>
               <select
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C83C92] focus:border-transparent text-gray-900 bg-white"
-                value={filters.category}
+                value={filters?.category}
                 onChange={(e) => setFilters((prev) => ({ ...prev, category: e.target.value }))}
               >
                 <option value="" className="text-gray-900">
@@ -370,7 +370,7 @@ const Products = () => {
               </label>
               <select
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C83C92] focus:border-transparent text-gray-900 bg-white"
-                value={filters.status}
+                value={filters?.status}
                 onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value }))}
               >
                 <option value="" className="text-gray-900">
@@ -396,7 +396,7 @@ const Products = () => {
               <label className="block text-sm font-semibold text-gray-800 mb-2">Stock Status</label>
               <select
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C83C92] focus:border-transparent text-gray-900 bg-white"
-                value={filters.stockStatus}
+                value={filters?.stockStatus}
                 onChange={(e) => setFilters((prev) => ({ ...prev, stockStatus: e.target.value }))}
               >
                 <option value="" className="text-gray-900">
@@ -424,7 +424,7 @@ const Products = () => {
                 type="number"
                 placeholder="0.00"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C83C92] focus:border-transparent text-gray-900 placeholder-gray-500 bg-white"
-                value={filters.minPrice}
+                value={filters?.minPrice}
                 onChange={(e) => setFilters((prev) => ({ ...prev, minPrice: e.target.value }))}
               />
             </div>
@@ -436,7 +436,7 @@ const Products = () => {
                 type="number"
                 placeholder="1000.00"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C83C92] focus:border-transparent text-gray-900 placeholder-gray-500 bg-white"
-                value={filters.maxPrice}
+                value={filters?.maxPrice}
                 onChange={(e) => setFilters((prev) => ({ ...prev, maxPrice: e.target.value }))}
               />
             </div>
@@ -449,7 +449,7 @@ const Products = () => {
               </label>
               <select
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C83C92] focus:border-transparent text-gray-900 bg-white"
-                value={filters.dateRange}
+                value={filters?.dateRange}
                 onChange={(e) => setFilters((prev) => ({ ...prev, dateRange: e.target.value }))}
               >
                 <option value="" className="text-gray-900">
@@ -474,7 +474,7 @@ const Products = () => {
           {/* Filter Actions */}
           <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
             <div className="text-sm font-medium text-gray-700">
-              Showing <span className="text-[#C83C92] font-bold">{filteredProducts.length}</span> of{" "}
+              Showing <span className="text-[#C83C92] font-bold">{filteredProducts?.length}</span> of{" "}
               <span className="text-gray-900 font-bold">{products.length}</span> products
             </div>
             <button
@@ -495,7 +495,7 @@ const Products = () => {
             <div className="w-16 h-16 border-4 border-[#C83C92] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600">Loading products...</p>
           </div>
-        ) : filteredProducts.length === 0 ? (
+        ) : filteredProducts?.length === 0 ? (
           <div className="p-12 text-center">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 font-medium mb-2">
@@ -526,36 +526,36 @@ const Products = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {currentItems.map((product, index) => {
-                  const stockInfo = getStockStatus(product.quantity)
+                  const stockInfo = getStockStatus(product?.quantity)
                   return (
                     <tr
-                      key={product._id}
+                      key={product?._id}
                       className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-25"}`}
                     >
                       <td className="p-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                            {product.images && product.images.length > 0 && (
+                            {product?.images && product?.images.length > 0 && (
                               <img
-                                src={product.images.find((img) => img.isMain)?.url || product.images[0].url}
-                                alt={product.name}
+                                src={product?.images.find((img) => img.isMain)?.url || product?.images[0].url}
+                                alt={product?.name}
                                 className="w-full h-full object-cover"
                               />
                             )}
                           </div>
-                          <Link href={`/ecommerce/products/viewProduct?id=${product._id}`}>
+                          <Link href={`/ecommerce/products/viewProduct?id=${product?._id}`}>
                             <span className="text-[#1E437A] font-medium hover:text-[#C83C92] transition-colors cursor-pointer">
-                              {product.name}
+                              {product?.name}
                             </span>
                           </Link>
                         </div>
                       </td>
-                      <td className="p-4 text-[#1E437A] font-semibold">{product.sku || "N/A"}</td>
+                      <td className="p-4 text-[#1E437A] font-semibold">{product?.sku || "N/A"}</td>
                       <td className="p-4 text-[#1E437A]">
-                        {product.category
-                          ? typeof product.category === "object"
-                            ? product.category.name
-                            : product.category
+                        {product?.category
+                          ? typeof product?.category === "object"
+                            ? product?.category?.name
+                            : product?.category
                           : "Uncategorized"}
                       </td>
                       <td className="p-4">
@@ -566,24 +566,24 @@ const Products = () => {
                         </span>
                       </td>
                       <td className="p-4 text-[#456696] font-semibold">
-                        ${product.price.toFixed(2)}
-                        {product.discountType !== "none" &&
-                          product.discountedPrice &&
-                          product.discountedPrice < product.price && (
-                            <span className="ml-2 text-sm line-through text-gray-400">${product.price.toFixed(2)}</span>
+                        ${product?.price.toFixed(2)}
+                        {product?.discountType !== "none" &&
+                          product?.discountedPrice &&
+                          product?.discountedPrice < product?.price && (
+                            <span className="ml-2 text-sm line-through text-gray-400">${product?.price.toFixed(2)}</span>
                           )}
                       </td>
                       <td className="p-4">
                         <span
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium ${getStatusColor(product.status)}`}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium ${getStatusColor(product?.status)}`}
                         >
-                          {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                          {product?.status.charAt(0).toUpperCase() + product?.status.slice(1)}
                         </span>
                       </td>
-                      <td className="p-4 text-[#456696]">{formatDate(product.createdAt)}</td>
+                      <td className="p-4 text-[#456696]">{formatDate(product?.createdAt)}</td>
                       <td className="p-4">
                         <div className="flex space-x-2">
-                          <Link href={`/ecommerce/products/viewProduct?id=${product._id}`}>
+                          <Link href={`/ecommerce/products/viewProduct?id=${product?._id}`}>
                             <button
                               className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
                               title="View Product"
@@ -604,7 +604,7 @@ const Products = () => {
                               </svg>
                             </button>
                           </Link>
-                          <Link href={`/ecommerce/products/viewProduct?id=${product._id}`}>
+                          <Link href={`/ecommerce/products/viewProduct?id=${product?._id}`}>
                             <button
                               className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
                               title="Edit Product"
@@ -627,7 +627,7 @@ const Products = () => {
                           </Link>
                           <button
                             className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
-                            onClick={() => handleDeleteProduct(product._id)}
+                            onClick={() => handleDeleteProduct(product?._id)}
                             title="Delete Product"
                           >
                             <svg
@@ -665,11 +665,11 @@ const Products = () => {
       </div>
 
       {/* Pagination */}
-      {!loading && filteredProducts.length > 0 && (
+      {!loading && filteredProducts?.length > 0 && (
         <div className="flex justify-between items-center mt-6 p-4 bg-white rounded-lg shadow-sm">
           <div className="text-sm text-gray-600">
-            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredProducts.length)} of{" "}
-            {filteredProducts.length} entries
+            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredProducts?.length)} of{" "}
+            {filteredProducts?.length} entries
           </div>
           <div className="flex space-x-1">
             <button
