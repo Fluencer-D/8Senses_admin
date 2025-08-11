@@ -436,7 +436,7 @@ export default function ServicesAdminPanel() {
 
       {/* Add/Edit Modal */}
       {isDialogOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-semibold text-gray-900">
@@ -457,8 +457,7 @@ export default function ServicesAdminPanel() {
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter service name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 "
                 />
                 {formErrors.name && <p className="text-sm text-red-600 mt-1">{formErrors.name}</p>}
               </div>
@@ -471,7 +470,6 @@ export default function ServicesAdminPanel() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Enter service description"
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -486,7 +484,6 @@ export default function ServicesAdminPanel() {
                   id="detailedContent"
                   value={formData.detailedContent}
                   onChange={(e) => setFormData({ ...formData, detailedContent: e.target.value })}
-                  placeholder="Enter detailed content (optional)"
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
