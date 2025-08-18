@@ -44,7 +44,7 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
 
       {/* Right: Logout Button */}
       {
-        localStorage.getItem("adminToken")
+        getAdminToken()
         &&
         <button
           onClick={handleLogout}
