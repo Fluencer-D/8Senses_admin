@@ -739,6 +739,22 @@ export default function RecipeAdminPanel() {
                       style={{ color: "black" }}
                       type="checkbox"
                       id="glutenFree"
+                     
+                      className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-2 border-slate-300 rounded"
+                    />
+                    <label
+                      htmlFor="glutenFree"
+                      className="ml-3 flex items-center gap-2 text-lg font-semibold text-slate-900"
+                    >
+                      <Wheat className="w-5 h-5" />
+                      Caesin Free Recipe
+                    </label>
+                  </div>
+                  <div className="flex items-center bg-slate-50 p-4 rounded-xl">
+                    <input
+                      style={{ color: "black" }}
+                      type="checkbox"
+                      id="glutenFree"
                       checked={formData.isGlutenFree}
                       onChange={(e) =>
                         setFormData((prev) => ({

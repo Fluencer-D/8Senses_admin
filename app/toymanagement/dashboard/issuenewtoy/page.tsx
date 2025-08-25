@@ -46,9 +46,51 @@ export default function IssueToyForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loadingUnits, setLoadingUnits] = useState(false);
-
+  const [borrowers, setBorrowers] = useState([]);
+  const [borrowerSearch, setBorrowerSearch] = useState("");
+  const [showBorrowerResults, setShowBorrowerResults] = useState(false);
+  const [filteredBorrowers, setFilteredBorrowers] = useState<any[]>([]);
+  const [selectedBorrower,setSelectedBorrower] = useState(null);
+  const [existinguser,setExistingUser] = useState(null);
   const router = useRouter();
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  useEffect(() => {
+    if (borrowerSearch.trim() === "") {
+      setFilteredBorrowers([]);
+      return;
+    }
+
+    const filtered = borrowers.filter((borr: any) =>
+      borr.name.toLowerCase().includes(borrowerSearch.toLowerCase())
+    );
+    setFilteredBorrowers(filtered);
+  }, [borrowerSearch, borrowers]);
+
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest(".borrower-search-container")) {
+        setShowBorrowerResults(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelectBorrower = (borr: any) => {
+    console.log(borr)
+    setSelectedBorrower(borr);
+    setBorrowerName(borr.name || "");
+    setPhoneNumber(borr.phone || "");
+    setExistingUser(borr?._id)
+    setEmail(borr.email || "");
+    setRelationship(borr.relationship || "");
+    setBorrowerSearch(""); // Clear search input
+    setShowBorrowerResults(false); // Close dropdown
+  };
 
   // Search for available toys (this API returns units without _id)
   const searchToys = async (query: string) => {
@@ -92,6 +134,37 @@ export default function IssueToyForm() {
       setSearchResults([]);
     }
   };
+
+  const fetchBorrowers = async () => {
+    const token = getAdminToken();
+    const response = await fetch(`${API_BASE_URL}/api/borrowers`, {
+      // This is the endpoint you provided
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success) {
+        setBorrowers(result.data);
+        // Filter only available units if the endpoint returns all units
+        console.log(result.data, "result")
+      } else {
+        console.log("error accoured")
+      }
+    } else {
+      console.error("Units request failed:", response.status);
+      setAvailableUnits([]);
+    }
+
+
+  }
+
+  useEffect(() => {
+    fetchBorrowers();
+  }, [])
 
   // Get real ToyUnit documents with their ObjectIds from the /toys/:toyId/units endpoint
   const getRealToyUnits = async (toyId: string) => {
@@ -227,6 +300,7 @@ export default function IssueToyForm() {
         toyUnitId: selectedUnitId, // This is now the actual MongoDB ObjectId of the ToyUnit
         borrowerName: borrowerName.trim(),
         phone: phoneNumber.trim(),
+        _id : existinguser || null,
         email: email.trim(),
         relationship: relationship || "Other",
         issueDate: issueDate,
@@ -256,8 +330,8 @@ export default function IssueToyForm() {
       } else {
         setError(
           result.error ||
-            result.errors?.[0]?.msg ||
-            "Failed to issue toy. Please try again."
+          result.errors?.[0]?.msg ||
+          "Failed to issue toy. Please try again."
         );
         console.error("Submission failed:", result);
       }
@@ -362,85 +436,136 @@ export default function IssueToyForm() {
           >
             Borrower Details
           </h2>
-          <div className="space-y-5">
-            <div>
+          <>
+            {/* Borrower Selection Search */}
+            <div className="mb-4 relative w-1/2">
               <label
-                htmlFor="borrower-name"
+                htmlFor="borrower-search"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Borrower Name *
+                Select Existing Borrower (Optional)
               </label>
               <input
-                id="borrower-name"
+                id="borrower-search"
                 type="text"
-                placeholder="Enter borrower's full name"
-                value={borrowerName}
-                onChange={(e) => setBorrowerName(e.target.value)}
+                placeholder="Search borrower by name..."
+                value={borrowerSearch}
+                onChange={(e) => {
+                  setBorrowerSearch(e.target.value);
+                  setShowBorrowerResults(true);
+                }}
+                onFocus={() => borrowerSearch && setShowBorrowerResults(true)}
+                className="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 style={{ color: "#858D9D", backgroundColor: "#F9F9FC" }}
-                className="w-1/2 h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                required
               />
+
+              {/* Search Results Dropdown */}
+              {filteredBorrowers.length > 0 && (
+                <div className="absolute top-12 mt-8 left-0 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                  {filteredBorrowers.map((borr: any) => (
+                    <div
+                      key={borr._id}
+                      onClick={() => handleSelectBorrower(borr)}
+                      className="p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+                    >
+                      <div className="font-medium">{borr.name}</div>
+                      <div className="text-sm text-gray-500">{borr.email}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="grid grid-cols-2 gap-4">
+
+            {/* Selected Borrower Display */}
+            {selectedBorrower && (
+              <div className="mb-4 text-gray-700">
+                <span className="font-medium">Selected Borrower: </span>
+                {selectedBorrower.name} ({selectedBorrower.email})
+              </div>
+            )}
+
+            {/* Manual Input Fields */}
+            <div className="space-y-5">
               <div>
                 <label
-                  htmlFor="phone-number"
+                  htmlFor="borrower-name"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Phone Number *
+                  Borrower Name *
                 </label>
                 <input
-                  id="phone-number"
-                  type="tel"
-                  placeholder="Enter borrower's phone number"
-                  value={phoneNumber}
+                  id="borrower-name"
+                  type="text"
+                  placeholder="Enter borrower's full name"
+                  value={borrowerName}
+                  onChange={(e) => setBorrowerName(e.target.value)}
                   style={{ color: "#858D9D", backgroundColor: "#F9F9FC" }}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-1/2 h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   required
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="phone-number"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Phone Number *
+                  </label>
+                  <input
+                    id="phone-number"
+                    type="tel"
+                    placeholder="Enter borrower's phone number"
+                    value={phoneNumber}
+                    style={{ color: "#858D9D", backgroundColor: "#F9F9FC" }}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Email *
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="Enter borrower's email address"
+                    value={email}
+                    style={{ color: "#858D9D", backgroundColor: "#F9F9FC" }}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    required
+                  />
+                </div>
+              </div>
               <div>
                 <label
-                  htmlFor="email"
+                  htmlFor="relationship"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Email *
+                  Relationship to Child
                 </label>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="Enter borrower's email address"
-                  value={email}
+                <select
+                  id="relationship"
+                  value={relationship}
+                  onChange={(e) => setRelationship(e.target.value)}
                   style={{ color: "#858D9D", backgroundColor: "#F9F9FC" }}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  required
-                />
+                  className="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
+                >
+                  <option value="">Select relationship</option>
+                  <option value="Father">Father</option>
+                  <option value="Mother">Mother</option>
+                  <option value="Guardian">Guardian</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
-            <div>
-              <label
-                htmlFor="relationship"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Relationship to Child
-              </label>
-              <select
-                id="relationship"
-                value={relationship}
-                onChange={(e) => setRelationship(e.target.value)}
-                style={{ color: "#858D9D", backgroundColor: "#F9F9FC" }}
-                className="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
-              >
-                <option value="">Select relationship</option>
-                <option value="Father">Father</option>
-                <option value="Mother">Mother</option>
-                <option value="Guardian">Guardian</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-          </div>
+          </>
+
         </div>
 
         {/* Toy Details Section */}

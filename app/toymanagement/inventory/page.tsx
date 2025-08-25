@@ -44,25 +44,21 @@ export default function InventoryComponent() {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [apiBaseUrl, setApiBaseUrl] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Only runs on client
     setApiBaseUrl(`${process.env.NEXT_PUBLIC_API_URL}/api`);
   }, []);
 
-  // Fetch toys from API
   const fetchToys = async (search = "", page = 1) => {
     if (!apiBaseUrl) return;
-
     try {
       setLoading(true);
       const token = getAdminToken();
 
       let url = `${apiBaseUrl}/toys?page=${page}&limit=10`;
-      if (search.trim()) {
-        url += `&search=${encodeURIComponent(search)}`;
-      }
+      if (search.trim()) url += `&search=${encodeURIComponent(search)}`;
 
       const response = await fetch(url, {
         headers: {
@@ -71,9 +67,7 @@ export default function InventoryComponent() {
         },
       });
 
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
       const result: ApiResponse = await response.json();
       setToys(result.data);
@@ -86,7 +80,6 @@ export default function InventoryComponent() {
     }
   };
 
-  // Delete toy
   const deleteToy = async (toyId: string) => {
     if (!confirm("Are you sure you want to delete this toy?")) return;
     if (!apiBaseUrl) return;
@@ -107,7 +100,7 @@ export default function InventoryComponent() {
       }
 
       alert("Toy deleted successfully!");
-      fetchToys(searchTerm, currentPage); // Refresh the list
+      fetchToys(searchTerm, currentPage);
     } catch (error) {
       console.error("Error deleting toy:", error);
       alert(
@@ -118,10 +111,8 @@ export default function InventoryComponent() {
     }
   };
 
-  // Export toys data
   const exportToys = async () => {
     if (!apiBaseUrl) return;
-
     try {
       const token = getAdminToken();
       const response = await fetch(`${apiBaseUrl}/toys?export=true`, {
@@ -131,21 +122,12 @@ export default function InventoryComponent() {
         },
       });
 
-      if (!response.ok) {
-        throw new Error(`Export failed: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Export failed: ${response.status}`);
 
       const data = await response.json();
 
-      // Create CSV content
       const csvContent = [
-        [
-          "Name",
-          "Category",
-          "Total Units",
-          "Available Units",
-          "Description",
-        ].join(","),
+        ["Name", "Category", "Total Units", "Available Units", "Description"].join(","),
         ...data.data.map((toy: Toy) =>
           [
             `"${toy.name}"`,
@@ -157,14 +139,11 @@ export default function InventoryComponent() {
         ),
       ].join("\n");
 
-      // Download CSV
       const blob = new Blob([csvContent], { type: "text/csv" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `toys-inventory-${
-        new Date().toISOString().split("T")[0]
-      }.csv`;
+      a.download = `toys-inventory-${new Date().toISOString().split("T")[0]}.csv`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -173,24 +152,19 @@ export default function InventoryComponent() {
     }
   };
 
-  // Handle search
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
     fetchToys(value, 1);
   };
 
-  // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     fetchToys(searchTerm, page);
   };
 
-  // Load toys on component mount
   useEffect(() => {
-    if (apiBaseUrl) {
-      fetchToys();
-    }
+    if (apiBaseUrl) fetchToys();
   }, [apiBaseUrl]);
 
   const totalPages = Math.ceil(totalCount / 10);
@@ -232,6 +206,7 @@ export default function InventoryComponent() {
             </Link>
           </div>
         </div>
+
         <h1
           style={{ color: "#1E437A" }}
           className="text-2xl block font-semibold text-brandblue -mt-5 mb-5"
@@ -298,10 +273,13 @@ export default function InventoryComponent() {
                     <tr key={toy._id} className="hover:bg-gray-50">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center text-lg overflow-hidden">
+                          {/* IMAGE with modal trigger (INSIDE the map scope) */}
+                          <div
+                            className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center text-lg overflow-hidden cursor-pointer"
+                            onClick={() => toy.image && setSelectedImage(toy.image)}
+                          >
                             {toy.image &&
-                            toy.image !==
-                              "/placeholder.svg?height=200&width=200" ? (
+                            toy.image !== "/placeholder.svg?height=200&width=200" ? (
                               <img
                                 src={toy.image || "/placeholder.svg"}
                                 alt={toy.name}
@@ -311,6 +289,7 @@ export default function InventoryComponent() {
                               "🧸"
                             )}
                           </div>
+
                           <div>
                             <p className="text-sm font-medium text-brandblue">
                               {toy.name}
@@ -321,6 +300,7 @@ export default function InventoryComponent() {
                           </div>
                         </div>
                       </td>
+
                       <td className="py-4 px-6">
                         <span className="text-sm text-brandblue font-medium">
                           {toy.category}
@@ -338,16 +318,12 @@ export default function InventoryComponent() {
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
-                          <Link
-                            href={`/toymanagement/inventory/viewinventorytoy?id=${toy._id}`}
-                          >
+                          <Link href={`/toymanagement/inventory/viewinventorytoy?id=${toy._id}`}>
                             <button className="p-1.5 text-brandblue hover:text-brandblue hover:bg-blue-50 rounded">
                               <Eye className="w-4 h-4" />
                             </button>
                           </Link>
-                          <Link
-                            href={`/toymanagement/inventory/edittoy?id=${toy._id}`}
-                          >
+                          <Link href={`/toymanagement/inventory/edittoy?id=${toy._id}`}>
                             <button className="p-1.5 text-brandblue hover:text-green-600 hover:bg-green-50 rounded">
                               <Edit className="w-4 h-4" />
                             </button>
@@ -399,16 +375,12 @@ export default function InventoryComponent() {
                 );
               })}
 
-              {totalPages > 5 && (
-                <span className="text-brandblue px-2">...</span>
-              )}
+              {totalPages > 5 && <span className="text-brandblue px-2">...</span>}
 
               <button
                 className="p-2 text-brandblue hover:text-brandblue disabled:opacity-50"
                 disabled={currentPage === totalPages}
-                onClick={() =>
-                  handlePageChange(Math.min(totalPages, currentPage + 1))
-                }
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -416,6 +388,21 @@ export default function InventoryComponent() {
           </div>
         </div>
       </div>
+
+      {/* Modal for image preview */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+          onClick={() => setSelectedImage(null)}
+        >
+          <img
+            src={selectedImage}
+            alt="Preview"
+            className="max-w-[80%] max-h-[80%] rounded-lg shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
