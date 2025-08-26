@@ -457,31 +457,7 @@ export default function RecipeAdminPanel() {
                       alt={recipe.title}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-4 right-4">
-                      <span
-                        className={`px-3 py-1 text-sm font-bold rounded-full shadow-lg ${
-                          recipe.category === "Breakfast"
-                            ? "bg-amber-400 text-amber-900"
-                            : recipe.category === "Lunch"
-                            ? "bg-emerald-400 text-emerald-900"
-                            : recipe.category === "Dinner"
-                            ? "bg-indigo-400 text-indigo-900"
-                            : recipe.category === "Dessert"
-                            ? "bg-pink-400 text-pink-900"
-                            : "bg-purple-400 text-purple-900"
-                        }`}
-                      >
-                        {recipe.category}
-                      </span>
-                    </div>
-                    {recipe.isGlutenFree && (
-                      <div className="absolute top-4 left-4">
-                        <span className="flex items-center gap-1 px-3 py-1 text-sm font-bold rounded-full bg-orange-400 text-orange-900 shadow-lg">
-                          <Wheat className="w-3 h-3" />
-                          Gluten Free
-                        </span>
-                      </div>
-                    )}
+                    
                   </div>
                   <div className="p-6">
                     <h3 className="font-bold text-xl text-slate-900 mb-3 line-clamp-2">
