@@ -355,10 +355,10 @@ export default function RecipeAdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br font-sans mt-10 pl-32 mt-14 from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br font-sans mt-10 mt-14 ml-[300px] from-slate-50 to-slate-100">
       {/* Simple Header with Navigation */}
-      <div className="py-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="py-8 w-full">
+        <div className="w-full mx-auto px-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-4xl font-bold text-slate-900 mb-2">

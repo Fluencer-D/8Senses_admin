@@ -96,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
   return (
     <aside
-      className={`w-70 h-screen px-4 font-sans py-6 fixed bg-white flex flex-col transition-all duration-300 ${isOpen ? "left-0" : "-left-70"
+      className={`w-70 h-screen px-4 font-sans py-6 fixed bg-white flex flex-col transition-all duration-300 z-50 ${isOpen ? "left-0" : "-left-70"
         }`}
     >
       {/* Logo */}

@@ -27,8 +27,8 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
     <header
       className={`transition-all font-sans duration-300 fixed top-0 z-10 border-l-1 bg-white h-16 flex items-center justify-between px-6`}
       style={{
-        width: isOpen && getAdminToken() ? "86%" : "100%",
-        left: isOpen && getAdminToken() ? "16.1%" : "0", // ✅ keeps alignment correct
+        width: isOpen && getAdminToken() ? "88%" : "100%",
+        left: isOpen && getAdminToken() ? "11.1%" : "0", // ✅ keeps alignment correct
       }}
     >
       {/* Left: Menu Button */}
@@ -40,7 +40,7 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
       </button>
 
       {/* Center: Title */}
-      <h3 className="text-blue-600 text-xl font-bold">Admin Panel</h3>
+      <h3 className="text-blue-600 text-xl font-bold"></h3>
 
       {/* Right: Logout Button */}
       {

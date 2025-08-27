@@ -370,7 +370,7 @@ export default function WorkshopAdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br font-sans mt-10 pl-32 from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br font-sans mt-10 ml-[300px] from-slate-50 to-slate-100">
       {/* Header */}
       <div className="py-8">
         <div className="max-w-7xl mx-auto px-6">
