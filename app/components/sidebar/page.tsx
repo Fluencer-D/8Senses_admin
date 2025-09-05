@@ -49,6 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     staff: [
       { name: "Staff", path: "/staffmanagement" },
       { name: "Services", path: "/serviceManagement" },
+      { name: "Job Portal", path: "/jobportal" },
     ],
     subscription: [
       { name: "Members", path: "/subscription/members" },
