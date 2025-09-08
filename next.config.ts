@@ -2,8 +2,9 @@
 const nextConfig = {
   output: "standalone",
   basePath: "/admin",
-  assetPrefix: '/admin',
+  assetPrefix: "/admin",
   trailingSlash: true,
+  distDir: ".next_admin",   // ✅ unique build folder
   experimental: {
     serverActions: {}, // ✅ FIXED
   },
