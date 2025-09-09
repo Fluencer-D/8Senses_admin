@@ -91,7 +91,7 @@ export default function JobPortal() {
 
   const fetchJobs = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/jobs")
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs`)
       const data = await response.json()
       setJobs(data)
     } catch (error) {
@@ -119,7 +119,7 @@ export default function JobPortal() {
         },
       }
 
-      const url = editingJob ? `http://localhost:5000/api/jobs/${editingJob._id}` : "http://localhost:5000/api/jobs"
+      const url = editingJob ? `${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${editingJob._id}` : `${process.env.NEXT_PUBLIC_API_URL}/api/jobs`
       const method = editingJob ? "PUT" : "POST"
 
       const response = await fetch(url, {
@@ -167,7 +167,7 @@ export default function JobPortal() {
         formData.append("resume", applicationForm.resume)
       }
 
-      const response = await fetch("http://localhost:5000/api/applications", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/applications`, {
         method: "POST",
         body: formData,
       })
@@ -195,7 +195,7 @@ export default function JobPortal() {
 
   const deleteJob = async (jobId: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/jobs/${jobId}`, { method: "DELETE" })
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${jobId}`, { method: "DELETE" })
       if (response.ok) {
         toast({
           title: "Success",
