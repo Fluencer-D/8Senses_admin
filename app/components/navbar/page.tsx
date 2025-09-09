@@ -20,7 +20,8 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, setIsOpen }) => {
     localStorage.removeItem("adminDetails");
 
     // router.push("/admin");
-    window.location.replace("/admin")
+    window.location.href = `${router.basePath || "/admin"}`;
+
   };
 
   return (
