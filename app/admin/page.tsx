@@ -35,7 +35,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     localStorage.setItem("adminToken", token);
 
     // ✅ Correct navigation
-    router.push(`${router.basePath}/dashboard`);
+    router.push(`/dashboard`);
   } catch (err: any) {
     setError(err.message || "An error occurred during login");
   }
