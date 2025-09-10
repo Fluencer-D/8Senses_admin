@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       { name: "Inventory", path: "/ecommerce/inventory" },
       { name: "Orders", path: "/ecommerce/orders" },
       // { name: "Discounts", path: "/ecommerce/discounts" },
-      { name: "Transactions", path: "/ecommerce/transactions" },
+      // { name: "Transactions", path: "/ecommerce/transactions" },
       { name: "Shipping", path: "/ecommerce/shipping" },
     ],
     coursesWeb: [
