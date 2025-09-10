@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
       const { token } = await response.json();
       localStorage.setItem("adminToken", token);
 
-      window.location.href = "/admin/dashboard";
+      window.location.href = "/admin/admin/dashboard";
 
     } catch (err: any) {
       setError(err.message || "An error occurred during login");
