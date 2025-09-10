@@ -59,7 +59,7 @@ const ShippingDashboard = () => {
       const normalizedData: ShippingOrder[] = relevantOrders.map((order: any) => ({
         _id: order._id,
         orderId: order.orderNumber || order._id.substring(0, 8).toUpperCase(), // Use orderNumber or part of ID
-        customerName: `${order.user?.firstName || ""} ${order.user?.lastName || ""}`.trim() || "N/A", // Use order.user
+        customerName: `${order.customerInfo?.firstName || ""} ${order.customerInfo?.lastName || ""}`.trim() || "N/A",
         trackingId: order.trackingNumber || "N/A", // Use actual trackingNumber
         status: normalizeStatus(order.status),
         dateShipped: order.shippingDate || order.createdAt || "N/A", // Store original date string or fallback to createdAt
@@ -374,6 +374,7 @@ const ShippingDashboard = () => {
             {/* Table Content */}
             {currentItems.map((order, index) => {
               const statusClass = getStatusBadgeClass(order.status)
+              console.log(currentItems)
               return (
                 <div
                   key={order._id}

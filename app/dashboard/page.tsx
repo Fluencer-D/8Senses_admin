@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { Dialog } from "@headlessui/react"
 import { getAdminToken } from "@/utils/storage"
+import { useRouter } from "next/navigation"
 
 interface OrderItem {
   product: string
@@ -124,7 +125,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
   const [quote, setQuote] = useState("")
   const [sending, setSending] = useState(false)
   const [sendSuccess, setSendSuccess] = useState<string | null>(null)
-
+  const router = useRouter()
   //added here
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
@@ -321,6 +322,16 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
       setSendSuccess(null);
     }
   }, [modalOpen]);
+
+    useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+      
+    }
+  }, [router]);
+
 
   //Motivational Email
   const handleSendMotivation = async () => {

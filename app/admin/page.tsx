@@ -14,32 +14,32 @@ export default function AdminLoginPage() {
     setMounted(true);
   }, []);
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
       }
-    );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Login failed");
+      const { token } = await response.json();
+      localStorage.setItem("adminToken", token);
+
+      window.location.href = "/admin/dashboard";
+
+    } catch (err: any) {
+      setError(err.message || "An error occurred during login");
     }
-
-    const { token } = await response.json();
-    localStorage.setItem("adminToken", token);
-
-    // ✅ Correct navigation
-    router.push(`/dashboard`);
-  } catch (err: any) {
-    setError(err.message || "An error occurred during login");
-  }
-};
+  };
 
 
   if (!mounted) {
