@@ -19,7 +19,10 @@ const CoursesManagement = () => {
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-    const router = useRouter()
+  const router = useRouter();
+
+
+  
   useEffect(() => {
     const fetchCourses = async () => {
       try {

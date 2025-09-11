@@ -44,7 +44,6 @@ const CourseCreationPage: React.FC = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-    const router = useRouter()
   // State variables for form fields
   const [courseData, setCourseData] = useState<CourseData>({
     title: "",
