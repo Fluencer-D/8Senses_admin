@@ -96,6 +96,15 @@ export default function ProcessReturn() {
     loadAllBorrowings()
   }, [])
 
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
+
   const loadAllBorrowings = async () => {
     try {
       setInitialLoading(true)
@@ -465,9 +474,8 @@ export default function ProcessReturn() {
             <div className="flex items-center space-x-4">
               <div className={`flex items-center ${step === "search" ? "text-blue-600" : "text-green-600"}`}>
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step === "search" ? "bg-blue-100" : "bg-green-100"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === "search" ? "bg-blue-100" : "bg-green-100"
+                    }`}
                 >
                   {step === "search" ? "1" : <CheckCircle className="w-5 h-5" />}
                 </div>
@@ -475,14 +483,12 @@ export default function ProcessReturn() {
               </div>
               <div className={`w-8 h-0.5 ${step !== "search" ? "bg-green-200" : "bg-gray-200"}`}></div>
               <div
-                className={`flex items-center ${
-                  step === "select" ? "text-blue-600" : step === "confirm" ? "text-green-600" : "text-gray-400"
-                }`}
+                className={`flex items-center ${step === "select" ? "text-blue-600" : step === "confirm" ? "text-green-600" : "text-gray-400"
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step === "select" ? "bg-blue-100" : step === "confirm" ? "bg-green-100" : "bg-gray-100"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === "select" ? "bg-blue-100" : step === "confirm" ? "bg-green-100" : "bg-gray-100"
+                    }`}
                 >
                   {step === "confirm" ? <CheckCircle className="w-5 h-5" /> : "2"}
                 </div>
@@ -491,9 +497,8 @@ export default function ProcessReturn() {
               <div className={`w-8 h-0.5 ${step === "confirm" ? "bg-green-200" : "bg-gray-200"}`}></div>
               <div className={`flex items-center ${step === "confirm" ? "text-blue-600" : "text-gray-400"}`}>
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step === "confirm" ? "bg-blue-100" : "bg-gray-100"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === "confirm" ? "bg-blue-100" : "bg-gray-100"
+                    }`}
                 >
                   3
                 </div>

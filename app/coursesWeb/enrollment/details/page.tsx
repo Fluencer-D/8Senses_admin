@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+
 // Define user data type
 interface UserData {
   id: string;
@@ -32,7 +33,7 @@ const UserDetailsPage: React.FC<{ userId?: string }> = ({ userId = "12345" }) =>
         // }
         // const data: UserData = await response.json();
         // setUserData(data);
-        
+
         // Dummy data based on the image
         setUserData({
           id: "12345",
@@ -55,6 +56,16 @@ const UserDetailsPage: React.FC<{ userId?: string }> = ({ userId = "12345" }) =>
 
     fetchUserDetails();
   }, [userId]);
+
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      router.replace("/admin");
+
+    }
+  }, [router]);
+
 
   const handleEditEnrollment = () => {
     router.push(`/webinars/enrollment/edit/${userId}`);
@@ -98,7 +109,7 @@ const UserDetailsPage: React.FC<{ userId?: string }> = ({ userId = "12345" }) =>
       <div className="mb-6">
         <div className="flex justify-between items-center">
           <h1 className="text-[#333843] text-3xl">Webinars</h1>
-          <button 
+          <button
             onClick={handleIssueCertificate}
             className="flex items-center gap-2 bg-[#C83C921A] text-[#C83C92] px-4 py-2 rounded-lg font-medium"
           >
@@ -150,7 +161,7 @@ const UserDetailsPage: React.FC<{ userId?: string }> = ({ userId = "12345" }) =>
                   <p className="text-gray-600 mb-1">Email</p>
                   <p className="text-lg font-medium text-[#1E437A]">{userData.email}</p>
                 </div>
-                
+
                 <div>
                   <p className="text-gray-600 mb-1">Phone</p>
                   <p className="text-lg font-medium text-[#1E437A]">{userData.phone}</p>
@@ -163,22 +174,21 @@ const UserDetailsPage: React.FC<{ userId?: string }> = ({ userId = "12345" }) =>
               </div>
 
               <div className="flex items-center gap-4">
-                <span className={`px-3 py-1 rounded-full text-sm ${
-                  userData.status === "Active" ? "bg-[#E7F4EE] text-[#0D894F]" : "bg-[#FEEDEC] text-[#F04438]"
-                }`}>
+                <span className={`px-3 py-1 rounded-full text-sm ${userData.status === "Active" ? "bg-[#E7F4EE] text-[#0D894F]" : "bg-[#FEEDEC] text-[#F04438]"
+                  }`}>
                   {userData.status}
                 </span>
                 <span className="text-gray-600">Started: {userData.startDate}</span>
               </div>
 
               <div className="flex gap-4 mt-8">
-                <button 
+                <button
                   className="bg-[#C83C92] text-white px-5 py-3 rounded-lg"
                   onClick={handleEditEnrollment}
                 >
                   Edit Enrollment
                 </button>
-                <button 
+                <button
                   className="bg-[#F04438] text-white px-5 py-3 rounded-lg"
                   onClick={handleRemoveFromCourse}
                 >

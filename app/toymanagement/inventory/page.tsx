@@ -51,6 +51,16 @@ export default function InventoryComponent() {
     setApiBaseUrl(`${process.env.NEXT_PUBLIC_API_URL}/api`);
   }, []);
 
+
+      useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+      
+    }
+  }, [router]);
+
   const fetchToys = async (search = "", page = 1) => {
     if (!apiBaseUrl) return;
     try {

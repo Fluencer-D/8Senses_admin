@@ -86,6 +86,16 @@ const UpdateShippingStatus = () => {
     fetchOrderDetails();
   }, [orderId]);
 
+
+      useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+      
+    }
+  }, [router]);
+
   const handleSaveChanges = async () => {
     if (!orderDetails) return;
 

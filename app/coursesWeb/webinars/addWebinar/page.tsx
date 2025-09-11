@@ -102,6 +102,15 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
     }
   };
 
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -342,8 +351,8 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
                 ? "Uploading..."
                 : "Saving..."
               : isEditMode
-              ? "Update Webinar"
-              : "Save Webinar"}
+                ? "Update Webinar"
+                : "Save Webinar"}
           </button>
         </div>
       </div>
@@ -368,9 +377,8 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
                   placeholder="Type webinar title here..."
                   value={formData.title}
                   onChange={handleChange}
-                  className={`w-full border text-gray-700 ${
-                    errors.title ? "border-red-500" : "border-gray-300"
-                  } bg-[#F9F9FC] p-2 rounded-md`}
+                  className={`w-full border text-gray-700 ${errors.title ? "border-red-500" : "border-gray-300"
+                    } bg-[#F9F9FC] p-2 rounded-md`}
                 />
                 {errors.title && (
                   <p className="text-red-500 text-xs mt-1">{errors.title}</p>
@@ -387,9 +395,8 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
                   placeholder="Type speaker name here..."
                   value={formData.speaker}
                   onChange={handleChange}
-                  className={`w-full border text-gray-700 ${
-                    errors.speaker ? "border-red-500" : "border-gray-300"
-                  } bg-[#F9F9FC] p-2 rounded-md`}
+                  className={`w-full border text-gray-700 ${errors.speaker ? "border-red-500" : "border-gray-300"
+                    } bg-[#F9F9FC] p-2 rounded-md`}
                 />
                 {errors.speaker && (
                   <p className="text-red-500 text-xs mt-1">{errors.speaker}</p>
@@ -407,9 +414,8 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
                       name="date"
                       value={formData.date}
                       onChange={handleChange}
-                      className={`w-full border text-gray-700 ${
-                        errors.date ? "border-red-500" : "border-gray-300"
-                      } bg-[#F9F9FC] p-2 rounded-md pr-8`}
+                      className={`w-full border text-gray-700 ${errors.date ? "border-red-500" : "border-gray-300"
+                        } bg-[#F9F9FC] p-2 rounded-md pr-8`}
                     />
                     {errors.date && (
                       <p className="text-red-500 text-xs mt-1">{errors.date}</p>
@@ -427,9 +433,8 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
                       name="startTime"
                       value={formData.startTime}
                       onChange={handleChange}
-                      className={`w-full border text-gray-700 ${
-                        errors.startTime ? "border-red-500" : "border-gray-300"
-                      } bg-[#F9F9FC] p-2 rounded-md pr-8`}
+                      className={`w-full border text-gray-700 ${errors.startTime ? "border-red-500" : "border-gray-300"
+                        } bg-[#F9F9FC] p-2 rounded-md pr-8`}
                     />
                     {errors.startTime && (
                       <p className="text-red-500 text-xs mt-1">
@@ -449,9 +454,8 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
                     name="duration"
                     value={formData.duration}
                     onChange={handleChange}
-                    className={`w-full border text-gray-700 ${
-                      errors.duration ? "border-red-500" : "border-gray-300"
-                    } bg-[#F9F9FC] p-2 rounded-md`}
+                    className={`w-full border text-gray-700 ${errors.duration ? "border-red-500" : "border-gray-300"
+                      } bg-[#F9F9FC] p-2 rounded-md`}
                   >
                     <option value="">Select webinar duration</option>
                     <option value="30">30 minutes</option>
@@ -497,9 +501,8 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
                   placeholder="Type webinar description here..."
                   value={formData.description}
                   onChange={handleChange}
-                  className={`w-full border text-gray-700 ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  } bg-[#F9F9FC] p-2 rounded-md h-32`}
+                  className={`w-full border text-gray-700 ${errors.description ? "border-red-500" : "border-gray-300"
+                    } bg-[#F9F9FC] p-2 rounded-md h-32`}
                 />
                 {errors.description && (
                   <p className="text-red-500 text-xs mt-1">
@@ -523,9 +526,8 @@ const WebinarSchedulingPage: React.FC<WebinarSchedulingPageProps> = ({
                   placeholder="Enter webinar URL here..."
                   value={formData.url}
                   onChange={handleChange}
-                  className={`w-full border text-gray-700 ${
-                    errors.url ? "border-red-500" : "border-gray-300"
-                  } bg-[#F9F9FC] p-2 rounded-md`}
+                  className={`w-full border text-gray-700 ${errors.url ? "border-red-500" : "border-gray-300"
+                    } bg-[#F9F9FC] p-2 rounded-md`}
                 />
                 {errors.url && (
                   <p className="text-red-500 text-xs mt-1">{errors.url}</p>

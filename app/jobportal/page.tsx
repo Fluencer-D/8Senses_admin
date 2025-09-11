@@ -3,6 +3,9 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { Trash2, Plus, Briefcase, Edit } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { getAdminToken } from "@/utils/storage"
+
 
 interface Job {
   _id: string
@@ -52,6 +55,7 @@ export default function JobPortal() {
   const [showApplicationForm, setShowApplicationForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [toasts, setToasts] = useState<Toast[]>([])
+  const router = useRouter()
 
   // Job form state
   const [jobForm, setJobForm] = useState({
@@ -88,6 +92,17 @@ export default function JobPortal() {
   useEffect(() => {
     fetchJobs()
   }, [])
+
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
+
 
   const fetchJobs = async () => {
     try {
@@ -272,22 +287,20 @@ export default function JobPortal() {
           <div className="flex border-b border-gray-200 mb-6">
             <button
               onClick={() => setActiveTab("jobs")}
-              className={`flex items-center gap-2 px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === "jobs"
+              className={`flex items-center gap-2 px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === "jobs"
                   ? "border-blue-500 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
+                }`}
             >
               <Briefcase className="h-4 w-4" />
               Jobs ({jobs.length})
             </button>
             <button
               onClick={() => setActiveTab("admin")}
-              className={`flex items-center gap-2 px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === "admin"
+              className={`flex items-center gap-2 px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === "admin"
                   ? "border-blue-500 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
+                }`}
             >
               <Plus className="h-4 w-4" />
               Admin Panel
@@ -368,9 +381,8 @@ export default function JobPortal() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              job.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-                            }`}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${job.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                              }`}
                           >
                             {job.isActive ? "Active" : "Inactive"}
                           </span>
@@ -433,7 +445,7 @@ export default function JobPortal() {
                       Job Title
                     </label>
                     <input
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       id="title"
                       type="text"
                       value={jobForm.title}
@@ -447,7 +459,7 @@ export default function JobPortal() {
                       Department
                     </label>
                     <select
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       value={jobForm.department}
                       onChange={(e) => setJobForm({ ...jobForm, department: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -468,7 +480,7 @@ export default function JobPortal() {
                       Job Type
                     </label>
                     <select
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       value={jobForm.type}
                       onChange={(e) => setJobForm({ ...jobForm, type: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -485,7 +497,7 @@ export default function JobPortal() {
                       Location
                     </label>
                     <input
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       id="location"
                       type="text"
                       value={jobForm.location}
@@ -501,7 +513,7 @@ export default function JobPortal() {
                     Description
                   </label>
                   <textarea
-                    style={{color:"black"}}
+                    style={{ color: "black" }}
                     id="description"
                     value={jobForm.description}
                     onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
@@ -516,7 +528,7 @@ export default function JobPortal() {
                     Requirements (one per line)
                   </label>
                   <textarea
-                    style={{color:"black"}}
+                    style={{ color: "black" }}
                     id="requirements"
                     value={jobForm.requirements}
                     onChange={(e) => setJobForm({ ...jobForm, requirements: e.target.value })}
@@ -533,7 +545,7 @@ export default function JobPortal() {
                       Min Salary
                     </label>
                     <input
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       id="salaryMin"
                       type="number"
                       value={jobForm.salaryMin}
@@ -546,7 +558,7 @@ export default function JobPortal() {
                       Max Salary
                     </label>
                     <input
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       id="salaryMax"
                       type="number"
                       value={jobForm.salaryMax}
@@ -557,7 +569,7 @@ export default function JobPortal() {
                   <div className="flex items-end">
                     <label className="flex items-center space-x-2">
                       <input
-                        style={{color:"black"}}
+                        style={{ color: "black" }}
                         type="checkbox"
                         checked={jobForm.showSalary}
                         onChange={(e) => setJobForm({ ...jobForm, showSalary: e.target.checked })}
@@ -573,7 +585,7 @@ export default function JobPortal() {
                     Application Deadline
                   </label>
                   <input
-                    style={{color:"black"}}
+                    style={{ color: "black" }}
                     id="deadline"
                     type="date"
                     value={jobForm.applicationDeadline}
@@ -619,7 +631,7 @@ export default function JobPortal() {
                       First Name
                     </label>
                     <input
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       id="firstName"
                       type="text"
                       value={applicationForm.firstName}
@@ -633,7 +645,7 @@ export default function JobPortal() {
                       Last Name
                     </label>
                     <input
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       id="lastName"
                       type="text"
                       value={applicationForm.lastName}
@@ -649,7 +661,7 @@ export default function JobPortal() {
                     Email
                   </label>
                   <input
-                    style={{color:"black"}}
+                    style={{ color: "black" }}
                     id="email"
                     type="email"
                     value={applicationForm.email}
@@ -664,7 +676,7 @@ export default function JobPortal() {
                     Phone
                   </label>
                   <input
-                    style={{color:"black"}}
+                    style={{ color: "black" }}
                     id="phone"
                     type="tel"
                     value={applicationForm.phone}
@@ -679,7 +691,7 @@ export default function JobPortal() {
                     Resume (PDF)
                   </label>
                   <input
-                    style={{color:"black"}}
+                    style={{ color: "black" }}
                     id="resume"
                     type="file"
                     accept=".pdf,.doc,.docx"
@@ -714,11 +726,10 @@ export default function JobPortal() {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`p-4 rounded-md shadow-lg max-w-sm ${
-              toast.variant === "destructive"
+            className={`p-4 rounded-md shadow-lg max-w-sm ${toast.variant === "destructive"
                 ? "bg-red-50 border border-red-200 text-red-800"
                 : "bg-green-50 border border-green-200 text-green-800"
-            }`}
+              }`}
           >
             <div className="font-medium">{toast.title}</div>
             <div className="text-sm mt-1">{toast.description}</div>

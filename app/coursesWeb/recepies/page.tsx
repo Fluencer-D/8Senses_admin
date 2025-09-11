@@ -22,6 +22,9 @@ import {
   Upload,
 } from "lucide-react";
 import { getAdminToken } from "@/utils/storage";
+import { useRouter } from "next/navigation"
+
+
 
 interface Recipe {
   _id: string;
@@ -60,6 +63,7 @@ export default function RecipeAdminPanel() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const router = useRouter()
 
   // Form state
   const [formData, setFormData] = useState({
@@ -110,6 +114,16 @@ export default function RecipeAdminPanel() {
       throw error;
     }
   };
+
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
 
   // Handle image upload
   const handleImageUpload = async (
@@ -374,11 +388,10 @@ export default function RecipeAdminPanel() {
                   setCurrentView("list");
                   resetForm();
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                  currentView === "list"
-                    ? "bg-indigo-600 text-white shadow-lg transform scale-105"
-                    : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-indigo-300"
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${currentView === "list"
+                  ? "bg-indigo-600 text-white shadow-lg transform scale-105"
+                  : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-indigo-300"
+                  }`}
               >
                 <BookOpen className="w-4 h-4" />
                 All Recipes ({recipes.length})
@@ -388,11 +401,10 @@ export default function RecipeAdminPanel() {
                   setCurrentView("create");
                   resetForm();
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                  currentView === "create"
-                    ? "bg-emerald-600 text-white shadow-lg transform scale-105"
-                    : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-emerald-300"
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${currentView === "create"
+                  ? "bg-emerald-600 text-white shadow-lg transform scale-105"
+                  : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-emerald-300"
+                  }`}
               >
                 <Plus className="w-4 h-4" />
                 Add New Recipe
@@ -457,7 +469,7 @@ export default function RecipeAdminPanel() {
                       alt={recipe.title}
                       className="w-full h-full object-cover"
                     />
-                    
+
                   </div>
                   <div className="p-6">
                     <h3 className="font-bold text-xl text-slate-900 mb-3 line-clamp-2">
@@ -715,7 +727,7 @@ export default function RecipeAdminPanel() {
                       style={{ color: "black" }}
                       type="checkbox"
                       id="glutenFree"
-                     
+
                       className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-2 border-slate-300 rounded"
                     />
                     <label

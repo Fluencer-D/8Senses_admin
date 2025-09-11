@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getAdminToken } from "@/utils/storage";
-
+import { useRouter } from "next/navigation"
 interface DashboardStats {
   toysAvailable: number;
   toysBorrowed: number;
@@ -37,6 +37,7 @@ const ToyManagementPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [borrowedToys, setBorrowedToys] = useState<BorrowedToy[]>([]);
+  const router = useRouter()
   const [stats, setStats] = useState<DashboardStats>({
     toysAvailable: 0,
     toysBorrowed: 0,
@@ -74,6 +75,15 @@ const ToyManagementPage = () => {
     }
   };
 
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
   // Fetch borrowed toys for the table
   const fetchBorrowedToys = async (search = "") => {
     try {

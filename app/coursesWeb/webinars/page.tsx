@@ -4,6 +4,9 @@ import Link from "next/link"
 import { getAdminToken } from "@/utils/storage"
 import { Search, Filter, X, Calendar, Users, Eye, Edit, Trash2 } from "lucide-react" // Import new icons
 import { Dialog } from "@headlessui/react" // Import Dialog from headlessui
+import { useRouter } from "next/navigation"
+
+
 
 interface Webinar {
   _id: string
@@ -46,6 +49,8 @@ const WebinarsManagement = () => {
   const [isEditMode, setIsEditMode] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null)
+  const router = useRouter()
+
 
   useEffect(() => {
     const fetchWebinars = async () => {
@@ -109,7 +114,7 @@ const WebinarsManagement = () => {
       return "Upcoming" // Fallback for unknown statuses
     }
     fetchWebinars()
-  }, [])
+  }, []);
 
   // Get date range for filtering
   const getDateRange = (range: string) => {
@@ -241,7 +246,16 @@ const WebinarsManagement = () => {
   // For initial server render, show a minimal loading state
   useEffect(() => {
     setIsClient(true)
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
 
   // Handle opening view/edit modal
   const openWebinarModal = async (webinarId: string, editMode: boolean) => {
@@ -293,9 +307,9 @@ const WebinarsManagement = () => {
         tags: Array.isArray(selectedWebinar.tags)
           ? selectedWebinar.tags
           : selectedWebinar.tags
-              .split(",")
-              .map((tag) => tag.trim())
-              .filter(Boolean),
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
         status: selectedWebinar.status.toLowerCase(), // Convert back to lowercase for API
       }
 
@@ -317,10 +331,10 @@ const WebinarsManagement = () => {
         prev.map((webinar) =>
           webinar._id === selectedWebinar._id
             ? {
-                ...selectedWebinar,
-                displayDateTime: `${new Date(selectedWebinar.date).toLocaleDateString()} ${selectedWebinar.startTime}`,
-                status: capitalizeFirstLetter(selectedWebinar.status),
-              }
+              ...selectedWebinar,
+              displayDateTime: `${new Date(selectedWebinar.date).toLocaleDateString()} ${selectedWebinar.startTime}`,
+              status: capitalizeFirstLetter(selectedWebinar.status),
+            }
             : webinar,
         ),
       )
@@ -427,7 +441,7 @@ const WebinarsManagement = () => {
         <div className="flex items-center border border-gray-300 bg-white px-4 py-2 w-80 rounded-lg shadow-sm">
           <Search className="text-gray-400 w-5 h-5" />
           <input
-            style={{color:'black'}}
+            style={{ color: 'black' }}
             type="text"
             placeholder="Search webinar..."
             className="ml-2 w-full bg-transparent focus:outline-none text-[#858D9D] placeholder-gray-400"
@@ -438,11 +452,10 @@ const WebinarsManagement = () => {
         <div className="flex space-x-3">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 border-2 px-4 py-2.5 rounded-lg font-medium transition-colors ${
-              showFilters
-                ? "border-[#C83C92] bg-[#C83C92] text-white"
-                : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-            }`}
+            className={`flex items-center gap-2 border-2 px-4 py-2.5 rounded-lg font-medium transition-colors ${showFilters
+              ? "border-[#C83C92] bg-[#C83C92] text-white"
+              : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+              }`}
           >
             <Filter className="w-5 h-5" />
             Filters
@@ -464,7 +477,7 @@ const WebinarsManagement = () => {
                 Webinar Status
               </label>
               <select
-                style={{color:"black"}}
+                style={{ color: "black" }}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C83C92] focus:border-transparent text-gray-900 bg-white"
                 value={filters.status}
                 onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value }))}
@@ -487,7 +500,7 @@ const WebinarsManagement = () => {
                 Webinar Date
               </label>
               <select
-                style={{color:"black"}}
+                style={{ color: "black" }}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C83C92] focus:border-transparent text-gray-900 bg-white"
                 value={filters.dateRange}
                 onChange={(e) => setFilters((prev) => ({ ...prev, dateRange: e.target.value }))}
@@ -620,11 +633,10 @@ const WebinarsManagement = () => {
             <button
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`px-3 py-1 rounded-lg font-medium transition-colors ${
-                currentPage === 1
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`px-3 py-1 rounded-lg font-medium transition-colors ${currentPage === 1
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+                }`}
             >
               Previous
             </button>
@@ -633,11 +645,10 @@ const WebinarsManagement = () => {
               <button
                 key={index + 1}
                 onClick={() => goToPage(index + 1)}
-                className={`px-3 py-1 rounded-lg font-medium transition-colors ${
-                  currentPage === index + 1
-                    ? "bg-[#C83C92] text-white"
-                    : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`px-3 py-1 rounded-lg font-medium transition-colors ${currentPage === index + 1
+                  ? "bg-[#C83C92] text-white"
+                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                  }`}
               >
                 {index + 1}
               </button>
@@ -645,11 +656,10 @@ const WebinarsManagement = () => {
             <button
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded-lg font-medium transition-colors ${
-                currentPage === totalPages
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
+              className={`px-3 py-1 rounded-lg font-medium transition-colors ${currentPage === totalPages
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                }`}
             >
               Next
             </button>
@@ -687,7 +697,7 @@ const WebinarsManagement = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="text"
                       value={selectedWebinar.title}
                       onChange={(e) => setSelectedWebinar({ ...selectedWebinar, title: e.target.value })}
@@ -697,7 +707,7 @@ const WebinarsManagement = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Speaker</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="text"
                       value={selectedWebinar.speaker}
                       onChange={(e) => setSelectedWebinar({ ...selectedWebinar, speaker: e.target.value })}
@@ -707,7 +717,7 @@ const WebinarsManagement = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="date"
                       value={selectedWebinar.date}
                       onChange={(e) => setSelectedWebinar({ ...selectedWebinar, date: e.target.value })}
@@ -717,7 +727,7 @@ const WebinarsManagement = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="time"
                       value={selectedWebinar.startTime}
                       onChange={(e) => setSelectedWebinar({ ...selectedWebinar, startTime: e.target.value })}
@@ -727,7 +737,7 @@ const WebinarsManagement = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="number"
                       value={selectedWebinar.duration}
                       onChange={(e) => setSelectedWebinar({ ...selectedWebinar, duration: Number(e.target.value) })}
@@ -737,7 +747,7 @@ const WebinarsManagement = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Max Registrations</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="number"
                       value={selectedWebinar.maxRegistrations}
                       onChange={(e) =>
@@ -749,7 +759,7 @@ const WebinarsManagement = () => {
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       value={selectedWebinar.status}
                       onChange={(e) =>
                         setSelectedWebinar({ ...selectedWebinar, status: e.target.value as Webinar["status"] })
@@ -765,7 +775,7 @@ const WebinarsManagement = () => {
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="url"
                       value={selectedWebinar.url}
                       onChange={(e) => setSelectedWebinar({ ...selectedWebinar, url: e.target.value })}
@@ -775,7 +785,7 @@ const WebinarsManagement = () => {
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail URL</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="url"
                       value={selectedWebinar.thumbnail}
                       onChange={(e) => setSelectedWebinar({ ...selectedWebinar, thumbnail: e.target.value })}
@@ -785,7 +795,7 @@ const WebinarsManagement = () => {
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                     <textarea
-                      style={{color:"black"}}
+                      style={{ color: "black" }}
                       value={selectedWebinar.description}
                       onChange={(e) => setSelectedWebinar({ ...selectedWebinar, description: e.target.value })}
                       rows={4}
@@ -795,7 +805,7 @@ const WebinarsManagement = () => {
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="text"
                       value={selectedWebinar.tags.join(", ")}
                       onChange={(e) =>
@@ -813,7 +823,7 @@ const WebinarsManagement = () => {
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Participants Count</label>
                     <input
-                      style={{color:'black'}}
+                      style={{ color: 'black' }}
                       type="number"
                       value={selectedWebinar.participantsCount}
                       onChange={(e) =>

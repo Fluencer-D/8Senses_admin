@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getAdminToken } from "@/utils/storage";
-
+import { useRouter } from "next/navigation"
 interface Course {
   thumbnail: string;
   id: string;
@@ -19,7 +19,7 @@ const CoursesManagement = () => {
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+    const router = useRouter()
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -57,6 +57,16 @@ const CoursesManagement = () => {
 
     fetchCourses();
   }, []);
+
+
+      useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+      
+    }
+  }, [router]);
 
   useEffect(() => {
     const results = courses.filter(

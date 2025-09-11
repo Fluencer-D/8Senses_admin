@@ -44,7 +44,7 @@ export default function EditToyDetails() {
   const searchParams = useSearchParams()
   const toyId = searchParams.get("id")
 
-  const API_BASE_URL =  `${process.env.NEXT_PUBLIC_API_URL}/api`
+  const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`
 
   // Fetch toy details and units
   const fetchToyDetails = async () => {
@@ -93,6 +93,16 @@ export default function EditToyDetails() {
       setLoading(false)
     }
   }
+
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
 
   // Fetch borrowing information
   const fetchBorrowingInfo = async (borrowingId: string, unitId: string) => {
@@ -182,9 +192,9 @@ export default function EditToyDetails() {
         prev.map((unit) =>
           unit._id === unitId
             ? {
-                ...unit,
-                [field]: field === "isAvailable" ? value === "true" : value,
-              }
+              ...unit,
+              [field]: field === "isAvailable" ? value === "true" : value,
+            }
             : unit,
         ),
       )

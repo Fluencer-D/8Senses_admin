@@ -316,6 +316,15 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
   }, [currentPage])
 
   useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
+
+  useEffect(() => {
     if (modalOpen) {
       setSubject("");
       setQuote("");
@@ -323,12 +332,12 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
     }
   }, [modalOpen]);
 
-    useEffect(() => {
+  useEffect(() => {
     const token = getAdminToken();
     if (!token) {
       // ✅ If token is missing, redirect to login page
       router.replace("/admin");
-      
+
     }
   }, [router]);
 
@@ -353,7 +362,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ subject, content:quote }),
+        body: JSON.stringify({ subject, content: quote }),
       })
 
       const data = await res.json()
@@ -789,11 +798,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2 rounded-md font-semibold transition-all ${
-                      activeTab === tab
+                    className={`px-4 py-2 rounded-md font-semibold transition-all ${activeTab === tab
                         ? "bg-blue-600 text-white shadow-md"
                         : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {tab}
                   </button>
@@ -1139,11 +1147,11 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
                             <Package className="w-12 h-12 text-gray-400" />
                             <p className="text-gray-500 font-medium">
                               {filters.search ||
-                              filters.status ||
-                              filters.paymentMethod ||
-                              filters.minAmount ||
-                              filters.maxAmount ||
-                              activeTab !== "All Time"
+                                filters.status ||
+                                filters.paymentMethod ||
+                                filters.minAmount ||
+                                filters.maxAmount ||
+                                activeTab !== "All Time"
                                 ? "No orders match your current filters"
                                 : "No orders found"}
                             </p>
@@ -1153,10 +1161,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, setIsOpen }) => {
                               filters.minAmount ||
                               filters.maxAmount ||
                               activeTab !== "All Time") && (
-                              <button onClick={clearFilters} className="text-blue-600 hover:text-blue-800 font-medium">
-                                Clear all filters
-                              </button>
-                            )}
+                                <button onClick={clearFilters} className="text-blue-600 hover:text-blue-800 font-medium">
+                                  Clear all filters
+                                </button>
+                              )}
                           </div>
                         </td>
                       </tr>

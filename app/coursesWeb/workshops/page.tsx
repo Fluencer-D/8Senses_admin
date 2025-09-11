@@ -24,6 +24,8 @@ import {
   Eye,
 } from "lucide-react";
 import { getAdminToken } from "@/utils/storage";
+import { useRouter } from "next/navigation"
+
 
 interface Workshop {
   _id: string;
@@ -70,6 +72,7 @@ export default function WorkshopAdminPanel() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
+  const router = useRouter()
 
   // Form state
   const [formData, setFormData] = useState({
@@ -113,6 +116,16 @@ export default function WorkshopAdminPanel() {
       setLoading(false);
     }
   };
+
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
 
   // Create workshop
   const createWorkshop = async () => {
@@ -389,11 +402,10 @@ export default function WorkshopAdminPanel() {
                   setCurrentView("list");
                   resetForm();
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                  currentView === "list"
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${currentView === "list"
                     ? "bg-indigo-600 text-white shadow-lg transform scale-105"
                     : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-indigo-300"
-                }`}
+                  }`}
               >
                 <BookOpen className="w-4 h-4" />
                 All Workshops ({workshops.length})
@@ -403,11 +415,10 @@ export default function WorkshopAdminPanel() {
                   setCurrentView("create");
                   resetForm();
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                  currentView === "create"
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${currentView === "create"
                     ? "bg-emerald-600 text-white shadow-lg transform scale-105"
                     : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-emerald-300"
-                }`}
+                  }`}
               >
                 <Plus className="w-4 h-4" />
                 Add New Workshop

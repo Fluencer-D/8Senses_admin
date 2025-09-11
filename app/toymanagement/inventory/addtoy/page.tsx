@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Plus, Upload, X } from "lucide-react";
 import { getAdminToken } from "@/utils/storage";
 import { useRouter } from "next/navigation";
@@ -64,6 +64,16 @@ export default function AddNewToy({ onClose }: AddNewToyProps) {
 
     return Promise.all(uploadPromises);
   };
+
+
+      useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+      
+    }
+  }, [router]);
 
   // Create toy via API
   const createToy = async (toyData: any) => {

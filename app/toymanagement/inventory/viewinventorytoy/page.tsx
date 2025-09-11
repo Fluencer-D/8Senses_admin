@@ -129,6 +129,17 @@ export default function StackingRingsDetails() {
     }
   }
 
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
+
+  
   // Delete toy
   const deleteToy = async () => {
     if (!apiData?.toy || !confirm("Are you sure you want to delete this toy? This action cannot be undone.")) {
@@ -628,9 +639,8 @@ export default function StackingRingsDetails() {
                       <td className="py-4 px-4 text-sm font-medium">{unit.unitNumber}</td>
                       <td className="py-4 px-4">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            unit.isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                          }`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${unit.isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                            }`}
                         >
                           {unit.isAvailable ? "Available" : "Borrowed"}
                         </span>
@@ -793,9 +803,8 @@ export default function StackingRingsDetails() {
                 <div>
                   <label className="block text-sm font-medium text-gray-500 mb-1">Availability Status</label>
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      viewUnitModal.isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                    }`}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${viewUnitModal.isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      }`}
                   >
                     {viewUnitModal.isAvailable ? "Available" : "Currently Borrowed"}
                   </span>
@@ -916,9 +925,8 @@ export default function StackingRingsDetails() {
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Availability Status</label>
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    editUnitModal.isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                  }`}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${editUnitModal.isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    }`}
                 >
                   {editUnitModal.isAvailable ? "Available" : "Currently Borrowed"}
                 </span>

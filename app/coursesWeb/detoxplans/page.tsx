@@ -20,6 +20,8 @@ import {
   Apple,
 } from "lucide-react";
 import { getAdminToken } from "@/utils/storage";
+import { useRouter } from "next/navigation"
+
 
 interface Meal {
   day: string;
@@ -59,6 +61,8 @@ export default function DetoxAdminPanel() {
     meals: [{ day: "Day 1", mealPlan: "" }],
   });
 
+  const router = useRouter()
+
   // Fetch all detox plans
   const fetchDetoxPlans = async () => {
     try {
@@ -82,6 +86,15 @@ export default function DetoxAdminPanel() {
       setLoading(false);
     }
   };
+
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+    }
+  }, [router]);
 
   // Create detox plan
   const createDetoxPlan = async () => {
@@ -178,6 +191,8 @@ export default function DetoxAdminPanel() {
       alert("Error deleting detox plan");
     }
   };
+
+
 
   const resetForm = () => {
     setFormData({
@@ -280,11 +295,10 @@ export default function DetoxAdminPanel() {
                   setCurrentView("list");
                   resetForm();
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                  currentView === "list"
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${currentView === "list"
                     ? "bg-indigo-600 text-white shadow-lg transform scale-105"
                     : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-indigo-300"
-                }`}
+                  }`}
               >
                 <List className="w-4 h-4" />
                 All Plans ({detoxPlans.length})
@@ -294,11 +308,10 @@ export default function DetoxAdminPanel() {
                   setCurrentView("create");
                   resetForm();
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                  currentView === "create"
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${currentView === "create"
                     ? "bg-emerald-600 text-white shadow-lg transform scale-105"
                     : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-emerald-300"
-                }`}
+                  }`}
               >
                 <Plus className="w-4 h-4" />
                 Add New Plan
@@ -335,12 +348,12 @@ export default function DetoxAdminPanel() {
                     <p className="text-3xl font-bold text-emerald-600">
                       {detoxPlans.length > 0
                         ? detoxPlans.reduce((min, p) => {
-                            const minDays = Number.parseInt(min.split(" ")[0]);
-                            const pDays = Number.parseInt(
-                              p.duration.split(" ")[0]
-                            );
-                            return pDays < minDays ? p.duration : min;
-                          }, "999 days")
+                          const minDays = Number.parseInt(min.split(" ")[0]);
+                          const pDays = Number.parseInt(
+                            p.duration.split(" ")[0]
+                          );
+                          return pDays < minDays ? p.duration : min;
+                        }, "999 days")
                         : "N/A"}
                     </p>
                   </div>
@@ -356,12 +369,12 @@ export default function DetoxAdminPanel() {
                     <p className="text-3xl font-bold text-orange-600">
                       {detoxPlans.length > 0
                         ? detoxPlans.reduce((max, p) => {
-                            const maxDays = Number.parseInt(max.split(" ")[0]);
-                            const pDays = Number.parseInt(
-                              p.duration.split(" ")[0]
-                            );
-                            return pDays > maxDays ? p.duration : max;
-                          }, "0 days")
+                          const maxDays = Number.parseInt(max.split(" ")[0]);
+                          const pDays = Number.parseInt(
+                            p.duration.split(" ")[0]
+                          );
+                          return pDays > maxDays ? p.duration : max;
+                        }, "0 days")
                         : "N/A"}
                     </p>
                   </div>

@@ -99,6 +99,16 @@ function BorrowerProfileContent() {
     }
   }
 
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
+
   const getStatusStyling = (status: string): string => {
     switch (status) {
       case "Overdue":

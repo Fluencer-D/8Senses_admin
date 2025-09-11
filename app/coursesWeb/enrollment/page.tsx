@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getAdminToken } from "@/utils/storage";
-
+import { useRouter } from "next/navigation"
 interface Enrollment {
   _id: string;
   firstName: string;
@@ -17,7 +17,7 @@ const WebinarEnrollmentTable = () => {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const router = useRouter()
   useEffect(() => {
     const fetchEnrollments = async () => {
       try {
@@ -55,6 +55,15 @@ const WebinarEnrollmentTable = () => {
 
     fetchEnrollments();
   }, []);
+
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+    }
+  }, [router]);
 
   const filteredEnrollments = enrollments.filter(
     (e) =>

@@ -50,8 +50,8 @@ export default function IssueToyForm() {
   const [borrowerSearch, setBorrowerSearch] = useState("");
   const [showBorrowerResults, setShowBorrowerResults] = useState(false);
   const [filteredBorrowers, setFilteredBorrowers] = useState<any[]>([]);
-  const [selectedBorrower,setSelectedBorrower] = useState(null);
-  const [existinguser,setExistingUser] = useState(null);
+  const [selectedBorrower, setSelectedBorrower] = useState(null);
+  const [existinguser, setExistingUser] = useState(null);
   const router = useRouter();
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -67,6 +67,15 @@ export default function IssueToyForm() {
     setFilteredBorrowers(filtered);
   }, [borrowerSearch, borrowers]);
 
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -300,7 +309,7 @@ export default function IssueToyForm() {
         toyUnitId: selectedUnitId, // This is now the actual MongoDB ObjectId of the ToyUnit
         borrowerName: borrowerName.trim(),
         phone: phoneNumber.trim(),
-        _id : existinguser || null,
+        _id: existinguser || null,
         email: email.trim(),
         relationship: relationship || "Other",
         issueDate: issueDate,

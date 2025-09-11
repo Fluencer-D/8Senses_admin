@@ -3,6 +3,8 @@ import { getAdminToken } from "@/utils/storage"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Search, Filter, X, Calendar, Truck } from "lucide-react"
+import { useRouter } from "next/navigation"
+
 
 interface ShippingOrder {
   _id: string
@@ -26,7 +28,7 @@ const ShippingDashboard = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showFilters, setShowFilters] = useState(false)
-
+  const router = useRouter()
   // Filter states
   const [filters, setFilters] = useState<Filters>({
     status: "",
@@ -76,6 +78,15 @@ const ShippingDashboard = () => {
   useEffect(() => {
     fetchShippingOrders()
   }, [])
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
 
   // Normalize order status for display
   const normalizeStatus = (status: string): ShippingOrder["status"] => {
@@ -253,11 +264,10 @@ const ShippingDashboard = () => {
         <div className="flex gap-3">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 border-2 px-4 py-2.5 rounded-lg font-medium transition-colors ${
-              showFilters
+            className={`flex items-center gap-2 border-2 px-4 py-2.5 rounded-lg font-medium transition-colors ${showFilters
                 ? "border-[#C83C92] bg-[#C83C92] text-white"
                 : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-            }`}
+              }`}
           >
             <Filter className="w-5 h-5" />
             Filters
@@ -378,9 +388,8 @@ const ShippingDashboard = () => {
               return (
                 <div
                   key={order._id}
-                  className={`grid grid-cols-6 p-4 border-b border-gray-200 items-center hover:bg-gray-50 transition-colors ${
-                    index % 2 === 0 ? "bg-white" : "bg-gray-25"
-                  }`}
+                  className={`grid grid-cols-6 p-4 border-b border-gray-200 items-center hover:bg-gray-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-25"
+                    }`}
                 >
                   <div className="col-span-1 text-[#1E437A] font-medium">#{order.orderId}</div>
                   <div className="col-span-1 text-[#1E437A]">{order.customerName}</div>
@@ -453,11 +462,10 @@ const ShippingDashboard = () => {
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
-                className={`w-10 h-10 flex items-center justify-center rounded-lg font-medium transition-colors ${
-                  currentPage === page
+                className={`w-10 h-10 flex items-center justify-center rounded-lg font-medium transition-colors ${currentPage === page
                     ? "bg-[#C83C92] text-white"
                     : "bg-[rgba(200,60,146,0.1)] text-[#C83C92] border border-gray-300 hover:bg-gray-100"
-                }`}
+                  }`}
                 onClick={() => goToPage(page)}
               >
                 {page}

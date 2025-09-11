@@ -3,7 +3,7 @@
 import { getAdminToken } from "@/utils/storage"
 import type React from "react"
 import { useState, useEffect } from "react"
-
+import { useRouter } from "next/navigation"
 // Types
 interface Service {
   _id: string
@@ -41,6 +41,7 @@ export default function ServicesAdminPanel() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null)
+  const router = useRouter()
   const [editingService, setEditingService] = useState<Service | null>(null)
   const [formData, setFormData] = useState<ServiceFormData>({
     name: "",
@@ -79,8 +80,8 @@ export default function ServicesAdminPanel() {
         url += `?${params.toString()}`
       }
 
-      const response = await fetch(url,{
-        method:"GET",
+      const response = await fetch(url, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           // Add authorization header if needed
@@ -100,6 +101,15 @@ export default function ServicesAdminPanel() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
 
   useEffect(() => {
     fetchServices()
@@ -265,9 +275,8 @@ export default function ServicesAdminPanel() {
       {/* Notification */}
       {notification && (
         <div
-          className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
-            notification.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
-          }`}
+          className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${notification.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
+            }`}
         >
           {notification.message}
         </div>
@@ -299,7 +308,7 @@ export default function ServicesAdminPanel() {
                   />
                 </svg>
                 <input
-                  style={{color:"black"}}
+                  style={{ color: "black" }}
                   type="text"
                   placeholder="Search services..."
                   value={searchTerm}
@@ -309,7 +318,7 @@ export default function ServicesAdminPanel() {
               </div>
             </div>
             <select
-              style={{color:"black"}}
+              style={{ color: "black" }}
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -322,7 +331,7 @@ export default function ServicesAdminPanel() {
               ))}
             </select>
             <select
-              style={{color:"black"}}
+              style={{ color: "black" }}
               value={activeFilter}
               onChange={(e) => setActiveFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -385,9 +394,8 @@ export default function ServicesAdminPanel() {
                         <td className="py-4 px-4 text-gray-900">${service.price}</td>
                         <td className="py-4 px-4">
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              service.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-                            }`}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${service.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                              }`}
                           >
                             {service.isActive ? "Active" : "Inactive"}
                           </span>
@@ -452,7 +460,7 @@ export default function ServicesAdminPanel() {
                   Service Name *
                 </label>
                 <input
-                  style={{color:"black"}}
+                  style={{ color: "black" }}
                   type="text"
                   id="name"
                   value={formData.name}
@@ -494,7 +502,7 @@ export default function ServicesAdminPanel() {
                   Category *
                 </label>
                 <select
-                  style={{color:"black"}}
+                  style={{ color: "black" }}
                   id="category"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -516,7 +524,7 @@ export default function ServicesAdminPanel() {
                     Duration (minutes) *
                   </label>
                   <input
-                  style={{color:"black"}}
+                    style={{ color: "black" }}
                     type="number"
                     id="duration"
                     min="1"
@@ -533,7 +541,7 @@ export default function ServicesAdminPanel() {
                     Price ($) *
                   </label>
                   <input
-                  style={{color:"black"}}
+                    style={{ color: "black" }}
                     type="number"
                     id="price"
                     min="0"
@@ -549,7 +557,7 @@ export default function ServicesAdminPanel() {
 
               <div className="flex items-center">
                 <input
-                  style={{color:"black"}}
+                  style={{ color: "black" }}
                   type="checkbox"
                   id="isActive"
                   checked={formData.isActive}

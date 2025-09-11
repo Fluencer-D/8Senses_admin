@@ -74,6 +74,16 @@ function CategoryDetailsContent() {
     fetchData()
   }, [categoryId])
 
+
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
   const handleCancel = () => {
     router.push("/ecommerce/categories")
   }

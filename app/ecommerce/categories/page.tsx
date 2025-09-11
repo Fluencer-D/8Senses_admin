@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getAdminToken } from "@/utils/storage";
+import { useRouter } from "next/navigation"
+
 
 interface Category {
   _id: string;
@@ -16,6 +18,8 @@ const Categories = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
 
   // Fetch categories from backend
   useEffect(() => {
@@ -56,6 +60,15 @@ const Categories = () => {
 
     fetchCategories();
   }, []);
+
+      useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+      
+    }
+  }, [router]);
 
   const filteredCategories = categories.filter((cat) =>
     cat.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -386,11 +399,10 @@ const Categories = () => {
             {Array.from({ length: totalPages }, (_, i) => (
               <button
                 key={i + 1}
-                className={`px-3 py-1 rounded-lg ${
-                  currentPage === i + 1
+                className={`px-3 py-1 rounded-lg ${currentPage === i + 1
                     ? "bg-[#C83C92] text-white"
                     : "bg-[rgba(200,60,146,0.1)] text-[#C83C92]"
-                }`}
+                  }`}
                 onClick={() => handlePageChange(i + 1)}
               >
                 {i + 1}

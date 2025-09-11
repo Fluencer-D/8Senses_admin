@@ -20,6 +20,9 @@ import {
   Hourglass,
   XCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation"
+import { getAdminToken } from "@/utils/storage";
+
 
 interface Meeting {
   _id: string;
@@ -48,6 +51,7 @@ export default function MeetingAdminPanel() {
   const [selectedPlanFilter, setSelectedPlanFilter] = useState("");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter()
 
   // Form state
   const [formData, setFormData] = useState({
@@ -68,6 +72,16 @@ export default function MeetingAdminPanel() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
 
   // Fetch all meetings
   const fetchMeetings = async () => {
@@ -321,11 +335,10 @@ export default function MeetingAdminPanel() {
                   setCurrentView("list");
                   resetForm();
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                  currentView === "list"
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${currentView === "list"
                     ? "bg-indigo-600 text-white shadow-lg transform scale-105"
                     : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-indigo-300"
-                }`}
+                  }`}
               >
                 <Calendar className="w-4 h-4" />
                 All Meetings ({meetings.length})
@@ -335,11 +348,10 @@ export default function MeetingAdminPanel() {
                   setCurrentView("create");
                   resetForm();
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                  currentView === "create"
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${currentView === "create"
                     ? "bg-emerald-600 text-white shadow-lg transform scale-105"
                     : "bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-emerald-300"
-                }`}
+                  }`}
               >
                 <Plus className="w-4 h-4" />
                 Add New Meeting

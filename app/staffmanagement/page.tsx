@@ -4,7 +4,7 @@ import { getAdminToken } from "@/utils/storage"
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Upload, X, ImageIcon, Loader2 } from "lucide-react"
-
+import { useRouter } from "next/navigation"
 interface User {
   _id: string
   firstName: string
@@ -57,6 +57,9 @@ const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onUploadSuccess, cu
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string>(currentImage || "")
   const fileInputRef = useRef<HTMLInputElement>(null)
+    const router = useRouter()
+
+
 
   useEffect(() => {
     setPreview(currentImage || "")
@@ -92,6 +95,16 @@ const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onUploadSuccess, cu
       setUploading(false)
     }
   }
+
+
+      useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+      
+    }
+  }, [router]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]

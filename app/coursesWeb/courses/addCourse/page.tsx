@@ -1,8 +1,8 @@
 "use client"
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAdminToken } from '@/utils/storage';
-
+import { useRouter } from "next/navigation"
 // Define types to match the MongoDB schema
 interface VideoData {
   title: string;
@@ -44,7 +44,7 @@ const CourseCreationPage: React.FC = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+    const router = useRouter()
   // State variables for form fields
   const [courseData, setCourseData] = useState<CourseData>({
     title: "",
@@ -105,6 +105,15 @@ const CourseCreationPage: React.FC = () => {
       [name]: checked
     });
   };
+
+    useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+      
+    }
+  }, [router]);
 
   // Handle thumbnail upload
   const handleThumbnailChange = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {

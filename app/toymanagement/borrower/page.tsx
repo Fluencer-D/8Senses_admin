@@ -34,7 +34,7 @@ const ToyManagementPage = () => {
   const [borrowers, setBorrowers] = useState<Borrower[]>([])
   const [error, setError] = useState("")
 
-  const API_BASE_URL =  `${process.env.NEXT_PUBLIC_API_URL}/api`
+  const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`
   const router = useRouter()
 
   // Fetch borrowers data
@@ -71,6 +71,15 @@ const ToyManagementPage = () => {
     }
   }
 
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
   // Send reminder to borrower
   const sendReminder = async (borrowerEmail: string, borrowerName: string) => {
     try {
