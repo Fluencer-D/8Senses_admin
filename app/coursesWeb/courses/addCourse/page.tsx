@@ -2,7 +2,6 @@
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAdminToken } from '@/utils/storage';
-import { useRouter } from "next/navigation"
 // Define types to match the MongoDB schema
 interface VideoData {
   title: string;
