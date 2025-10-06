@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Trash2, Plus, Briefcase, Edit } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { getAdminToken } from "@/utils/storage"
@@ -89,22 +90,7 @@ export default function JobPortal() {
     }, 5000)
   }
 
-  useEffect(() => {
-    fetchJobs()
-  }, [])
-
-
-  useEffect(() => {
-    const token = getAdminToken();
-    if (!token) {
-      // ✅ If token is missing, redirect to login page
-      router.replace("/admin");
-
-    }
-  }, [router]);
-
-
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs`)
       const data = await response.json()
@@ -116,7 +102,20 @@ export default function JobPortal() {
         variant: "destructive",
       })
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchJobs()
+  }, [fetchJobs])
+
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) {
+      // ✅ If token is missing, redirect to login page
+      router.replace("/admin");
+
+    }
+  }, [router]);
 
   const handleJobSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -456,7 +455,7 @@ export default function JobPortal() {
                   </div>
                   <div>
                     <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
-                      Department
+                      Department (Optional)
                     </label>
                     <select
                       style={{ color: "black" }}
@@ -464,12 +463,12 @@ export default function JobPortal() {
                       onChange={(e) => setJobForm({ ...jobForm, department: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">Select department</option>
-                      <option value="Engineering">Engineering</option>
-                      <option value="Marketing">Marketing</option>
-                      <option value="Sales">Sales</option>
-                      <option value="HR">HR</option>
-                      <option value="Finance">Finance</option>
+                      <option value="">Select department (optional)</option>
+                      <option value="Therapy">Therapy</option>
+                      <option value="Administration">Administration</option>
+                      <option value="Management">Management</option>
+                      <option value="Education">Education</option>
+                      <option value="Other">Other</option>
                     </select>
                   </div>
                 </div>
